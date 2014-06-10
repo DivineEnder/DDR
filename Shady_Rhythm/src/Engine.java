@@ -7,6 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
 
 public class Engine
 {
@@ -51,60 +52,13 @@ public class Engine
 		
 		for (int j = 0; j < specialInput.size(); j++)
 		{
-			if (specialInput.get(j).equals("1"))
+			rc.keyPressed(specialInput.get(j));
+			for (int i = 0; i < circles.size(); i++)
 			{
-				rc.keyPressed('a');
-				for (int i = 0; i < circles.size(); i++)
-				{
-					if (circles.get(i).checkVisible())
-						circles.get(i).keyPressed('a');
-					else if (circles.get(i).checkTermination() == 1)
-						circles.remove(i);
-				}
-			}
-			else if (specialInput.get(j).equals("2"))
-			{
-				rc.keyPressed('f');
-				for (int i = 0; i < circles.size(); i++)
-				{
-					if (circles.get(i).checkVisible())
-						circles.get(i).keyPressed('f');
-					else if (circles.get(i).checkTermination() == 1)
-						circles.remove(i);
-				}
-			}
-			else if (specialInput.get(j).equals("3"))
-			{
-				rc.keyPressed('r');
-				for (int i = 0; i < circles.size(); i++)
-				{
-					if (circles.get(i).checkVisible())
-						circles.get(i).keyPressed('r');
-					else if (circles.get(i).checkTermination() == 1)
-						circles.remove(i);
-				}
-			}
-			else if (specialInput.get(j).equals("4"))
-			{
-				rc.keyPressed('d');
-				for (int i = 0; i < circles.size(); i++)
-				{
-					if (circles.get(i).checkVisible())
-						circles.get(i).keyPressed('d');
-					else if (circles.get(i).checkTermination() == 1)
-						circles.remove(i);
-				}
-			}
-			else if (specialInput.get(j).equals("5"))
-			{
-				rc.keyPressed('g');
-				for (int i = 0; i < circles.size(); i++)
-				{
-					if (circles.get(i).checkVisible())
-						circles.get(i).keyPressed('g');
-					else if (circles.get(i).checkTermination() == 1)
-						circles.remove(i);
-				}
+				if (circles.get(i).checkVisible())
+					circles.get(i).keyPressed(specialInput.get(j));
+				else if (circles.get(i).checkTermination() == 1)
+					circles.remove(i);
 			}
 		}
 	}
@@ -119,5 +73,12 @@ public class Engine
 		
 		for (int i = 0; i < circles.size(); i++)
 			circles.get(i).drawCircle(g, selector);
+		
+		//g.draw(new Rectangle(gc.getScreenWidth() - 200, 10, 50, 190));
+		//g.setColor(Color.red);
+		//g.draw(new Rectangle(gc.getScreenWidth() - 200, 200, 50, 190));
+		//g.setColor(Color.black);
+		//g.fill(new Rectangle(gc.getScreenWidth() - 198, 198, 46, 4));
+		
 	}
 }

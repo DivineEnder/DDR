@@ -220,56 +220,37 @@ public class MenuState extends BasicGameState
 		float height = screenHeight * 3/25;
 		float width = screenWidth * 3/5;
 		
-		Color white = new Color(255, 255, 255, 64);
-		Color green = new Color(23, 110, 24, 64);
-		Color blue = new Color(0, 10, 255, 64);
-		Color red = new Color(255, 0, 18, 64);
-		Color yellow = new Color(255, 239, 0, 64);
-
-		g.setColor(white);
-		g.fillRect(rectx, screenHeight*2/5, width, height);
-		g.setColor(green);
-		g.fillRect(rectx, screenHeight*2/5 + height, width, height);
-		g.setColor(blue);
-		g.fillRect(rectx, screenHeight*2/5 + 2 * height, width, height);
-		g.setColor(red);
-		g.fillRect(rectx, screenHeight*2/5 + 3 * height, width/2, height);
-		g.setColor(yellow);
-		g.fillRect(rectx + width/2, screenHeight*2/5 + 3 * height, width/2 , height);
+		Color[] rectColors = new Color[5];
+		rectColors[0] = new Color(255, 255, 255, 64);
+		rectColors[1] = new Color(23, 110, 24, 64);
+		rectColors[2] = new Color(0, 10, 255, 64);
+		rectColors[3] = new Color(255, 0, 18, 64);
+		rectColors[4] = new Color(255, 239, 0, 64);
 		
-		Color whiteMod = new Color(255, 255, 255, 128);
-		Color greenMod = new Color(23, 110, 24, 200);
-		Color blueMod = new Color(0, 10, 255, 128);
-		Color redMod = new Color(255, 0, 18, 128);
-		Color yellowMod = new Color(255, 239, 0, 128);
+		Color[] rectModColors = new Color[5];
+		rectModColors[0] = new Color(255, 255, 255, 128);
+		rectModColors[1] = new Color(23, 110, 24, 200);
+		rectModColors[2] = new Color(0, 10, 255, 128);
+		rectModColors[3] = new Color(255, 0, 18, 128);
+		rectModColors[4] = new Color(255, 239, 0, 128);
 		
-		if (selector == 0)
+		for (int i = 0; i < 3; i++)
 		{
-			g.setColor(whiteMod);
-			g.fillRect(rectx, screenHeight*2/5, width, height);
-		}
-		else if (selector == 1)
-		{
-			g.setColor(greenMod);
-			g.fillRect(rectx, screenHeight*2/5 + height, width, height);
-		}
-		else if (selector == 2)
-		{
-			g.setColor(blueMod);
-			g.fillRect(rectx, screenHeight*2/5 + 2* height, width, height);
-		}
-		else if (selector == 3)
-		{
-			g.setColor(redMod);
-			g.fillRect(rectx, screenHeight*2/5 + 3 * height, width/2, height);
-		}
-		else if (selector == 4)
-		{
-			g.setColor(yellowMod);
-			g.fillRect(rectx + width/2, screenHeight*2/5 + 3 * height, width/2 , height);
+			if (selector == i)
+				g.setColor(rectModColors[i]);
+			else
+				g.setColor(rectColors[i]);
+			g.fillRect(rectx, screenHeight*2/5 + (height * i), width, height);
 		}
 		
-			
+		for (int i = 0; i < 2; i++)
+		{
+			if (selector == i + 3)
+				g.setColor(rectModColors[i + 3]);
+			else
+				g.setColor(rectColors[i + 3]);
+			g.fillRect(rectx + (width/2 * i), screenHeight*2/5 + (3 * height), width/2, height);
+		}
 	}
 	
 	public int getID(){

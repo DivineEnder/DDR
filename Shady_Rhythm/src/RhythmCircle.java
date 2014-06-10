@@ -68,19 +68,19 @@ public class RhythmCircle
 			radius += .1;
 	}
 	
-	public void keyPressed(char key)
+	public void keyPressed(String circle)
 	{
-		if (angle >= (360 - startAngle))
+		if (angle >= (360 - startAngle) && layer == Integer.parseInt(circle))
 		{
-			if (key == 'a' && layer == 1)
+			if (circle.equals("1"))
 				color = Color.white;
-			else if (key == 'f' && layer == 2)
+			else if (circle.equals("2"))
 				color = Color.green;
-			else if (key == 'r' && layer == 3)
+			else if (circle.equals("3"))
 				color = Color.blue;
-			else if (key == 'd' && layer == 4)
+			else if (circle.equals("4"))
 				color = Color.red;
-			else if (key == 'g' && layer == 5)
+			else if (circle.equals("5"))
 				color = Color.yellow;
 		}
 	}
@@ -88,14 +88,11 @@ public class RhythmCircle
 	public void move()
 	{
 		angle += .75;
-		if (angle >= 360)
-			angle -= 360;
-		rotations++;
 		
 		x = screenWidth/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.cos(angle * (Math.PI/180)));
 		y = screenHeight/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.sin(angle * (Math.PI/180)));
 		
-		if (angle + .1 >= startAngle && angle - .1 <= startAngle)
+		if (angle + .1 >= startAngle + 360 && angle - .1 <= startAngle + 360)
 		{
 			toggleVisible();
 		}
