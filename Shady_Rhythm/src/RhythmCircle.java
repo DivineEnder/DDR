@@ -56,9 +56,12 @@ public class RhythmCircle
 		termination = -1;
 	}
 	
-	public int checkTermination()
+	public boolean checkTermination()
 	{
-		return termination;
+		if (termination == 1)
+			return true;
+		
+		return false;
 	}
 	
 	public void toggleVisible()
@@ -75,21 +78,24 @@ public class RhythmCircle
 			return visible;
 	}
 	
+	public boolean checkHit()
+	{
+		if (color == Color.cyan)
+			return true;
+		
+		return false;
+	}
+	
 	private void smoothAppear()
 	{
 		if (radius <= circle_radius)
 			radius += .1;
 	}
 	
-	public int keyPressed(String circle, int points)
+	public void keyPressed(String circle)
 	{
 		if (angle >= (360 - startAngle) && layer == Integer.parseInt(circle) && termination != 1)
-		{
 			color = Color.cyan;
-			points++;
-		}
-		
-		return points;
 	}
 	
 	public void move()

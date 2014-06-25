@@ -65,12 +65,14 @@ public class OptionsState extends BasicGameState
 		Input input = gc.getInput();
 		
 		int rectPosX = gc.getScreenWidth()/6;
-		int rectPosY = gc.getScreenHeight()/10 * 3;
+		int rectPosY = gc.getScreenHeight()/10;
+		
+		System.out.println("(" + rectPosX + "," + rectPosY + ")");
 		
 		int xpos = Mouse.getX();
-		int ypos = Mouse.getY();
+		int ypos = gc.getScreenHeight() - Mouse.getY();
 		
-		if (xpos > rectPosX * 1 && xpos < rectPosX + 100 && ypos > rectPosY && ypos < ypos + 100)
+		if (xpos > rectPosX * 1 - 50 && xpos < rectPosX * 1 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
 		{
 			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
 			{
@@ -79,7 +81,7 @@ public class OptionsState extends BasicGameState
 			}
 		}
 		
-		else if (xpos > rectPosX * 2 && xpos < rectPosX * 2 + 100 && ypos > rectPosY && ypos < ypos + 100)
+		else if (xpos > rectPosX * 2  - 50 && xpos < rectPosX * 2 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
 		{
 			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
 			{
@@ -88,7 +90,7 @@ public class OptionsState extends BasicGameState
 			}
 		}
 		
-		if (xpos > rectPosX * 3 && xpos < rectPosX * 3 + 100 && ypos > rectPosY && ypos < ypos + 100)
+		if (xpos > rectPosX * 3  - 50 && xpos < rectPosX * 3 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
 		{
 			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
 			{
@@ -97,7 +99,7 @@ public class OptionsState extends BasicGameState
 			}
 		}
 		
-		if (xpos > rectPosX * 4 && xpos < rectPosX * 4 + 100 && ypos > rectPosY && ypos < ypos + 100)
+		if (xpos > rectPosX * 4  - 50 && xpos < rectPosX * 4 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
 		{
 			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
 			{
@@ -106,7 +108,7 @@ public class OptionsState extends BasicGameState
 			}
 		}
 		
-		if (xpos > rectPosX * 5 && xpos < rectPosX * 5 + 100 && ypos > rectPosY && ypos < ypos + 100)
+		if (xpos > rectPosX * 5  - 50 && xpos < rectPosX * 5 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
 		{
 			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
 			{
@@ -131,24 +133,26 @@ public class OptionsState extends BasicGameState
 		g.setAntiAlias(true);
 		
 		keyString = controls.getKeyString();
+		for (int i = 0; i < 5; i++)
+		{
+			g.setColor(keyColor[i]);
+			g.fill(new Rectangle((gc.getScreenWidth()/6 * (i + 1)) - 50, gc.getScreenHeight()/10, 100, 100));
+			g.drawString(keyString[i], gc.getScreenWidth()/6 * (i + 1) - 50, gc.getScreenHeight()/10 + 110);
+			/*g.setColor(keyColor[1]);
+			g.fill(new Rectangle(gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3, 100, 100));
+			g.drawString(keyString[1], gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3 + 110);
+			g.setColor(keyColor[2]);
+			g.fill(new Rectangle(gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3, 100, 100));
+			g.drawString(keyString[2], gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3 + 110);
+			g.setColor(keyColor[3]);
+			g.fill(new Rectangle(gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3, 100, 100));
+			g.drawString(keyString[3], gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3 + 110);
+			g.setColor(keyColor[4]);
+			g.fill(new Rectangle(gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3, 100, 100));
+			g.drawString(keyString[4], gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3 + 110);*/
+		}
 		
-		g.setColor(keyColor[0]);
-		g.fill(new Rectangle(gc.getScreenWidth()/6 * 1, gc.getScreenHeight()/10 * 3, 100, 100));
-		g.drawString(keyString[0], gc.getScreenWidth()/6 * 1, gc.getScreenHeight()/10 * 3 + 110);
-		g.setColor(keyColor[1]);
-		g.fill(new Rectangle(gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3, 100, 100));
-		g.drawString(keyString[1], gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3 + 110);
-		g.setColor(keyColor[2]);
-		g.fill(new Rectangle(gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3, 100, 100));
-		g.drawString(keyString[2], gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3 + 110);
-		g.setColor(keyColor[3]);
-		g.fill(new Rectangle(gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3, 100, 100));
-		g.drawString(keyString[3], gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3 + 110);
-		g.setColor(keyColor[4]);
-		g.fill(new Rectangle(gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3, 100, 100));
-		g.drawString(keyString[4], gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3 + 110);
-		
-		g.drawString("Options State", 0, 0);
+		System.out.println("(" + (gc.getScreenWidth()/6 - 50) + "," + gc.getScreenHeight()/10 + ")");
 	}
 
 	public int getID()

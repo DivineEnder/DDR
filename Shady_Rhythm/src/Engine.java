@@ -16,10 +16,10 @@ public class Engine
 {
 	RadarCircles rc;
 	Selector selector;
+	Score points;
 	Music song;
 	ArrayList<RhythmCircle> circles;
 	RhythmCircle circle;
-	int points;
 	int maxPoints;
 	Image Background;
 	int bDeltaX;
@@ -29,9 +29,9 @@ public class Engine
 	{
 		rc = new RadarCircles(gc.getWidth(), gc.getHeight());
 		selector = new Selector();
+		points = new Score();
 		song = null;
 		circles = new ArrayList();
-		points = 0;
 		maxPoints = 1;
 		try {Background = new Image("/data/Background.png");} catch (SlickException e) {e.printStackTrace();}
 		bDeltaX = 500;
@@ -70,12 +70,23 @@ public class Engine
 			for (int i = 0; i < circles.size(); i++)
 			{
 				if (circles.get(i).checkVisible())
+					circles.get(i).keyPressed(specialInput.get(j));
+			}
+		}
+		
+		for (int i = 0; i < circles.size(); i++)
+		{
+			if (circles.get(i).checkTermination())
+			{
+				if (circles.get(i).checkHit())
 				{
-					points = circles.get(i).keyPressed(specialInput.get(j), points);
-					System.out.println(points);
+					points.modPoints(1);
+					points.updateMaxPoints();
 				}
-				else if (circles.get(i).checkTermination() == 1)
-					circles.remove(i);
+				else
+					points.updateMaxPoints();
+				
+				circles.remove(i);
 			}
 		}
 		
@@ -84,6 +95,16 @@ public class Engine
 		else if (bDeltaX == 0)
 			addition = 1;
 		bDeltaX += addition;
+		
+		if (input.isKeyPressed(Input.KEY_UP))
+		{
+			points.modPoints(1);
+			points.updateMaxPoints();
+		}
+		if (input.isKeyPressed(Input.KEY_DOWN))
+		{
+			points.updateMaxPoints();
+		}
 	}
 	
 	public void render(GameContainer gc, final Graphics g)
@@ -97,17 +118,9 @@ public class Engine
 		g.drawString(Float.toString(selector.getAngle()), 0, 0);
 		g.drawString(Integer.toString(selector.getRotations()), 0, 20);
 		
-		g.draw(new Rectangle(gc.getScreenWidth() - 200, 10, 50, 190));
-		g.drawString(points/maxPoints * 100 + "%", gc.getScreenWidth() - 185, 10);
-		g.fill(new Rectangle(gc.getScreenWidth() - 200, 200 - (points/maxPoints * 200), 50, (points/maxPoints * 200)));
-		
 		for (int i = 0; i < circles.size(); i++)
 			circles.get(i).drawCircle(g, selector);
 		
-		//g.setColor(Color.red);
-		//g.draw(new Rectangle(gc.getScreenWidth() - 200, 200, 50, 190));
-		//g.setColor(Color.black);
-		//g.fill(new Rectangle(gc.getScreenWidth() - 198, 198, 46, 4));
-		
+		points.draw(g, gc);
 	}
 }
