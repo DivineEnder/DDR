@@ -38,7 +38,17 @@ public class RhythmCircle
 		x = screenWidth/2 + (float) (((screenHeight/10) * layer) * Math.cos(this.angle * (Math.PI/180)));
 		y = screenHeight/2 + (float) (((screenHeight/10) * layer) * Math.sin(this.angle * (Math.PI/180)));
 		
-		color = Color.orange;
+		if (layer == 1)
+			color = Color.white;
+		else if (layer == 2)
+			color = Color.green;
+		else if (layer == 3)
+			color = Color.blue;
+		else if (layer == 4)
+			color = Color.red;
+		else if (layer == 5)
+			color = Color.yellow;
+		
 		circle_radius = 25;
 		radius = 0;
 		visible = false;
@@ -59,7 +69,10 @@ public class RhythmCircle
 	
 	public boolean checkVisible()
 	{
-		return visible;
+		if (color == Color.cyan)
+			return false;
+		else
+			return visible;
 	}
 	
 	private void smoothAppear()
@@ -68,21 +81,15 @@ public class RhythmCircle
 			radius += .1;
 	}
 	
-	public void keyPressed(String circle)
+	public int keyPressed(String circle, int points)
 	{
-		if (angle >= (360 - startAngle) && layer == Integer.parseInt(circle))
+		if (angle >= (360 - startAngle) && layer == Integer.parseInt(circle) && termination != 1)
 		{
-			if (circle.equals("1"))
-				color = Color.white;
-			else if (circle.equals("2"))
-				color = Color.green;
-			else if (circle.equals("3"))
-				color = Color.blue;
-			else if (circle.equals("4"))
-				color = Color.red;
-			else if (circle.equals("5"))
-				color = Color.yellow;
+			color = Color.cyan;
+			points++;
 		}
+		
+		return points;
 	}
 	
 	public void move()
@@ -102,12 +109,14 @@ public class RhythmCircle
 	{
 		if (selector.getAngle() == angleStamp && selector.getRotations() == rotations)
 			toggleVisible();
-		if (visible)
+		if (visible)  
 		{
 			smoothAppear();
 			move();
 			g.setColor(color);
 			g.fill(new Circle(x, y, radius));
+			g.setColor(Color.white);
+			g.draw(new Circle(x, y, radius));
 		}
 	}
 }

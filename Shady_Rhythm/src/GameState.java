@@ -93,17 +93,17 @@ public class GameState extends BasicGameState
 			thread.start();
 		}
 		
-		if (input.isKeyPressed(Input.KEY_P))
-		{
-			thread = new Thread()
-			{
-				public void run()
-				{
-					engine.selectSong("data/Music/Technotronic - Pump Up The Jam.wav", "data/Music/Technotronic - Pump Up The Jam.txt", gc);
-				}
-			};
-			thread.start();
-		}
+		//if (input.isKeyPressed(Input.KEY_P))
+		//{
+		//	thread = new Thread()
+		//	{
+		//		public void run()
+		//		{
+		//			engine.selectSong("data/Music/Technotronic - Pump Up The Jam.wav", "data/Music/Technotronic - Pump Up The Jam.txt", gc);
+		//		}
+		//	};
+		//	thread.start();
+		//}
 		
 		if (input.isKeyDown(Input.KEY_R) && input.isKeyDown(Input.KEY_O) && input.isKeyDown(Input.KEY_L))
 		{

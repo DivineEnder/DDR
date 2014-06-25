@@ -44,6 +44,7 @@ public class RadarCircles
 		
 		for (int i = 0; i < 5; i++)
 		{
+
 			g.setColor(outlineColors[i]);
 			g.draw(new Circle(center_x + (radius * (i + 1)), center_y, 28));
 			g.draw(new Circle(center_x, center_y, radius * (i + 1)));
