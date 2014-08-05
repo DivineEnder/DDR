@@ -138,18 +138,6 @@ public class OptionsState extends BasicGameState
 			g.setColor(keyColor[i]);
 			g.fill(new Rectangle((gc.getScreenWidth()/6 * (i + 1)) - 50, gc.getScreenHeight()/10, 100, 100));
 			g.drawString(keyString[i], gc.getScreenWidth()/6 * (i + 1) - 50, gc.getScreenHeight()/10 + 110);
-			/*g.setColor(keyColor[1]);
-			g.fill(new Rectangle(gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3, 100, 100));
-			g.drawString(keyString[1], gc.getScreenWidth()/6 * 2, gc.getScreenHeight()/10 * 3 + 110);
-			g.setColor(keyColor[2]);
-			g.fill(new Rectangle(gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3, 100, 100));
-			g.drawString(keyString[2], gc.getScreenWidth()/6 * 3, gc.getScreenHeight()/10 * 3 + 110);
-			g.setColor(keyColor[3]);
-			g.fill(new Rectangle(gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3, 100, 100));
-			g.drawString(keyString[3], gc.getScreenWidth()/6 * 4, gc.getScreenHeight()/10 * 3 + 110);
-			g.setColor(keyColor[4]);
-			g.fill(new Rectangle(gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3, 100, 100));
-			g.drawString(keyString[4], gc.getScreenWidth()/6 * 5, gc.getScreenHeight()/10 * 3 + 110);*/
 		}
 		
 		System.out.println("(" + (gc.getScreenWidth()/6 - 50) + "," + gc.getScreenHeight()/10 + ")");

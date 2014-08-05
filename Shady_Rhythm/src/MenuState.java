@@ -2,6 +2,7 @@ import java.util.HashMap;
 
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.*;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
@@ -13,6 +14,9 @@ public class MenuState extends BasicGameState
 	boolean arrow;
 	Controls controls;
 	String specialInput;
+	boolean transition = false;
+	int transitionX = 0;
+	float opacity = 0;
 	
 	public MenuState(Controls control)
 	{
@@ -40,174 +44,191 @@ public class MenuState extends BasicGameState
 			specialInput = (String) controls.getKeyMapping().get(key);
     }
 	
+	public void transition(StateBasedGame state, int screenWidth, int screenHeight)
+	{
+		transitionX += (screenWidth * (4/5))/2000;
+		opacity += (transitionX/screenWidth) * 255;
+		if (transitionX == screenWidth * (4/5))
+		{
+			state.enterState(2);
+			transition = false;
+		}
+	}
+	
 	public void update(GameContainer gc, StateBasedGame state, int delta)throws SlickException
 	{
-		Input input = gc.getInput();
-	
 		int screenWidth = gc.getWidth();
 		int screenHeight = gc.getHeight();
 		
-		int xpos = Mouse.getX();
-		int ypos = gc.getHeight() - Mouse.getY();
-		
-		if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * 2/5) && ypos < (screenHeight * 2/5 + screenHeight * 3/25))
+		if (!transition)
 		{
-			selector = 0;
+			transitionX = 0;
+			opacity = 0;
+			Input input = gc.getInput();
 			
-			if(input.isMouseButtonDown(0))
-			{
-				arrow = false;
-				state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-		}
-		else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 3/25) && ypos < (screenHeight * 2/5 + screenHeight * 6/25))
-		{
-			selector = 1;
+			int xpos = Mouse.getX();
+			int ypos = gc.getHeight() - Mouse.getY();
 			
-			if(input.isMouseButtonDown(0))
-			{
-				arrow = false;
-				state.enterState(2, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-		}
-		else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 6/25) && ypos < (screenHeight * 2/5 + screenHeight * 9/25))
-		{
-			selector = 2;
-			
-			if(input.isMouseButtonDown(0))
-			{
-				arrow = false;
-				state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-		}
-		else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/10) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
-		{
-			selector = 3;
-			
-			if(input.isMouseButtonDown(0))
-			{
-				arrow = false;
-				state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-		}
-		else if (xpos > (screenWidth/5 + screenWidth * 3/10) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
-		{
-			selector = 4;
-			
-			if(input.isMouseButtonDown(0))
-				System.exit(0);
-		}
-		else
-		{
-			if(!arrow)
-				selector = -1;
-		}
-		if(input.isKeyPressed(Input.KEY_UP))
-		{
-			selector--;
-			if (selector == -1)
-				selector = 4;
-			
-			arrow = true;
-		}
-		if(input.isKeyPressed(Input.KEY_DOWN))
-		{
-			selector++;
-			if (selector == 5)
-				selector = 0;
-			
-			arrow = true;
-		}
-		if(input.isKeyPressed(Input.KEY_RIGHT))
-		{
-			if (selector == 3)
-				selector = 4;
-			
-			arrow = true;
-		}
-		if(input.isKeyPressed(Input.KEY_LEFT))
-		{
-			if(selector == 4)
-				selector = 3;
-			
-			arrow = true;
-		}
-		if (specialInput.equals("1"))
-		{
-			if (selector != 0)
+			if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * 2/5) && ypos < (screenHeight * 2/5 + screenHeight * 3/25))
 			{
 				selector = 0;
-				arrow = true;
+				
+				if(input.isMouseButtonDown(0))
+				{
+					arrow = false;
+					state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
 			}
-			else
-			{
-				arrow = false;
-				state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-			
-			specialInput = "";
-		}
-		if (specialInput.equals("2"))
-		{
-			if (selector != 1)
+			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 3/25) && ypos < (screenHeight * 2/5 + screenHeight * 6/25))
 			{
 				selector = 1;
-				arrow = true;
+				
+				if(input.isMouseButtonDown(0))
+				{
+					arrow = false;
+					transition = true;
+				}
 			}
-			else
-			{
-				arrow = false;
-				state.enterState(2, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-			
-			specialInput = "";
-		}
-		if (specialInput.equals("3"))
-		{
-			if (selector != 2)
+			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 6/25) && ypos < (screenHeight * 2/5 + screenHeight * 9/25))
 			{
 				selector = 2;
-				arrow = true;
+				
+				if(input.isMouseButtonDown(0))
+				{
+					arrow = false;
+					state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
 			}
-			else
-			{
-				arrow = false;
-				state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-			
-			specialInput = "";
-		}
-		if (specialInput.equals("4"))
-		{
-			if (selector != 3)
+			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/10) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
 			{
 				selector = 3;
-				arrow = true;
+				
+				if(input.isMouseButtonDown(0))
+				{
+					arrow = false;
+					state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
+			}
+			else if (xpos > (screenWidth/5 + screenWidth * 3/10) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
+			{
+				selector = 4;
+				
+				if(input.isMouseButtonDown(0))
+					System.exit(0);
 			}
 			else
 			{
-				arrow = false;
-				state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				if(!arrow)
+					selector = -1;
 			}
-			
-			specialInput = "";
+			if(input.isKeyPressed(Input.KEY_UP))
+			{
+				selector--;
+				if (selector == -1)
+					selector = 4;
+				
+				arrow = true;
+			}
+			if(input.isKeyPressed(Input.KEY_DOWN))
+			{
+				selector++;
+				if (selector == 5)
+					selector = 0;
+				
+				arrow = true;
+			}
+			if(input.isKeyPressed(Input.KEY_RIGHT))
+			{
+				if (selector == 3)
+					selector = 4;
+				
+				arrow = true;
+			}
+			if(input.isKeyPressed(Input.KEY_LEFT))
+			{
+				if(selector == 4)
+					selector = 3;
+				
+				arrow = true;
+			}
+			if (specialInput.equals("1"))
+			{
+				if (selector != 0)
+				{
+					selector = 0;
+					arrow = true;
+				}
+				else
+				{
+					arrow = false;
+					state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
+				
+				specialInput = "";
+			}
+			if (specialInput.equals("2"))
+			{
+				if (selector != 1)
+				{
+					selector = 1;
+					arrow = true;
+				}
+				else
+				{
+					arrow = false;
+					state.enterState(2, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
+				
+				specialInput = "";
+			}
+			if (specialInput.equals("3"))
+			{
+				if (selector != 2)
+				{
+					selector = 2;
+					arrow = true;
+				}
+				else
+				{
+					arrow = false;
+					state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
+				
+				specialInput = "";
+			}
+			if (specialInput.equals("4"))
+			{
+				if (selector != 3)
+				{
+					selector = 3;
+					arrow = true;
+				}
+				else
+				{
+					arrow = false;
+					state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+				}
+				
+				specialInput = "";
+			}
+			if (specialInput.equals("5"))
+			{
+				if (selector != 4)
+					selector = 4;
+				else
+					System.exit(0);
+				
+				arrow = true;
+				specialInput = "";
+			}
 		}
-		if (specialInput.equals("5"))
-		{
-			if (selector != 4)
-				selector = 4;
-			else
-				System.exit(0);
-			
-			arrow = true;
-			specialInput = "";
-		}
-
+		else
+			transition(state, screenWidth, screenHeight);
 		
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
-	{
+	{	
 		g.setAntiAlias(true);
 		
 		//background = background.getScaledCopy(gc.getWidth(),gc.getWidth());
@@ -240,7 +261,7 @@ public class MenuState extends BasicGameState
 				g.setColor(rectModColors[i]);
 			else
 				g.setColor(rectColors[i]);
-			g.fillRect(rectx, screenHeight*2/5 + (height * i), width, height);
+			g.fillRect(rectx + transitionX, screenHeight*2/5 + (height * i), width, height);
 		}
 		
 		for (int i = 0; i < 2; i++)
@@ -251,6 +272,9 @@ public class MenuState extends BasicGameState
 				g.setColor(rectColors[i + 3]);
 			g.fillRect(rectx + (width/2 * i), screenHeight*2/5 + (3 * height), width/2, height);
 		}
+		
+		//g.setColor(new Color(0, 0, 0, opacity));
+		//g.fill(new Rectangle(0, 0, screenWidth, screenHeight));
 	}
 	
 	public int getID(){

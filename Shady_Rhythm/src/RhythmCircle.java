@@ -19,6 +19,7 @@ public class RhythmCircle
 	private static int screenHeight;
 	private Color color;
 	private int termination;
+	private boolean hit;
 	
 	RhythmCircle(float angle, int rotations, int layer, GameContainer gc)
 	{
@@ -52,8 +53,24 @@ public class RhythmCircle
 		circle_radius = 25;
 		radius = 0;
 		visible = false;
+		hit = false;
 		
 		termination = -1;
+	}
+	
+	public float getX()
+	{
+		return x;
+	}
+	
+	public float getY()
+	{
+		return y;
+	}
+	
+	public Color getColor()
+	{
+		return color;
 	}
 	
 	public boolean checkTermination()
@@ -72,18 +89,12 @@ public class RhythmCircle
 	
 	public boolean checkVisible()
 	{
-		if (color == Color.cyan)
-			return false;
-		else
-			return visible;
+		return visible;
 	}
 	
 	public boolean checkHit()
 	{
-		if (color == Color.cyan)
-			return true;
-		
-		return false;
+		return hit;
 	}
 	
 	private void smoothAppear()
@@ -92,10 +103,16 @@ public class RhythmCircle
 			radius += .1;
 	}
 	
-	public void keyPressed(String circle)
+	public boolean keyPressed(String circle)
 	{
 		if (angle >= (360 - startAngle) && layer == Integer.parseInt(circle) && termination != 1)
-			color = Color.cyan;
+		{
+			//color = Color.cyan;
+			hit = true;
+			visible = false;
+		}
+		
+		return hit;
 	}
 	
 	public void move()

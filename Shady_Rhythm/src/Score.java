@@ -34,7 +34,7 @@ public class Score
 		g.setColor(Color.cyan);
 		g.draw(new Rectangle(gc.getScreenWidth() - 100, 20, 50, 200));
 		g.fill((new Rectangle(gc.getScreenWidth() - 100, 20 + (200 * (1 - percentage)), 50, 200 * (percentage))));
-		g.setColor(Color.black);
+		g.setColor(Color.white);
 		g.drawString(Integer.toString((int)(percentage * 100)) + "%", gc.getScreenWidth() - 95, 30);
 	}
 }

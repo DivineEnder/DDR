@@ -14,20 +14,22 @@ import org.newdawn.slick.state.transition.FadeOutTransition;
 public class GameState extends BasicGameState
 {
 	Engine engine;
-	Thread thread;
+	Thread loadSong;
 	Controls controls;
 	HashMap specialInput;
 	ArrayList<String> sInput;
+	boolean pressAnyKey;
 	
 	public GameState(Controls control)
 	{
 		controls = control;
+		pressAnyKey = false;
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
 		engine = new Engine(gc);
-		thread = new Thread();
+		loadSong = new Thread();
 		specialInput = new HashMap<Integer, String>();
 	}
 	
@@ -40,6 +42,8 @@ public class GameState extends BasicGameState
 			specialInput.put(key, controls.getKeyMapping().get(key));
 			sInput.add((String) specialInput.get(key));
 		}
+		
+		pressAnyKey = false;
     }
 	
 	@Override
@@ -59,62 +63,41 @@ public class GameState extends BasicGameState
 		
 		if (input.isKeyPressed(Input.KEY_W))
 		{
-			thread = new Thread()
+			loadSong = new Thread()
 			{
 				public void run()
 				{
 					engine.selectSong("data/Music/Rather Be.wav", "data/Music/Rather Be.txt", gc);
 				}
 			};
-			thread.start();
+			loadSong.start();
+			pressAnyKey = true;
 		}
 		
 		if (input.isKeyPressed(Input.KEY_Q))
 		{
-			thread = new Thread()
+			loadSong = new Thread()
 			{
 				public void run()
 				{
 					engine.selectSong("data/Music/Am I Wrong.wav", "data/Music/Am I Wrong.txt", gc);
 				}
 			};
-			thread.start();
+			loadSong.start();
+			pressAnyKey = true;
 		}
 		
 		if (input.isKeyPressed(Input.KEY_E))
 		{
-			thread = new Thread()
+			loadSong = new Thread()
 			{
 				public void run()
 				{
 					engine.selectSong("data/Music/Mowe - Pump Up The Jam Mixdown.wav", "data/Music/Mowe - Pump Up The Jam Mixdown.txt", gc);
 				}
 			};
-			thread.start();
-		}
-		
-		//if (input.isKeyPressed(Input.KEY_P))
-		//{
-		//	thread = new Thread()
-		//	{
-		//		public void run()
-		//		{
-		//			engine.selectSong("data/Music/Technotronic - Pump Up The Jam.wav", "data/Music/Technotronic - Pump Up The Jam.txt", gc);
-		//		}
-		//	};
-		//	thread.start();
-		//}
-		
-		if (input.isKeyDown(Input.KEY_R) && input.isKeyDown(Input.KEY_O) && input.isKeyDown(Input.KEY_L))
-		{
-			thread = new Thread()
-			{
-				public void run()
-				{
-					engine.selectSong("data/default.wav", "data/Am I Wrong.txt", gc);
-				}
-			};
-			thread.start();
+			loadSong.start();
+			pressAnyKey = true;
 		}
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
@@ -129,8 +112,10 @@ public class GameState extends BasicGameState
 	{
 		g.setAntiAlias(true);
 		
-		if (thread.isAlive())
+		if (loadSong.isAlive())
 			g.drawString("Loading", 0, 0);
+		else if (pressAnyKey)
+			g.drawString("Press Any Key to continue", 0, 0);
 		else
 			engine.render(gc, g);
 	}

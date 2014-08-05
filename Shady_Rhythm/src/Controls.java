@@ -109,23 +109,23 @@ public class Controls
 		sKeyMap.put(Input.KEY_Y, "Y");
 		sKeyMap.put(Input.KEY_Z, "Z");
 		
-		keyMap.put(Input.KEY_A, "1");
-		keyMap.put(Input.KEY_F, "2");
-		keyMap.put(Input.KEY_R, "3");
-		keyMap.put(Input.KEY_D, "4");
-		keyMap.put(Input.KEY_G, "5");
+		keyMap.put(Input.KEY_SPACE, "1");
+		keyMap.put(Input.KEY_J, "2");
+		keyMap.put(Input.KEY_K, "3");
+		keyMap.put(Input.KEY_L, "4");
+		keyMap.put(Input.KEY_SEMICOLON, "5");
 		
-		keyString[0] = sKeyMap.get(Input.KEY_A);
-		keyString[1] = sKeyMap.get(Input.KEY_F);
-		keyString[2] = sKeyMap.get(Input.KEY_R);
-		keyString[3] = sKeyMap.get(Input.KEY_D);
-		keyString[4] = sKeyMap.get(Input.KEY_G);
+		keyString[0] = sKeyMap.get(Input.KEY_SPACE);
+		keyString[1] = sKeyMap.get(Input.KEY_J);
+		keyString[2] = sKeyMap.get(Input.KEY_K);
+		keyString[3] = sKeyMap.get(Input.KEY_L);
+		keyString[4] = sKeyMap.get(Input.KEY_SEMICOLON);
 		
-		currentControls[0] = Input.KEY_A;
-		currentControls[1] = Input.KEY_F;
-		currentControls[2] = Input.KEY_R;
-		currentControls[3] = Input.KEY_D;
-		currentControls[4] = Input.KEY_G;
+		currentControls[0] = Input.KEY_SPACE;
+		currentControls[1] = Input.KEY_J;
+		currentControls[2] = Input.KEY_K;
+		currentControls[3] = Input.KEY_L;
+		currentControls[4] = Input.KEY_SEMICOLON;
 	}
 	
 	public void setControls(int key, int oldKey)

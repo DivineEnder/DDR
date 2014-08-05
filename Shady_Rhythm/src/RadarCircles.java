@@ -13,6 +13,7 @@ public class RadarCircles
 	int radius;
 	Color[] outlineColors;
 	Color[] fillColors;
+	int[] lineWidth;
 	
 	RadarCircles(int screenWidth, int screenHeight)
 	{
@@ -31,6 +32,17 @@ public class RadarCircles
 		outlineColors[2] = Color.blue;
 		outlineColors[3] = Color.red;
 		outlineColors[4] = Color.yellow;
+		
+		lineWidth = new int[5];
+		for (int i = 0; i < 5; i++)
+			lineWidth[i] = 3;
+	}
+	
+	public void select(int circle)
+	{
+		for (int i = 0; i < 5; i++)
+			lineWidth[i] = 3;
+		lineWidth[circle - 1] = 8;
 	}
 	
 	public void keyPressed(String circle)
@@ -40,11 +52,11 @@ public class RadarCircles
 	
 	public void draw(Graphics g)
 	{
-		g.setLineWidth(3);
+		
 		
 		for (int i = 0; i < 5; i++)
 		{
-
+			g.setLineWidth(lineWidth[i]);
 			g.setColor(outlineColors[i]);
 			g.draw(new Circle(center_x + (radius * (i + 1)), center_y, 28));
 			g.draw(new Circle(center_x, center_y, radius * (i + 1)));

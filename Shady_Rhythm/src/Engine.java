@@ -19,11 +19,8 @@ public class Engine
 	Score points;
 	Music song;
 	ArrayList<RhythmCircle> circles;
+	ArrayList<Particles> particles;
 	RhythmCircle circle;
-	int maxPoints;
-	Image Background;
-	int bDeltaX;
-	int addition;
 	
 	Engine(GameContainer gc)
 	{
@@ -31,11 +28,8 @@ public class Engine
 		selector = new Selector();
 		points = new Score();
 		song = null;
-		circles = new ArrayList();
-		maxPoints = 1;
-		try {Background = new Image("/data/Background.png");} catch (SlickException e) {e.printStackTrace();}
-		bDeltaX = 500;
-		addition = 1;
+		circles = new ArrayList<RhythmCircle>();
+		particles = new ArrayList<Particles>();
 	}
 	
 	public void reset()
@@ -55,7 +49,6 @@ public class Engine
     	{
     		circles.add(new RhythmCircle(data[i][0], (int) data[i][1], (int) data[i][2], gc));
     	}
-    	maxPoints = data.length;
 	}
 	
 	public void update(GameContainer gc, ArrayList<String> specialInput)
@@ -64,13 +57,26 @@ public class Engine
 		
 		selector.updateSelector();
 		
+		for (int i = 0; i < particles.size(); i++)
+		{
+			if (particles.get(i).checkDraw())
+				particles.get(i).update();
+			else
+				particles.remove(i);
+		}
+		
 		for (int j = 0; j < specialInput.size(); j++)
 		{
 			rc.keyPressed(specialInput.get(j));
 			for (int i = 0; i < circles.size(); i++)
 			{
 				if (circles.get(i).checkVisible())
-					circles.get(i).keyPressed(specialInput.get(j));
+				{
+					if (circles.get(i).keyPressed(specialInput.get(j)))
+					{
+						particles.add(new Particles(5, circles.get(i).getX(), circles.get(i).getY(), circles.get(i).getColor()));
+					}
+				}
 			}
 		}
 		
@@ -87,14 +93,10 @@ public class Engine
 					points.updateMaxPoints();
 				
 				circles.remove(i);
+				
+				
 			}
 		}
-		
-		if (bDeltaX == 1500)
-			addition = -1;
-		else if (bDeltaX == 0)
-			addition = 1;
-		bDeltaX += addition;
 		
 		if (input.isKeyPressed(Input.KEY_UP))
 		{
@@ -108,10 +110,7 @@ public class Engine
 	}
 	
 	public void render(GameContainer gc, final Graphics g)
-	{
-		Background.draw(0, 0, gc.getScreenWidth()/2, gc.getScreenHeight(), 0 + bDeltaX, 0, 500 + bDeltaX, 600);
-		Background.getFlippedCopy(true, false).draw(gc.getScreenWidth()/2, 0, gc.getScreenWidth(), gc.getScreenHeight(), 2000 - (500 + bDeltaX), 0, 2000 - bDeltaX, 600);
-		
+	{	
 		rc.draw(g);
 		g.setColor(Color.cyan);
 		
@@ -120,6 +119,9 @@ public class Engine
 		
 		for (int i = 0; i < circles.size(); i++)
 			circles.get(i).drawCircle(g, selector);
+		
+		for (int i = 0; i < particles.size(); i++)
+			particles.get(i).draw(g);
 		
 		points.draw(g, gc);
 	}
