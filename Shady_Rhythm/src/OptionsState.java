@@ -33,20 +33,18 @@ public class OptionsState extends BasicGameState
 		keyColor = new Color[5];
 		keyChanging = -1;
 		
-		keyColor[0] = Color.white;
+		keyColor[0] = Color.yellow;
 		keyColor[1] = Color.green;
 		keyColor[2] = Color.blue;
 		keyColor[3] = Color.red;
-		keyColor[4] = Color.yellow;
 	}
 	
 	private void colorReset()
 	{
-		keyColor[0] = Color.white;
+		keyColor[0] = Color.yellow;
 		keyColor[1] = Color.green;
 		keyColor[2] = Color.blue;
 		keyColor[3] = Color.red;
-		keyColor[4] = Color.yellow;
 	}
 	
 	@Override
@@ -66,8 +64,6 @@ public class OptionsState extends BasicGameState
 		
 		int rectPosX = gc.getScreenWidth()/6;
 		int rectPosY = gc.getScreenHeight()/10;
-		
-		System.out.println("(" + rectPosX + "," + rectPosY + ")");
 		
 		int xpos = Mouse.getX();
 		int ypos = gc.getScreenHeight() - Mouse.getY();
@@ -108,15 +104,6 @@ public class OptionsState extends BasicGameState
 			}
 		}
 		
-		if (xpos > rectPosX * 5  - 50 && xpos < rectPosX * 5 + 50 && ypos > rectPosY && ypos < rectPosY + 100)
-		{
-			if (input.isMousePressed(Input.MOUSE_LEFT_BUTTON))
-			{
-				colorReset();
-				keyChanging = 4;
-			}
-		}
-		
 		if (keyChanging != -1)
 			keyColor[keyChanging] = Color.cyan;
 		
@@ -133,7 +120,7 @@ public class OptionsState extends BasicGameState
 		g.setAntiAlias(true);
 		
 		keyString = controls.getKeyString();
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			g.setColor(keyColor[i]);
 			g.fill(new Rectangle((gc.getScreenWidth()/6 * (i + 1)) - 50, gc.getScreenHeight()/10, 100, 100));

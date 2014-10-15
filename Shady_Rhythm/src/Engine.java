@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -32,6 +33,12 @@ public class Engine
 		particles = new ArrayList<Particles>();
 	}
 	
+	public void start()
+	{
+		song.play();
+		selector.start();
+	}
+	
 	public void reset()
 	{
 		song.fade(750, 0, true);
@@ -40,8 +47,6 @@ public class Engine
 	public void selectSong(String musicPath, String rhythmPath, GameContainer gc)
 	{
 		try{song = new Music(musicPath);} catch (SlickException e) {}
-		song.play();
-		selector.start();
 		float[][] data = null;
     	ReadSong read = new ReadSong(rhythmPath);
     	try {data = read.OpenFile();} catch (IOException e) {}
@@ -72,9 +77,11 @@ public class Engine
 			{
 				if (circles.get(i).checkVisible())
 				{
-					if (circles.get(i).keyPressed(specialInput.get(j)))
+					int pointsAdd = circles.get(i).keyPressed(specialInput.get(j));
+					if (pointsAdd != -1)
 					{
-						particles.add(new Particles(5, circles.get(i).getX(), circles.get(i).getY(), circles.get(i).getColor()));
+						particles.add(new Particles(new Random().nextInt((15 - 5) + 1) + 5, circles.get(i).getX(), circles.get(i).getY(), pointsAdd, circles.get(i).getColor()));
+						points.modPoints(pointsAdd);
 					}
 				}
 			}
@@ -84,17 +91,8 @@ public class Engine
 		{
 			if (circles.get(i).checkTermination())
 			{
-				if (circles.get(i).checkHit())
-				{
-					points.modPoints(1);
-					points.updateMaxPoints();
-				}
-				else
-					points.updateMaxPoints();
-				
+				points.updateMaxPoints();
 				circles.remove(i);
-				
-				
 			}
 		}
 		
@@ -111,6 +109,9 @@ public class Engine
 	
 	public void render(GameContainer gc, final Graphics g)
 	{	
+		g.setColor(Color.white);
+		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
+		
 		rc.draw(g);
 		g.setColor(Color.cyan);
 		

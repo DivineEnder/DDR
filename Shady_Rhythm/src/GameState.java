@@ -18,6 +18,7 @@ public class GameState extends BasicGameState
 	Controls controls;
 	HashMap specialInput;
 	ArrayList<String> sInput;
+	Loading loadingScreen;
 	boolean pressAnyKey;
 	
 	public GameState(Controls control)
@@ -31,6 +32,7 @@ public class GameState extends BasicGameState
 		engine = new Engine(gc);
 		loadSong = new Thread();
 		specialInput = new HashMap<Integer, String>();
+		loadingScreen = new Loading(gc.getScreenWidth(), gc.getScreenHeight());
 	}
 	
 	@Override
@@ -43,7 +45,11 @@ public class GameState extends BasicGameState
 			sInput.add((String) specialInput.get(key));
 		}
 		
-		pressAnyKey = false;
+		if (pressAnyKey)
+		{
+			pressAnyKey = false;
+			engine.start();
+		}
     }
 	
 	@Override
@@ -106,6 +112,9 @@ public class GameState extends BasicGameState
 			engine = new Engine(gc);
 			state.enterState(0, new FadeOutTransition(Color.black, 0), new FadeInTransition(Color.black, 750));
 		}
+		
+		if (loadSong.isAlive())
+			loadingScreen.update();
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
@@ -113,9 +122,14 @@ public class GameState extends BasicGameState
 		g.setAntiAlias(true);
 		
 		if (loadSong.isAlive())
-			g.drawString("Loading", 0, 0);
+		{
+			loadingScreen.draw(g);
+		}
 		else if (pressAnyKey)
-			g.drawString("Press Any Key to continue", 0, 0);
+		{
+			g.setColor(Color.white);
+			g.drawString("Press Any Key to continue", gc.getScreenWidth()/2, gc.getScreenHeight()/2);
+		}
 		else
 			engine.render(gc, g);
 	}

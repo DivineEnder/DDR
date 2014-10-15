@@ -1,9 +1,15 @@
+import java.awt.Font;
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -11,251 +17,245 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.svg.Gradient;
+import org.newdawn.slick.svg.RadialGradientFill;
 
 public class TutorialState extends BasicGameState
 {
-	//ArrayList<Integer> xData = new ArrayList<Integer>();
-	//ArrayList<Integer> yData = new ArrayList<Integer>();
-	//int[] data = readAudio(new File("data/Music/testy.wav"));
-	//BufferedWriter points;
-	RadarCircles radar;
-	Image proof;
-	Image yes;
-	int selected = 0;
-	int lineWidth = 3;
-	boolean transition = false;
-	int angle = 180;
-	int angle2 = 180;
-	float x;
-	float y;
-	float x2;
-	float y2;
+	Controls controls;
+	Transition moveLeft;
+	Transition moveRight;
+	Transition move2Left;
+	Transition move2Right;
+	Transition pulse;
+	private int selected;
+	private int numSongs;
+	private int fullRadius;
+	private int songRadius;
+	private Point fullCenter;
+	private String[] songNames;
+	private float[] songAngles;
+	private Point[] songPoints;
+	private Font font;
+	private TrueTypeFont wordFont;
+	private float numGlowCircles;
+	private Point pulseCirclePoint;
+	private float[] colorOpacity;
+	private int updateCounter = 0;
+	/*int increment;
+	int[][] toReturn;
+	double scaler;
+	
+	private int getSixteenBitSample(int high, int low)
+	{
+		return (high << 8) + (low & 0x00ff);
+	}*/
+	
+	TutorialState(Controls c)
+	{
+		controls = c;
+	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
-		radar = new RadarCircles(gc.getScreenWidth(), gc.getScreenHeight());
-		proof = new Image("data/Proof.png");
-		yes = new Image("data/yes.png");
-		yes.rotate(-90);
-		proof.rotate(-90);
-		x = gc.getScreenWidth()/2 - ((gc.getScreenHeight()/10 + 5) * 5) - proof.getWidth()/2;
-		y = gc.getScreenHeight()/2;
-		x2 = gc.getScreenWidth()/2 - ((gc.getScreenHeight()/10 + 5) * 4) - yes.getWidth()/2;
-		y2 = gc.getScreenHeight()/2;
+		numSongs = 10;
 		
-		/*try {points = new BufferedWriter(new FileWriter("data/data.txt"));} catch (IOException e1) {e1.printStackTrace();}
+		fullRadius = gc.getScreenWidth();
+		songRadius = 50;
+		fullCenter = new Point(gc.getScreenWidth()/2, gc.getScreenHeight()*2.3f);
 		
-		int bytes, cursor, unsigned;
-	      try {
-	        FileInputStream s = new FileInputStream("C:/Users/David/Desktop/Am I Wrong.wav");
-	        BufferedInputStream b = new BufferedInputStream(s);
-	        byte[] data = new byte[128];
-	        b.skip(44);
-	        cursor = 0;
-	        while ((bytes = b.read(data)) > 0) {
-	          // do something
-	          for(int i=0; i<bytes; i++) {
-	                  unsigned = data[i] & 0xFF; // Java..
-	                  points.write(cursor + " " + unsigned);
-	                  points.newLine();
-	                  //System.out.println(cursor + " " + unsigned);
-	                  if (cursor > 10000)
-	                	  break;
-	                  cursor++;
-	          }
-	        }
-	        //System.out.println(cursor);
-	        
-	        b.read(data);
-	        b.close();
-	        //for (int i = 0; i < data.length; i++)
-	        	//System.out.println(data[i]);
-	      } catch(Exception e) {
-	        e.printStackTrace();
-	      }
-	      try {
-			points.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		songNames = new String[numSongs];
+		songNames[0] = "Stolen Dance";
+		songNames[1] = "Humming Bird";
+		songNames[2] = "Stay with Me";
+		songNames[3] = "Hope";
+		songNames[4] = "Am I Wrong";
+		songNames[5] = "Ravers in the UK";
+		songNames[6] = "I'm Ready";
+		songNames[7] = "Break Free";
+		songNames[8] = "Back 2 Life";
+		songNames[9] = "The Walker";
 		
-		/*int xSpace = 2;
-		//data = readAudio(new File("data/testy.wav"));
-		BufferedImage off_Image = new BufferedImage(xSpace * data.length, 512 * 5, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = off_Image.createGraphics();
-		g2d.setColor(Color.BLACK);
-		g2d.fill(new Rectangle(xSpace * data.length, 512 * 5));
-		g2d.setColor(Color.ORANGE);
-		//g2d.setStroke(new BasicStroke(5));
-		g2d.drawLine(0, off_Image.getHeight()/2, xSpace, off_Image.getHeight()/2 - data[0] * 5);
-		for (int i = 1; i < data.length - 1; i++)
+		songAngles = new float[numSongs];
+		for (int i = 0; i < songAngles.length; i++)
+			songAngles[i] = (360/numSongs) * i;
+		
+		songPoints = new Point[numSongs];
+		for (int i = 0; i < songPoints.length; i++)
+			songPoints[i] = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * (songAngles[i] + 90)))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * (songAngles[i] + 90)))));
+		
+		pulseCirclePoint = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * 90))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * 90))));
+		
+		moveLeft = new Transition(-1, 360/numSongs);
+		moveRight = new Transition(1, 360/numSongs);
+		move2Left = new Transition(-2, 2 * 360/numSongs);
+		move2Right = new Transition(2, 2 * 360/numSongs);
+		
+		font = new Font("Verdana", Font.BOLD, 32);
+		wordFont = new TrueTypeFont(font, true);
+		
+		selected = 0;
+		
+		colorOpacity = new float[2];
+		for (int i = 0; i < colorOpacity.length; i++)
+			colorOpacity[i] = 1;
+		
+		numGlowCircles = 10;
+		pulse = new Transition(.1f, 5, numGlowCircles, false);
+		
+		/*File file = new File("data/Music/Rather Be.wav");
+		AudioInputStream audioInputStream = null;
+		try
 		{
-			g2d.drawLine(xSpace * i, off_Image.getHeight()/2 - (data[i] * 5), xSpace * (i + 1), off_Image.getHeight()/2 - (data[i + 1] * 5));
-			//g.drawLine(, arg1, arg2, arg3)
+			audioInputStream = AudioSystem.getAudioInputStream(file);
+		} catch (UnsupportedAudioFileException | IOException e) {e.printStackTrace();}
+		  
+		int frameLength = (int) audioInputStream.getFrameLength();
+		int frameSize = (int) audioInputStream.getFormat().getFrameSize();
+		  
+		byte[] eightBitByteArray = new byte[frameLength * frameSize];
+		  
+		int result = 0;
+		try
+		{
+			result = audioInputStream.read(eightBitByteArray);
+		} catch (IOException e) {e.printStackTrace();}
+		
+		int numChannels = audioInputStream.getFormat().getChannels();
+		toReturn = new int[numChannels][frameLength];
+		
+		int sampleIndex = 0;
+	
+		for (int t = 0; t < eightBitByteArray.length;) 
+		{
+			for (int channel = 0; channel < numChannels; channel++) 
+			{
+				int low = (int) eightBitByteArray[t];
+				t++;
+				int high = (int) eightBitByteArray[t];
+				t++;
+				int sample = getSixteenBitSample(high, low);
+				toReturn[channel][sampleIndex] = sample;
+			}
+			sampleIndex++;
 		}
-		try {
-		    // retrieve image
-		    File outputfile = new File("saved.png");
-		    ImageIO.write(off_Image, "png", outputfile);
-		} catch (IOException e) {
-		}*/
+		
+		increment = toReturn[0].length / gc.getScreenWidth();
+		
+		scaler = Math.abs(toReturn[0][0]);
+		
+		for (int i = 1; i < toReturn[0].length; i++)
+		{
+			if (Math.abs(toReturn[0][i]) > scaler)
+			{
+				scaler = Math.abs(toReturn[0][i]);
+			}
+		}
+		
+		scaler = (gc.getScreenHeight()/4) / scaler;*/
 	}
 	
-	/*public int[] readAudio(File file)
-	{
-		int[] audioValues = null;
-	    int totalFramesRead = 0;
-	    
-	    try
-	    {
-	        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
-	        
-	        int bytesPerFrame = audioInputStream.getFormat().getFrameSize();
-	        
-	        if(bytesPerFrame == AudioSystem.NOT_SPECIFIED)
-	        {
-	            //some audio formats may have unspecified frame size
-	            //in that case we may read any amount of bytes
-	            bytesPerFrame = 1;
-	            System.out.println("Unspecified amount of frames in file");
-	        }
-
-	        //Set an arbitrary buffer size of 1024 frames.
-	        int numBytes = 1024 * bytesPerFrame;
-	        byte[] audioBytes = new byte[numBytes];
-	        
-	        try
-	        {
-	            int numBytesRead = 0;
-	            int numFramesRead = 0;
-	            
-	            //Try to read #numBytes bytes from the file
-	            while((numBytesRead = audioInputStream.read(audioBytes)) != -1)
-	            {
-	                //Calculate the number of frames actually read.
-	                numFramesRead = numBytesRead / bytesPerFrame;
-	                totalFramesRead += numFramesRead;
-	            }
-	            
-	            //convert bytes to integers, because they can be negative
-	            audioValues = new int[audioBytes.length];
-	            for(int i = 0; i < audioBytes.length; i++)
-	            {
-	            	audioValues[i] = audioBytes[i];
-	                //if(audioBytes[i] < 0)
-	                //{
-	                //    audioValues[i] = audioBytes[i] + 256;
-	                //}
-	                //System.out.print(audioBytes[i] + " ");
-	                //System.out.print(audioValues[i] + " ");
-	                //System.out.println();
-	            }
-
-
-	        } catch (Exception ex){System.out.println("Error! Problem with audio data");}
-	    } catch (Exception e){System.out.println("Error! Audio not compatible");}
-	    
-	    return audioValues; 
-	}*/
+	/*@Override
+    public void keyPressed(int key, char c)
+    {
+		if (key == Input.KEY_F)
+		{
+			greenSpeed = .5f;
+		}
+		if (key == Input.KEY_J)
+			blueSpeed = .5f;
+    }*/
+	@Override
+    public void keyReleased(int key, char c)
+    {
+		if (key == Input.KEY_F)
+		{
+			if (updateCounter <= 10)
+			{
+				moveLeft.start();
+				selected--;
+			}
+			updateCounter = 0;
+			colorOpacity[0] = 1;
+		}
+		if (key == Input.KEY_J)
+		{
+			if (updateCounter <= 10)
+			{
+				moveRight.start();
+				selected++;
+			}
+			updateCounter = 0;
+			colorOpacity[1] = 1;
+		}
+    }
 	
 	public void update(GameContainer gc, StateBasedGame state, int delta) throws SlickException
 	{
 		Input input = gc.getInput();
 		
-		if (input.isKeyPressed(Input.KEY_SPACE))
+		if (input.isKeyDown(Input.KEY_F))
 		{
-			if (selected != 1)
-			{
-				selected = 1;
-				radar.select(1);
-			}
-			else
-			{
-				transition = true;
-			}
+			colorOpacity[0] = .5f;
+			updateCounter++;
 		}
-		
-		if (input.isKeyPressed(Input.KEY_J))
+		if (input.isKeyPressed(Input.KEY_D))
 		{
-			if (selected != 2)
-			{
-				selected = 2;
-				radar.select(2);
-			}
-			else
-			{
-				transition = true;
-			}
+			move2Left.start();
+			selected -= 2;
 		}
-		
+		if (input.isKeyDown(Input.KEY_J))
+		{
+			colorOpacity[1] = .5f;
+			updateCounter++;
+		}
 		if (input.isKeyPressed(Input.KEY_K))
 		{
-			if (selected != 3)
-			{
-				selected = 3;
-				radar.select(3);
-			}
-			else
-			{
-				transition = true;
-			}
+			move2Right.start();
+			selected += 2;
 		}
 		
-		if (input.isKeyPressed(Input.KEY_L))
+		if (selected < 0)
+			selected += numSongs;
+		if (selected > 9)
+			selected = numSongs - selected;
+		
+		if (moveLeft.isActive())
 		{
-			if (selected != 4)
-			{
-				selected = 4;
-				radar.select(4);
-			}
-			else
-			{
-				transition = true;
-			}
+			songAngles = (float[]) moveLeft.transition(songAngles);
+			for (int i = 0; i < songPoints.length; i++)
+				songPoints[i] = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * (songAngles[i] + 90)))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * (songAngles[i] + 90)))));
+		}
+		if (move2Left.isActive())
+		{
+			songAngles = (float[]) move2Left.transition(songAngles);
+			for (int i = 0; i < songPoints.length; i++)
+				songPoints[i] = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * (songAngles[i] + 90)))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * (songAngles[i] + 90)))));
 		}
 		
-		if (input.isKeyPressed(Input.KEY_SEMICOLON))
+		if (moveRight.isActive())
 		{
-			if (selected != 5)
-			{
-				selected = 5;
-				radar.select(5);
-			}
-			else
-			{
-				transition = true;
-			}
+			songAngles = (float[]) moveRight.transition(songAngles);
+			for (int i = 0; i < songPoints.length; i++)
+				songPoints[i] = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * (songAngles[i] + 90)))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * (songAngles[i] + 90)))));
+		}
+		if (move2Right.isActive())
+		{
+			songAngles = (float[]) move2Right.transition(songAngles);
+			for (int i = 0; i < songPoints.length; i++)
+				songPoints[i] = new Point(fullCenter.getX() + ((float) (fullRadius * Math.cos((Math.PI/180) * (songAngles[i] + 90)))), fullCenter.getY() - ((float) (fullRadius * Math.sin((Math.PI/180) * (songAngles[i] + 90)))));
 		}
 		
-		if (transition)
-		{
-			if (selected == 5)
-			{
-				x = gc.getScreenWidth()/2 + (float) (((gc.getScreenHeight()/10 + 5) * selected) * Math.cos(angle * (Math.PI/180))) - proof.getWidth()/2;
-				y = gc.getScreenHeight()/2 + (float) (((gc.getScreenHeight()/10 + 5) * selected) * Math.sin(angle * (Math.PI/180)));
-				proof.rotate(-1);
-				angle++;
-				if (angle == 360)
-					transition = false;
-			}
-			if (selected == 4)
-			{
-				x2 = gc.getScreenWidth()/2 + (float) (((gc.getScreenHeight()/10 + 5) * selected) * Math.cos(angle2 * (Math.PI/180))) - yes.getWidth()/2;
-				y2 = gc.getScreenHeight()/2 + (float) (((gc.getScreenHeight()/10 + 5) * selected) * Math.sin(angle2 * (Math.PI/180)));
-				yes.rotate(-1);
-				angle2++;
-				if (angle2 == 360)
-					transition = false;
-			}
-			
-			
-		}
+		numGlowCircles = (float) pulse.transition(numGlowCircles);
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
 			state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
@@ -263,27 +263,74 @@ public class TutorialState extends BasicGameState
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
 	{
-		radar.draw(g);
-		
-		g.drawImage(proof, x, y);
-		g.drawImage(yes, x2, y2);
-		
-		//g.setColor(Color.cyan);
-		
-		//for (int i = 1; i < xData.size() - 1; i++)
-		//{
-		//	g.drawLine(xData.get(i - 1), gc.getScreenHeight() - (yData.get(i - 1)), xData.get(i), gc.getScreenHeight() - (yData.get(i)));
-		//}
-		/*int origin = gc.getScreenHeight()/2;
-		int xSpace = 1;
-		
 		g.setAntiAlias(true);
-			
-		g.drawLine(0, origin, xSpace, origin - data[0] * 5);
-		for (int i = 1; i < data.length - 1; i++)
+		g.setLineWidth(3);
+		g.setColor(Color.white);
+		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
+		g.setColor(Color.black);
+		
+		g.draw(new Circle(fullCenter.getX(), fullCenter.getY(), fullRadius));
+		
+		for (int i = 0; i < numSongs; i++)
 		{
-			g.drawLine(xSpace * i, origin - (data[i] * 5), xSpace * (i + 1), origin - (data[i + 1] * 5));
-			//g.drawLine(, arg1, arg2, arg3)
+			g.fill(new Circle(songPoints[i].getX(), songPoints[i].getY(), songRadius));
+			wordFont.drawString(songPoints[i].getX() - wordFont.getWidth(songNames[i])/2, songPoints[i].getY() + ((gc.getScreenHeight() - songPoints[i].getY()))/2, songNames[i], Color.black);
+		}
+		
+		g.setColor(Color.white);
+		g.fillArc(fullCenter.getX() - fullRadius, fullCenter.getY() - fullRadius + 75, 2 * fullRadius, 2 * fullRadius, 230, 260);
+		g.fillArc(fullCenter.getX() - fullRadius, fullCenter.getY() - fullRadius + 75, 2 * fullRadius, 2 * fullRadius, 280, 310);
+		for (int i = 0; i < 5; i++)
+		{
+			g.setColor(new Color(255, 255, 255, 1.0f - (1.0f/5) * i));
+			g.fillArc(fullCenter.getX() - fullRadius, fullCenter.getY() - fullRadius + 75, 2 * fullRadius, 2 * fullRadius, 260 + i * .75f, 261 + i * .75f);
+			g.fillArc(fullCenter.getX() - fullRadius, fullCenter.getY() - fullRadius + 75, 2 * fullRadius, 2 * fullRadius, 279 - i * .75f, 280 - i * .75f);
+		}
+			
+		g.setLineWidth(1);
+		for (int i = 0; i < numGlowCircles; i++)
+		{
+			g.setColor(new Color(255, 0, 0, (1.0f/numGlowCircles) * i/colorOpacity[0]));
+			g.drawArc(pulseCirclePoint.getX() - (songRadius + numGlowCircles - 1 - (1 * i)), pulseCirclePoint.getY() - (songRadius + numGlowCircles - (1 * i)), (songRadius*2) + (numGlowCircles - (1 * i)) * 2, (songRadius*2) + (numGlowCircles - (1 * i)) * 2, 90, 270);
+			g.setColor(new Color(0, 0, 255, (1.0f/numGlowCircles) * i/colorOpacity[1]));
+			g.drawArc(pulseCirclePoint.getX() - (songRadius + numGlowCircles + 1 - (1 * i)), pulseCirclePoint.getY() - (songRadius + numGlowCircles - (1 * i)), (songRadius*2) + (numGlowCircles - (1 * i)) * 2, (songRadius*2) + (numGlowCircles - (1 * i)) * 2, 270, 90);
+			//Draws full circle pulsating
+			//g.draw(new Circle(pulseCirclePoint.getX(), pulseCirclePoint.getY(), songRadius + numGlowCircles - (1 * i)));
+			//The one below gives us a pulsing star thing (cool)
+			//g.draw(new Circle(100, 100, numGlowCircles - (1 * i)));
+			//The one below this draws 3-D stuff that looks cool
+			//g.drawArc(songPoints[selected].getX() - songRadius - numGlowCircles + (1 + i), songPoints[selected].getY() - songRadius - numGlowCircles + (1 * i), 2 * songRadius + (1 * i), 2 * songRadius + (1 * i), 180, 360);
+			g.setColor(new Color(255, 255, 0, (1.0f/numGlowCircles) * i));
+			g.drawArc(fullCenter.getX() - (fullRadius + numGlowCircles - (1 * i)), fullCenter.getY() - 3 - (fullRadius + numGlowCircles - (1 * i)), (2*fullRadius) + (numGlowCircles - (1 * i)) * 2, (2*fullRadius) + (numGlowCircles - (1 * i)) * 2, 230, 260);
+			g.setColor(new Color(0, 255, 0, (1.0f/numGlowCircles) * i));
+			g.drawArc(fullCenter.getX() - (fullRadius + numGlowCircles - (1 * i)), fullCenter.getY() - 3 - (fullRadius + numGlowCircles - (1 * i)), (2*fullRadius) + (numGlowCircles - (1 * i)) * 2, (2*fullRadius) + (numGlowCircles - (1 * i)) * 2, 280, 310);
+		}
+		
+		
+		/*g.setColor(Color.orange);
+		
+		int oldX = 0;
+		int oldY = gc.getScreenHeight()/2;
+		int xIndex = 0;
+		
+		int t = 0;
+
+		for (t = 0; t < increment; t += increment)
+		{
+			g.drawLine(oldX, oldY, xIndex, oldY);
+			xIndex++;
+			oldX = xIndex;
+		}
+		
+		for (; t < toReturn[0].length; t += increment)
+		{
+			double scaledSample = toReturn[0][t] * scaler;
+			int y = (int) ((gc.getScreenHeight() / 2) - (scaledSample));
+			g.drawLine(oldX, oldY, xIndex, y);
+
+			xIndex++;
+			oldX = xIndex;
+			oldY = y;
 		}*/
 		
 		//g.drawString("Tutorial State", 0, 0);

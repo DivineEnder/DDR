@@ -8,7 +8,7 @@ public class Selector
 	public Selector()
 	{
 		angle = 0;
-		speed = 0.5f;
+		speed = 0.5f;//Calculated to allow 11 seconds until the first note hits the bar (144/275)
 		rotations = 0;
 		running = false;
 	}
@@ -25,7 +25,7 @@ public class Selector
 	
 	public float getAngle()
 	{
-		return angle;
+		return angle;                                                                                                                                                                                                                                                                                                                                                                                                 
 	}
 	
 	public void updateSelector()

@@ -18,6 +18,8 @@ public class MainDDR extends StateBasedGame
     	AppGameContainer app = new AppGameContainer(new MainDDR("Shady Rhythms"));
         
         app.setDisplayMode(app.getScreenWidth(), app.getScreenHeight(), false);
+        System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+        app.setTitle("Full Circle");
         app.setTargetFrameRate(60);
         app.setShowFPS(false);
         app.setVSync(true);
@@ -27,10 +29,11 @@ public class MainDDR extends StateBasedGame
     @Override
     public void initStatesList(GameContainer container) throws SlickException
     {
+    	this.addState(new LogoState());
     	this.addState(new MenuState(controls));
     	this.addState(new GameState(controls));
     	this.addState(new ArcadeState(controls));
-    	this.addState(new TutorialState());
+    	this.addState(new TutorialState(controls));
     	this.addState(new OptionsState(controls));
     }
  

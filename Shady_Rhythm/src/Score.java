@@ -3,6 +3,7 @@ import java.io.IOException;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 
 public class Score
@@ -20,9 +21,10 @@ public class Score
 	
 	public void updateMaxPoints()
 	{
-		maxPoints++;
+		maxPoints += 500;
 		percentage = points/maxPoints;
 	}
+	
 	
 	public void modPoints(int value)
 	{
@@ -31,10 +33,12 @@ public class Score
 	
 	public void draw(Graphics g, GameContainer gc)
 	{
-		g.setColor(Color.cyan);
-		g.draw(new Rectangle(gc.getScreenWidth() - 100, 20, 50, 200));
-		g.fill((new Rectangle(gc.getScreenWidth() - 100, 20 + (200 * (1 - percentage)), 50, 200 * (percentage))));
-		g.setColor(Color.white);
-		g.drawString(Integer.toString((int)(percentage * 100)) + "%", gc.getScreenWidth() - 95, 30);
+		g.drawString("" + points, 0, gc.getWidth()/2);
+		g.setColor(Color.black);
+		g.draw(new Circle(gc.getScreenWidth() - 150, 150, 75));
+		g.setColor(Color.red);
+		g.fill(new Circle(gc.getScreenWidth() - 150, 150, 75 * percentage));
+		g.setColor(Color.black);
+		g.drawString(Integer.toString((int)(percentage * 100)) + "%", gc.getScreenWidth() - 148, 150);
 	}
 }

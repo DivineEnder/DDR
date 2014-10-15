@@ -231,7 +231,6 @@ public class MenuState extends BasicGameState
 	{	
 		g.setAntiAlias(true);
 		
-		//background = background.getScaledCopy(gc.getWidth(),gc.getWidth());
 		g.drawAnimation(backgroundAnimation, 0, 0);
 		
 		int screenWidth = gc.getWidth();
@@ -272,9 +271,6 @@ public class MenuState extends BasicGameState
 				g.setColor(rectColors[i + 3]);
 			g.fillRect(rectx + (width/2 * i), screenHeight*2/5 + (3 * height), width/2, height);
 		}
-		
-		//g.setColor(new Color(0, 0, 0, opacity));
-		//g.fill(new Rectangle(0, 0, screenWidth, screenHeight));
 	}
 	
 	public int getID(){
