@@ -73,7 +73,7 @@ public class GameState extends BasicGameState
 			{
 				public void run()
 				{
-					engine.selectSong("data/Music/Rather Be.wav", "data/Music/Rather Be.txt", gc);
+					engine.selectSong("data/Music/Darude - Sandstorm 8bit Remix.wav", "data/Music/song.txt", gc);
 				}
 			};
 			loadSong.start();

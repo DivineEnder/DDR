@@ -20,19 +20,20 @@ public class RadarCircles
 		center_x = screenWidth/2;
 		center_y = screenHeight/2;
 		
-		radius = (screenHeight/8) - 5;
+		radius = (screenHeight/10) - 5;
 		
-		fillColors = new Color[4];
+		fillColors = new Color[5];
 		for (int i = 0; i < fillColors.length; i++)
 			fillColors[i] = Color.black;
 		
-		outlineColors = new Color[4];
-		outlineColors[0] = Color.yellow;
-		outlineColors[1] = Color.green;
-		outlineColors[2] = Color.blue;
-		outlineColors[3] = Color.red;
+		outlineColors = new Color[5];
+		outlineColors[0] = new Color(255, 0, 0);
+		outlineColors[1] = new Color(255, 255, 0);
+		outlineColors[2] = new Color(0, 255, 0);
+		outlineColors[3] = new Color(0, 255, 255);
+		outlineColors[4] = new Color(0, 0, 255);
 		
-		lineWidth = new int[4];
+		lineWidth = new int[5];
 		for (int i = 0; i < lineWidth.length; i++)
 			lineWidth[i] = 3;
 	}
@@ -51,7 +52,7 @@ public class RadarCircles
 	
 	public void draw(Graphics g)
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			g.setLineWidth(lineWidth[i]);
 			g.setColor(outlineColors[i]);

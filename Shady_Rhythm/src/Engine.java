@@ -19,6 +19,7 @@ public class Engine
 	Selector selector;
 	Score points;
 	Music song;
+	boolean playingSong = false;
 	ArrayList<RhythmCircle> circles;
 	ArrayList<Particles> particles;
 	RhythmCircle circle;
@@ -35,7 +36,6 @@ public class Engine
 	
 	public void start()
 	{
-		song.play();
 		selector.start();
 	}
 	
@@ -61,7 +61,12 @@ public class Engine
 		Input input = gc.getInput();
 		
 		selector.updateSelector();
-		
+		if (!playingSong && selector.getAngle() == 180)
+		{
+			playingSong = true;
+			song.play();
+		}
+			
 		for (int i = 0; i < particles.size(); i++)
 		{
 			if (particles.get(i).checkDraw())
@@ -108,7 +113,7 @@ public class Engine
 	}
 	
 	public void render(GameContainer gc, final Graphics g)
-	{	
+	{
 		g.setColor(Color.white);
 		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
 		
