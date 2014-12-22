@@ -34,7 +34,7 @@ public class RhythmCircle
 		circle_radius = 25;
 		
 		double csquared = (circle_radius*2) * (circle_radius*2);
-		double ab = 2 * ((((screenHeight/8) - 5) * layer) * (((screenHeight/8) - 5) * layer));
+		double ab = 2 * ((((screenHeight/10) - 5) * layer) * (((screenHeight/10) - 5) * layer));
 		
 		this.angle = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer); 
 		startAngle = this.angle;
@@ -47,17 +47,19 @@ public class RhythmCircle
 		csquared = (circle_radius*.25) * (circle_radius*.25);
 		pointAngles[2] = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer);
 		
-		x = screenWidth/2 + (float) (((screenHeight/8) * layer) * Math.cos(this.angle * (Math.PI/180)));
-		y = screenHeight/2 + (float) (((screenHeight/8) * layer) * Math.sin(this.angle * (Math.PI/180)));
+		x = screenWidth/2 + (float) (((screenHeight/10) * layer) * Math.cos(this.angle * (Math.PI/180)));
+		y = screenHeight/2 + (float) (((screenHeight/10) * layer) * Math.sin(this.angle * (Math.PI/180)));
 		
 		if (layer == 1)
-			color = Color.yellow;
+			color = new Color(255, 0, 0);
 		else if (layer == 2)
-			color = Color.green;
+			color = new Color(255, 255, 0);
 		else if (layer == 3)
-			color = Color.blue;
+			color = new Color(0, 255, 0);
 		else if (layer == 4)
-			color = Color.red;
+			color = new Color(0, 255, 255);
+		else if (layer == 5)
+			color = new Color(0, 0, 255);
 		
 		radius = 0;
 		visible = false;
@@ -66,19 +68,9 @@ public class RhythmCircle
 		termination = -1;
 	}
 	
-	public float getX()
+	public void printCircle()
 	{
-		return x;
-	}
-	
-	public float getY()
-	{
-		return y;
-	}
-	
-	public Color getColor()
-	{
-		return color;
+		System.out.println("(" + (int)angleStamp + "," + (int)rotations + "," + (int)layer + ")");
 	}
 	
 	public boolean checkTermination()
@@ -95,14 +87,12 @@ public class RhythmCircle
 		termination++;
 	}
 	
-	public boolean checkVisible()
+	public boolean checkVisible(Selector selector)
 	{
+		if (selector.getAngle() == angleStamp && selector.getRotations() == rotations)
+			toggleVisible();
+		
 		return visible;
-	}
-	
-	public boolean checkHit()
-	{
-		return hit;
 	}
 	
 	private void smoothAppear()
@@ -145,8 +135,8 @@ public class RhythmCircle
 	{
 		angle += .75;
 		
-		x = screenWidth/2 + (float) ((((screenHeight/8) - 5) * layer) * Math.cos(angle * (Math.PI/180)));
-		y = screenHeight/2 + (float) ((((screenHeight/8) - 5) * layer) * Math.sin(angle * (Math.PI/180)));
+		x = screenWidth/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.cos(angle * (Math.PI/180)));
+		y = screenHeight/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.sin(angle * (Math.PI/180)));
 		
 		if (angle + .1 >= startAngle + 360 && angle - .1 <= startAngle + 360)
 		{
@@ -154,10 +144,8 @@ public class RhythmCircle
 		}
 	}
 	
-	public void drawCircle(Graphics g, Selector selector)
+	public boolean drawCircle(Graphics g)
 	{
-		if (selector.getAngle() == angleStamp && selector.getRotations() == rotations)
-			toggleVisible();
 		if (visible)  
 		{
 			smoothAppear();
@@ -167,5 +155,7 @@ public class RhythmCircle
 			g.setColor(Color.black);
 			g.draw(new Circle(x, y, radius));
 		}
+		
+		return visible;
 	}
 }

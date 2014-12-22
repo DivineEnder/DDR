@@ -34,8 +34,13 @@ public class RadarCircles
 		outlineColors[4] = new Color(0, 0, 255);
 		
 		lineWidth = new int[5];
-		for (int i = 0; i < lineWidth.length; i++)
-			lineWidth[i] = 3;
+		lineWidth[0] = 4;
+		lineWidth[1] = 2;
+		lineWidth[2] = 4;
+		lineWidth[3] = 2;
+		lineWidth[4] = 4;
+		//for (int i = 0; i < lineWidth.length; i++)
+			//lineWidth[i] = 3;
 	}
 	
 	public void select(int circle)

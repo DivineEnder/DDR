@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -20,17 +21,17 @@ public class Engine
 	Score points;
 	Music song;
 	boolean playingSong = false;
-	ArrayList<RhythmCircle> circles;
 	ArrayList<Particles> particles;
 	RhythmCircle circle;
+	Rhythms rhythm;
 	
-	Engine(GameContainer gc)
+	Engine(GameContainer gc, Rhythms r)
 	{
 		rc = new RadarCircles(gc.getWidth(), gc.getHeight());
+		rhythm = r;
 		selector = new Selector();
 		points = new Score();
 		song = null;
-		circles = new ArrayList<RhythmCircle>();
 		particles = new ArrayList<Particles>();
 	}
 	
@@ -39,80 +40,41 @@ public class Engine
 		selector.start();
 	}
 	
-	public void reset()
-	{
-		song.fade(750, 0, true);
-	}
-	
-	public void selectSong(String musicPath, String rhythmPath, GameContainer gc)
-	{
-		try{song = new Music(musicPath);} catch (SlickException e) {}
-		float[][] data = null;
-    	ReadSong read = new ReadSong(rhythmPath);
-    	try {data = read.OpenFile();} catch (IOException e) {}
-    	for (int i = 0; i < data.length; i++)
-    	{
-    		circles.add(new RhythmCircle(data[i][0], (int) data[i][1], (int) data[i][2], gc));
-    	}
-	}
-	
-	public void update(GameContainer gc, ArrayList<String> specialInput)
+	public void update(GameContainer gc)
 	{
 		Input input = gc.getInput();
 		
 		selector.updateSelector();
-		if (!playingSong && selector.getAngle() == 180)
+		
+		rhythm.updateRhythmCircleList(selector);
+		
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
 		{
-			playingSong = true;
-			song.play();
-		}
-			
-		for (int i = 0; i < particles.size(); i++)
-		{
-			if (particles.get(i).checkDraw())
-				particles.get(i).update();
-			else
-				particles.remove(i);
+			rc.keyPressed("2");
 		}
 		
-		for (int j = 0; j < specialInput.size(); j++)
+		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))	
 		{
-			rc.keyPressed(specialInput.get(j));
-			for (int i = 0; i < circles.size(); i++)
-			{
-				if (circles.get(i).checkVisible())
-				{
-					int pointsAdd = circles.get(i).keyPressed(specialInput.get(j));
-					if (pointsAdd != -1)
-					{
-						particles.add(new Particles(new Random().nextInt((15 - 5) + 1) + 5, circles.get(i).getX(), circles.get(i).getY(), pointsAdd, circles.get(i).getColor()));
-						points.modPoints(pointsAdd);
-					}
-				}
-			}
+			rc.keyPressed("4");
 		}
 		
-		for (int i = 0; i < circles.size(); i++)
+		else if (input.isKeyDown(Input.KEY_H))
 		{
-			if (circles.get(i).checkTermination())
-			{
-				points.updateMaxPoints();
-				circles.remove(i);
-			}
+			rc.keyPressed("1");
 		}
 		
-		if (input.isKeyPressed(Input.KEY_UP))
+		else if (input.isKeyDown(Input.KEY_J))
 		{
-			points.modPoints(1);
-			points.updateMaxPoints();
+			rc.keyPressed("3");
 		}
-		if (input.isKeyPressed(Input.KEY_DOWN))
+		
+		else if (input.isKeyDown(Input.KEY_K))
 		{
-			points.updateMaxPoints();
+			rc.keyPressed("5");
 		}
 	}
 	
-	public void render(GameContainer gc, final Graphics g)
+	public void render(GameContainer gc, Graphics g)
 	{
 		g.setColor(Color.white);
 		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
@@ -123,12 +85,10 @@ public class Engine
 		g.drawString(Float.toString(selector.getAngle()), 0, 0);
 		g.drawString(Integer.toString(selector.getRotations()), 0, 20);
 		
-		for (int i = 0; i < circles.size(); i++)
-			circles.get(i).drawCircle(g, selector);
-		
-		for (int i = 0; i < particles.size(); i++)
-			particles.get(i).draw(g);
-		
-		points.draw(g, gc);
+		for (int i = 0; i < rhythm.circleList.size(); i++)
+		{
+			if (!rhythm.circleList.get(i).drawCircle(g))
+				break;
+		}
 	}
 }

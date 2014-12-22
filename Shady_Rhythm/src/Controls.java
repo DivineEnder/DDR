@@ -16,8 +16,8 @@ public class Controls
 		keyMap = new HashMap<Integer, String>();
 		sKeyMap = new HashMap<Integer, String>();
 		controlKeys = new ArrayList<String>();
-		keyString = new String[4];
-		currentControls = new int[4];
+		keyString = new String[3];
+		currentControls = new int[3];
 		
 		sKeyMap.put(Input.KEY_0, "0");
 		sKeyMap.put(Input.KEY_1, "1");
@@ -109,20 +109,17 @@ public class Controls
 		sKeyMap.put(Input.KEY_Y, "Y");
 		sKeyMap.put(Input.KEY_Z, "Z");
 		
-		keyMap.put(Input.KEY_D, "1");
-		keyMap.put(Input.KEY_F, "2");
+		keyMap.put(Input.KEY_H, "1");
 		keyMap.put(Input.KEY_J, "3");
-		keyMap.put(Input.KEY_K, "4");
+		keyMap.put(Input.KEY_K, "5");
 		
-		keyString[0] = sKeyMap.get(Input.KEY_D);
-		keyString[1] = sKeyMap.get(Input.KEY_F);
-		keyString[2] = sKeyMap.get(Input.KEY_J);
-		keyString[3] = sKeyMap.get(Input.KEY_K);
+		keyString[0] = sKeyMap.get(Input.KEY_H);
+		keyString[1] = sKeyMap.get(Input.KEY_J);
+		keyString[2] = sKeyMap.get(Input.KEY_K);
 		
-		currentControls[0] = Input.KEY_D;
-		currentControls[1] = Input.KEY_F;
-		currentControls[2] = Input.KEY_J;
-		currentControls[3] = Input.KEY_K;
+		currentControls[0] = Input.KEY_H;
+		currentControls[1] = Input.KEY_J;
+		currentControls[2] = Input.KEY_K;
 	}
 	
 	public void setControls(int key, int oldKey)
