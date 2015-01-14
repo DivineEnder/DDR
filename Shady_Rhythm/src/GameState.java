@@ -14,47 +14,95 @@ import org.newdawn.slick.state.transition.FadeOutTransition;
 public class GameState extends BasicGameState
 {
 	Engine engine;
-	ArrayList<Rhythms> storyRhythmList;
+	Rhythms rhythm;
+	Thread loading;
+	Loading loadingScreen;
+	boolean paused;
+	boolean pressAnyKey;
 	
-	public void seedStoryRhythms(GameContainer gc)
+	public GameState(Rhythms engineRhythm)
 	{
-		storyRhythmList.add(new Rhythms("Am I Wrong", gc));
+		rhythm = engineRhythm;
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
-		storyRhythmList = new ArrayList<Rhythms>();
-		seedStoryRhythms(gc);
-		engine = new Engine(gc, storyRhythmList.get(0));
+		engine = new Engine(gc, rhythm);
+		loadingScreen = new Loading(gc.getScreenWidth(), gc.getScreenHeight());
+		
+		paused = false;
+		pressAnyKey = false;
 	}
 	
 	@Override
     public void keyPressed(int key, char c)
     {
-		
+		if (pressAnyKey)
+		{
+			pressAnyKey = false;
+			engine.start();
+		}
     }
+	
+	@Override
+	public void enter(GameContainer gc, StateBasedGame state)
+	{
+		final GameContainer pass = gc;
+		loading = new Thread()
+		{
+			GameContainer gc = pass;
+			public void run()
+			{
+				rhythm.readRhythm(gc);
+			}
+		};
+		pressAnyKey = true;
+		loading.start();
+	}
 	
 	public void update(final GameContainer gc, StateBasedGame state, int delta) throws SlickException
 	{
 		Input input = gc.getInput();
 		
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		if (input.isKeyPressed(Input.KEY_ESCAPE))
 		{
-			engine = new Engine(gc, storyRhythmList.get(0));
-			state.enterState(0);
+			if (paused)
+			{
+				paused = false;
+				engine.play();
+			}
+			else
+			{
+				engine.pause();
+				paused = true;
+			}
 		}
 		
-		if (input.isKeyPressed(Input.KEY_1))
-			engine.start();
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		{
+			engine.reset();
+			state.enterState(2);
+		}
 		
-		engine.update(gc);
+		if (loading.isAlive())
+			loadingScreen.update();
+		else if (!pressAnyKey)
+			engine.update(gc);
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
 	{
 		g.setAntiAlias(true);
 		
-		engine.render(gc, g);
+		if (loading.isAlive())
+			loadingScreen.draw(g);
+		else if (pressAnyKey)
+			g.drawString("Press any key to continue", gc.getScreenWidth()/2 - g.getFont().getWidth("Press any key to continue"), gc.getScreenHeight()/2 - g.getFont().getHeight("Press any key to continue"));
+		else
+			engine.render(gc, g);
+		
+		if (paused)
+			g.drawString("GAME IS PAUSED", gc.getScreenWidth()/2 - g.getFont().getWidth("GAME IS PAUSED"), gc.getScreenHeight()/2 - g.getFont().getHeight("GAME IS PAUSED"));
 	}
 
 	public int getID()

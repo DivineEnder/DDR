@@ -19,7 +19,6 @@ public class Engine
 	RadarCircles rc;
 	Selector selector;
 	Score points;
-	Music song;
 	boolean playingSong = false;
 	ArrayList<Particles> particles;
 	RhythmCircle circle;
@@ -31,7 +30,6 @@ public class Engine
 		rhythm = r;
 		selector = new Selector();
 		points = new Score();
-		song = null;
 		particles = new ArrayList<Particles>();
 	}
 	
@@ -40,9 +38,31 @@ public class Engine
 		selector.start();
 	}
 	
+	public void pause()
+	{
+		selector.pause();
+		if (rhythm.currentSong.playing())
+			rhythm.currentSong.pause();
+	}
+	
+	public void play()
+	{
+		selector.start();
+		rhythm.currentSong.resume();
+	}
+	
+	public void reset()
+	{
+		selector = new Selector();
+		rhythm.currentSong.stop();
+	}
+	
 	public void update(GameContainer gc)
 	{
 		Input input = gc.getInput();
+		
+		if (selector.getRotations() == 0 && selector.getAngle() == (270 - (int) rhythm.circleList.get(0).getStartingAngle()))
+			rhythm.currentSong.play();
 		
 		selector.updateSelector();
 		
@@ -87,8 +107,10 @@ public class Engine
 		
 		for (int i = 0; i < rhythm.circleList.size(); i++)
 		{
-			if (!rhythm.circleList.get(i).drawCircle(g))
-				break;
+			rhythm.circleList.get(i).draw(g, selector);
+			//if (!rhythm.circleList.get(i).draw(g))
+			//	if (i == rhythm.circleList.size()-1 || !rhythm.circleList.get(i + 1).getVisible() )
+					//break;
 		}
 	}
 }

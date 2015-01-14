@@ -13,6 +13,11 @@ public class Selector
 		running = false;
 	}
 	
+	public boolean checkRunning()
+	{
+		return running;
+	}
+	
 	public void start()
 	{
 		running = true;
@@ -26,6 +31,11 @@ public class Selector
 	public float getAngle()
 	{
 		return angle;                                                                                                                                                                                                                                                                                                                                                                                                 
+	}
+	
+	public void pause()
+	{
+		running = false;
 	}
 	
 	public void updateSelector()

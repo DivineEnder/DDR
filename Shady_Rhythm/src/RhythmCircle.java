@@ -68,6 +68,11 @@ public class RhythmCircle
 		termination = -1;
 	}
 	
+	public float getStartingAngle()
+	{
+		return startAngle;
+	}
+	
 	public void printCircle()
 	{
 		System.out.println("(" + (int)angleStamp + "," + (int)rotations + "," + (int)layer + ")");
@@ -92,6 +97,11 @@ public class RhythmCircle
 		if (selector.getAngle() == angleStamp && selector.getRotations() == rotations)
 			toggleVisible();
 		
+		return visible;
+	}
+	
+	public boolean getVisible()
+	{
 		return visible;
 	}
 	
@@ -144,12 +154,15 @@ public class RhythmCircle
 		}
 	}
 	
-	public boolean drawCircle(Graphics g)
+	public boolean draw(Graphics g, Selector selector)
 	{
 		if (visible)  
 		{
-			smoothAppear();
-			move();
+			if (selector.checkRunning())
+			{
+				smoothAppear();
+				move();
+			}
 			g.setColor(color);
 			g.fill(new Circle(x, y, radius));
 			g.setColor(Color.black);

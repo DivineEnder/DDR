@@ -8,7 +8,7 @@ public class Loading
 	private int y;
 	private int radius;
 	
-	Loading(int width, int height)
+	Loading(int screenWidth, int screenHeight)
 	{
 		angles = new int[4][4];
 		angles[0][0] = 0;
@@ -19,9 +19,9 @@ public class Loading
 		angles[2][1] = 270;
 		angles[3][0] = 270;
 		angles[3][1] = 0;
-		radius = height/2;
-		x = width/2 - radius/2;
-		y = height/2 - radius/2;
+		radius = screenHeight/2;
+		x = screenWidth/2 - radius/2;
+		y = screenHeight/2 - radius/2;
 	}
 	
 	public void update()

@@ -6,6 +6,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MainDDR extends StateBasedGame
 {
 	Controls controls = new Controls();
+	Rhythms engineRhythm = new Rhythms();
 	
 	public MainDDR(String title)
 	{
@@ -30,8 +31,8 @@ public class MainDDR extends StateBasedGame
     {
     	this.addState(new LogoState());
     	this.addState(new MenuState(controls));
-    	this.addState(new GameState());
-    	this.addState(new ArcadeState(controls));
+    	this.addState(new ArcadeState(engineRhythm));
+    	this.addState(new GameState(engineRhythm));
     	this.addState(new TutorialState(controls));
     	this.addState(new OptionsState(controls));
     }
