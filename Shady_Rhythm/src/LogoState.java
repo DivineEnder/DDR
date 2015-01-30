@@ -2,6 +2,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
@@ -23,12 +24,13 @@ public class LogoState extends BasicGameState
 	int lineChangeX;
 	float opacity;
 	float opacity2;
+	Music testSound;
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
 		radius = 250;
-		x = gc.getScreenWidth()/2 - radius;
-		y = gc.getScreenHeight()/2 - radius;
+		x = gc.getWidth()/2 - radius;
+		y = gc.getHeight()/2 - radius;
 		change = radius/2;
 		lineChangeY = 0;
 		lineChangeX = radius/2;
@@ -87,9 +89,9 @@ public class LogoState extends BasicGameState
 		g.setLineWidth(5);
 		
 		g.setColor(Color.blue);
-		g.drawArc(gc.getScreenWidth()/2 - radius, gc.getScreenHeight()/2 - radius, radius*2, radius*2, regularAngles[0][0], regularAngles[0][1]);
+		g.drawArc(gc.getWidth()/2 - radius, gc.getHeight()/2 - radius, radius*2, radius*2, regularAngles[0][0], regularAngles[0][1]);
 		g.setColor(Color.yellow);
-		g.drawArc(gc.getScreenWidth()/2 - radius, gc.getScreenHeight()/2 - radius, radius*2, radius*2, regularAngles[1][0], regularAngles[1][1]);
+		g.drawArc(gc.getWidth()/2 - radius, gc.getHeight()/2 - radius, radius*2, radius*2, regularAngles[1][0], regularAngles[1][1]);
 		
 		g.setColor(Color.red);
 		g.drawArc(x + change, y, radius*2, radius*2, angles[0][0], angles[0][1]);
@@ -113,12 +115,12 @@ public class LogoState extends BasicGameState
 		g.drawLine(x + radius + lineChangeX, y + lineChangeY, x + change, y + radius*2 - lineChangeY);
 		
 		//g.setColor(new Color(0, 0, 0, 1 - (counter/100 + .1f)));
-		//g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
+		//g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
 	}
 
 	public int getID()
 	{
-		return 5;
+		return 6;
 	}
 	
 }

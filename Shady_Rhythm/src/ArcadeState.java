@@ -4,15 +4,12 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Circle;
-import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Polygon;
-import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.state.transition.FadeInTransition;
-import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class ArcadeState extends BasicGameState
 {
@@ -28,6 +25,7 @@ public class ArcadeState extends BasicGameState
 	boolean fillLeftArrow = false;
 	boolean fillCircle = false;
 	ArrayList<Circle> pointCircles; // Kyle made me
+	Music backgroundMusic;
 	
 	public ArcadeState(Rhythms rhythm)
 	{
@@ -36,9 +34,11 @@ public class ArcadeState extends BasicGameState
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
+		backgroundMusic = new Music("/data/Sound Testing/Dubstep Filler or Starter.wav");
+		
 		float circleXLocation = gc.getScreenWidth()/5;
 		float circleYLocation = gc.getScreenHeight()/2;
-		float goldenRatio = (float) ((1 + Math.sqrt(5))/2);leftArrow = new Polygon();
+		float goldenRatio = (float) ((1 + Math.sqrt(5))/2);
 		
 		leftArrow = new Polygon();
 		leftArrow.addPoint(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100, gc.getScreenHeight()/2);
@@ -61,11 +61,11 @@ public class ArcadeState extends BasicGameState
 		rhythmsList = new Rhythms[5];
 		for (int i = 0; i < rhythmsList.length; i++)
 			rhythmsList[i] = new Rhythms();
-		rhythmsList[0].setRhythm("Do I Wanna Know - Arctic Monkeys", gc);
-		rhythmsList[1].setRhythm("Hideaway - Kiesza", gc);
-		rhythmsList[2].setRhythm("Human - Christina Perri", gc);
-		rhythmsList[3].setRhythm("Pump Up The Jam Mixdown - Mowe", gc);
-		rhythmsList[4].setRhythm("The Days - Avicii", gc);
+		rhythmsList[0].setRhythm("Do I Wanna Know - Arctic Monkeys");
+		rhythmsList[1].setRhythm("Hideaway - Kiesza");
+		rhythmsList[2].setRhythm("Human - Christina Perri");
+		rhythmsList[3].setRhythm("Pump Up The Jam Mixdown - Mowe");
+		rhythmsList[4].setRhythm("The Days - Avicii");
 		
 		displayCircles = new Circle[5];
 		displayCircles[0] = new Circle(0, gc.getScreenHeight()/2, 0);
@@ -84,6 +84,12 @@ public class ArcadeState extends BasicGameState
 		indexOrder = new ArrayList<Integer>();
 		for (int i = 0; i < 5; i++)
 			indexOrder.add(i);
+	}
+	
+	@Override
+	public void enter(GameContainer gc, StateBasedGame state)
+	{
+		backgroundMusic.loop();
 	}
 	
 	public void changeDisplayed(int increment)
@@ -120,52 +126,59 @@ public class ArcadeState extends BasicGameState
 	{
 		Input input = gc.getInput();
 		
-		if (input.isKeyDown(Input.KEY_K))
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
 		{
-			fillRightArrow = true;
+			state.enterState(0);
 		}
 		else
 		{
-			fillRightArrow = false;
-		}
-		
-		if (input.isKeyDown(Input.KEY_H))
-		{
-			fillLeftArrow = true;
-		}
-		else
-		{
-			fillLeftArrow = false;
-		}
-		
-		if (input.isKeyDown(Input.KEY_J))
-		{
-			fillCircle = true;
-		}
-		else
-		{
-			fillCircle = false;
-		}
-		
-		if (input.isKeyPressed(Input.KEY_K))
-		{
-			changeDisplayed(1);
-			moveCircles();
-			playSample();
-		}
-		
-		if (input.isKeyPressed(Input.KEY_H))
-		{
-			changeDisplayed(-1);
-			moveCircles();
-			playSample();
-		}
-		
-		if (input.isKeyPressed(Input.KEY_J))
-		{
-			int selected = indexOrder.get(2);
-			engineRhythm.setRhythm(rhythmsList[selected].title + " - " + rhythmsList[selected].artist, gc);
-			state.enterState(1);
+			if (input.isKeyDown(Input.KEY_K))
+			{
+				fillRightArrow = true;
+			}
+			else
+			{
+				fillRightArrow = false;
+			}
+			
+			if (input.isKeyDown(Input.KEY_H))
+			{
+				fillLeftArrow = true;
+			}
+			else
+			{
+				fillLeftArrow = false;
+			}
+			
+			if (input.isKeyDown(Input.KEY_J))
+			{
+				fillCircle = true;
+			}
+			else
+			{
+				fillCircle = false;
+			}
+			
+			if (input.isKeyPressed(Input.KEY_K))
+			{
+				changeDisplayed(1);
+				moveCircles();
+				//playSample();
+			}
+			
+			if (input.isKeyPressed(Input.KEY_H))
+			{
+				changeDisplayed(-1);
+				moveCircles();
+				//playSample();
+			}
+			
+			if (input.isKeyPressed(Input.KEY_J))
+			{
+				int selected = indexOrder.get(2);
+				engineRhythm.setRhythm(rhythmsList[selected].title + " - " + rhythmsList[selected].artist);
+				state.enterState(4);
+			}
 		}
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
@@ -230,6 +243,6 @@ public class ArcadeState extends BasicGameState
 
 	public int getID()
 	{
-		return 2;
+		return 1;
 	}
 }

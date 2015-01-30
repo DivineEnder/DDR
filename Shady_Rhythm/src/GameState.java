@@ -1,15 +1,9 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.state.transition.FadeInTransition;
-import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class GameState extends BasicGameState
 {
@@ -87,7 +81,7 @@ public class GameState extends BasicGameState
 		if (loading.isAlive())
 			loadingScreen.update();
 		else if (!pressAnyKey)
-			engine.update(gc);
+			engine.update(gc, state);
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
@@ -107,6 +101,6 @@ public class GameState extends BasicGameState
 
 	public int getID()
 	{
-		return 1;
+		return 4;
 	}
 }

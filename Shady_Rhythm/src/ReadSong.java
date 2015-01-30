@@ -18,7 +18,7 @@ public class ReadSong
 	}
 	
 	//Opens, reads, and returns the file info
-	public float[][] OpenFile() throws IOException
+	public String[] OpenFile() throws IOException
 	{
 		//Creates a FileReader and BufferedReader to read from the file that you pass it
 		FileReader fr = new FileReader(path);
@@ -40,7 +40,7 @@ public class ReadSong
 		textReader.close();
 		
 		//Return the read data from the text file in the form of a string array
-		return toIntList(textData);
+		return textData;
 	}
 	
 	//Returns how many lines of data there are in the file

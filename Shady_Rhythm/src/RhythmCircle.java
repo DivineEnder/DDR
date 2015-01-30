@@ -20,7 +20,6 @@ public class RhythmCircle
 	private static int screenHeight;
 	private Color color;
 	private int termination;
-	private boolean hit;
 	
 	RhythmCircle(float angle, int rotations, int layer, GameContainer gc)
 	{
@@ -63,7 +62,6 @@ public class RhythmCircle
 		
 		radius = 0;
 		visible = false;
-		hit = false;
 		
 		termination = -1;
 	}
@@ -111,16 +109,15 @@ public class RhythmCircle
 			radius += .1;
 	}
 	
-	public int keyPressed(String circle)
+	public int keyPressed(int layerPressed)
 	{
-		int points = -1;
+		int points = 0;
 		
-		if (layer == Integer.parseInt(circle) && termination != 1)
+		if (layer == layerPressed && termination != 1)
 		{
 			if (angle >= (360 - startAngle))
 			{
 				points = 0;
-				hit = true;
 				visible = false;
 				termination = 1;
 				if (angle >= (360 - pointAngles[0]))
@@ -154,7 +151,7 @@ public class RhythmCircle
 		}
 	}
 	
-	public boolean draw(Graphics g, Selector selector)
+	public void draw(Graphics g, Selector selector)
 	{
 		if (visible)  
 		{
@@ -168,7 +165,5 @@ public class RhythmCircle
 			g.setColor(Color.black);
 			g.draw(new Circle(x, y, radius));
 		}
-		
-		return visible;
 	}
 }

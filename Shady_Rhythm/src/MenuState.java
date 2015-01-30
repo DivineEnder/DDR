@@ -1,279 +1,230 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
+import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.state.*;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.TrueTypeFont;
+import java.awt.Font;
 
 public class MenuState extends BasicGameState
 {
-	int selector;  // This means whether to go to story, arcade selector
-	Animation backgroundAnimation;
-	boolean arrow;
-	Controls controls;
-	String specialInput;
-	boolean transition = false;
-	int transitionX = 0;
-	float opacity = 0;
-	
-	public MenuState(Controls control)
-	{
-		controls = control;
-	}
-	
+	Circle[] menuCircles;
+	String[] menuStrings;
+	Point[] menuStringsCoords;
+	Shape selector;
+	Music backgroundMusic;
+	Sound blip;
+	Sound select;
+	Sound transition;
+	Font font = new Font("Verdana", Font.BOLD, 12);
+	TrueTypeFont trueFont = new TrueTypeFont(font, false);
+	int selected;
+	int timer;
+	boolean timerGo = false;
+	Circle timerCircle;
+	Color[] colorArray;
+
+	@Override
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
-		selector = -1;
-		backgroundAnimation = new Animation();
-		specialInput = "";
-		arrow = false;
+		backgroundMusic = new Music("/data/Sound Effects/background.wav");
+		backgroundMusic.loop();
 		
-		for (int i = 1; i <= 6; i++)
-			backgroundAnimation.addFrame(new Image("data/Background_" + i + ".png"), 250);
-		for (int i = 6; i >= 1; i--)
-			backgroundAnimation.addFrame(new Image("data/Background_" + i + ".png"), 250);
+		blip = new Sound("/data/Sound Effects/Blip.wav");
+		select = new Sound("/data/Sound Testing/Select or Level.wav");
+		transition = new Sound("/data/Sound Testing/Transition Laser.wav");
+		
+		float goldenRatio = (float) ((1 + Math.sqrt(5))/2);
+		
+		menuCircles = new Circle[3];
+		menuCircles[0] = new Circle(gc.getWidth()/5, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
+		menuCircles[1] = new Circle(gc.getWidth()/2, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
+		menuCircles[2] = new Circle(gc.getWidth() - gc.getWidth()/5, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
+		
+		colorArray = new Color[]{new Color(255, 0, 0), new Color(255, 255, 0), new Color(0, 255, 0), new Color(0, 255, 255), new Color(0, 0, 255)};
+		
+		menuStrings = new String[5];
+		menuStrings[0] = "Arcade";
+		menuStrings[1] = "OPTIONS";
+		menuStrings[2] = "Story";
+		menuStrings[3] = "EXIT";
+		menuStrings[4] = "Tutorial";
+		
+		menuStringsCoords = new Point[]{new Point(gc.getWidth()/2 - (gc.getWidth()/2 - gc.getWidth()/5)/2, gc.getHeight()/2), new Point(gc.getWidth()/2 + (gc.getWidth()/2 - gc.getWidth()/5)/2, gc.getHeight()/2)};
+		
+		selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
+		
+		timerCircle = new Circle(gc.getWidth()/2, gc.getHeight()/2 + gc.getHeight()/3, 50);
+		
+		selected = 2;
+		timer = 0;
+	}
+
+	public void drawStringDown(float x, float y, String string, Graphics g)
+	{
+		int height = g.getFont().getHeight(string);
+		String[] stringChars = new String[string.length()];
+		for (int i = 1; i < string.length() + 1; i++)
+			stringChars[i - 1] = string.substring(i - 1, i);
+		
+		for (int i = 0; i < stringChars.length; i++)
+		{
+			g.drawString(stringChars[i], x - g.getFont().getWidth(stringChars[i])/2, (y - (height * (stringChars.length/2))) + (i * height));
+		}
 	}
 	
 	@Override
-    public void keyPressed(int key, char c)
-    {
-		String in = (String) controls.getKeyMapping().get(key);
-		if (in != null)
-			specialInput = (String) controls.getKeyMapping().get(key);
-    }
-	
-	public void transition(StateBasedGame state, int screenWidth, int screenHeight)
+	public void enter(GameContainer gc, StateBasedGame state)
 	{
-		transitionX += (screenWidth * (4/5))/2000;
-		opacity += (transitionX/screenWidth) * 255;
-		if (transitionX == screenWidth * (4/5))
-		{
-			state.enterState(2);
-			transition = false;
-		}
+		timerGo = false;
+		timer = 0;
+		if (!backgroundMusic.playing())
+			backgroundMusic.loop();
 	}
 	
-	public void update(GameContainer gc, StateBasedGame state, int delta)throws SlickException
-	{
-		int screenWidth = gc.getWidth();
-		int screenHeight = gc.getHeight();
-		
-		if (!transition)
-		{
-			transitionX = 0;
-			opacity = 0;
-			Input input = gc.getInput();
-			
-			int xpos = Mouse.getX();
-			int ypos = gc.getHeight() - Mouse.getY();
-			
-			if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * 2/5) && ypos < (screenHeight * 2/5 + screenHeight * 3/25))
-			{
-				selector = 0;
-				
-				if(input.isMouseButtonDown(0))
-				{
-					arrow = false;
-					state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-			}
-			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 3/25) && ypos < (screenHeight * 2/5 + screenHeight * 6/25))
-			{
-				selector = 1;
-				
-				if(input.isMouseButtonDown(0))
-				{
-					arrow = false;
-					transition = true;
-				}
-			}
-			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 6/25) && ypos < (screenHeight * 2/5 + screenHeight * 9/25))
-			{
-				selector = 2;
-				
-				if(input.isMouseButtonDown(0))
-				{
-					arrow = false;
-					state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-			}
-			else if (xpos > (screenWidth/5) && xpos < (screenWidth/5 + screenWidth * 3/10) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
-			{
-				selector = 3;
-				
-				if(input.isMouseButtonDown(0))
-				{
-					arrow = false;
-					state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-			}
-			else if (xpos > (screenWidth/5 + screenWidth * 3/10) && xpos < (screenWidth/5 + screenWidth * 3/5) && ypos > (screenHeight * .4 +  screenHeight * 9/25) && ypos < (screenHeight * 2/5 + screenHeight * 12/25))
-			{
-				selector = 4;
-				
-				if(input.isMouseButtonDown(0))
-					System.exit(0);
-			}
-			else
-			{
-				if(!arrow)
-					selector = -1;
-			}
-			if(input.isKeyPressed(Input.KEY_UP))
-			{
-				selector--;
-				if (selector == -1)
-					selector = 4;
-				
-				arrow = true;
-			}
-			if(input.isKeyPressed(Input.KEY_DOWN))
-			{
-				selector++;
-				if (selector == 5)
-					selector = 0;
-				
-				arrow = true;
-			}
-			if(input.isKeyPressed(Input.KEY_RIGHT))
-			{
-				if (selector == 3)
-					selector = 4;
-				
-				arrow = true;
-			}
-			if(input.isKeyPressed(Input.KEY_LEFT))
-			{
-				if(selector == 4)
-					selector = 3;
-				
-				arrow = true;
-			}
-			if (specialInput.equals("1"))
-			{
-				if (selector != 0)
-				{
-					selector = 0;
-					arrow = true;
-				}
-				else
-				{
-					arrow = false;
-					state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				
-				specialInput = "";
-			}
-			if (specialInput.equals("2"))
-			{
-				if (selector != 1)
-				{
-					selector = 1;
-					arrow = true;
-				}
-				else
-				{
-					arrow = false;
-					state.enterState(2, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				
-				specialInput = "";
-			}
-			if (specialInput.equals("3"))
-			{
-				if (selector != 2)
-				{
-					selector = 2;
-					arrow = true;
-				}
-				else
-				{
-					arrow = false;
-					state.enterState(3, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				
-				specialInput = "";
-			}
-			if (specialInput.equals("4"))
-			{
-				if (selector != 3)
-				{
-					selector = 3;
-					arrow = true;
-				}
-				else
-				{
-					arrow = false;
-					state.enterState(4, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				
-				specialInput = "";
-			}
-			if (specialInput.equals("5"))
-			{
-				if (selector != 4)
-					selector = 4;
-				else
-					System.exit(0);
-				
-				arrow = true;
-				specialInput = "";
-			}
-		}
-		else
-			transition(state, screenWidth, screenHeight);
-		
-	}
-	
+	@Override
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
-	{	
+	{
 		g.setAntiAlias(true);
+		g.setFont(trueFont);
 		
-		g.drawAnimation(backgroundAnimation, 0, 0);
+		g.setColor(colorArray[0]);
+		g.fill(menuCircles[0]);
+		g.setColor(Color.black);
+		g.drawString(menuStrings[0], menuCircles[0].getCenterX() - g.getFont().getWidth(menuStrings[0])/2, menuCircles[0].getCenterY() - g.getFont().getHeight(menuStrings[0])/2);
 		
-		int screenWidth = gc.getWidth();
-		int screenHeight = gc.getHeight();
+		g.setColor(colorArray[1]);
+		drawStringDown(menuStringsCoords[0].getX(), menuStringsCoords[0].getY(), menuStrings[1], g);
 		
-		float rectx = screenWidth/5; // The two is for the extra bezel to put a box behind it
-		float height = screenHeight * 3/25;
-		float width = screenWidth * 3/5;
+		g.setColor(colorArray[2]);
+		g.fill(menuCircles[1]);
+		g.setColor(Color.black);
+		g.drawString(menuStrings[2], menuCircles[1].getCenterX() - g.getFont().getWidth(menuStrings[2])/2, menuCircles[1].getCenterY() - g.getFont().getHeight(menuStrings[2])/2);
 		
-		Color[] rectColors = new Color[5];
-		rectColors[0] = new Color(255, 255, 255, 64);
-		rectColors[1] = new Color(23, 110, 24, 64);
-		rectColors[2] = new Color(0, 10, 255, 64);
-		rectColors[3] = new Color(255, 0, 18, 64);
-		rectColors[4] = new Color(255, 239, 0, 64);
+		g.setColor(colorArray[3]);
+		drawStringDown(menuStringsCoords[1].getX(), menuStringsCoords[1].getY(), menuStrings[3], g);
 		
-		Color[] rectModColors = new Color[5];
-		rectModColors[0] = new Color(255, 255, 255, 128);
-		rectModColors[1] = new Color(23, 110, 24, 200);
-		rectModColors[2] = new Color(0, 10, 255, 128);
-		rectModColors[3] = new Color(255, 0, 18, 128);
-		rectModColors[4] = new Color(255, 239, 0, 128);
+		g.setColor(colorArray[4]);
+		g.fill(menuCircles[2]);
+		g.setColor(Color.black);
+		g.drawString(menuStrings[4], menuCircles[2].getCenterX() - g.getFont().getWidth(menuStrings[4])/2, menuCircles[2].getCenterY() - g.getFont().getHeight(menuStrings[4])/2);
 		
-		for (int i = 0; i < 3; i++)
+		if (timerGo)
 		{
-			if (selector == i)
-				g.setColor(rectModColors[i]);
-			else
-				g.setColor(rectColors[i]);
-			g.fillRect(rectx + transitionX, screenHeight*2/5 + (height * i), width, height);
+			g.setLineWidth(3);
+			g.setColor(colorArray[selected]);
+			g.draw(timerCircle);
+			
+			g.setAntiAlias(false);
+			g.fillArc(timerCircle.getX(), timerCircle.getY(), timerCircle.getRadius() * 2, timerCircle.getRadius() * 2, 270, 270 + (timer * (360f/100f)));
+			g.setAntiAlias(true);
 		}
 		
-		for (int i = 0; i < 2; i++)
+		g.setLineWidth(10);
+		g.setColor(new Color(255, 255, 255));
+		g.draw(selector);
+	}
+	
+	@Override
+	public void keyPressed(int key, char c)
+	{
+		if (key == Input.KEY_H)
 		{
-			if (selector == i + 3)
-				g.setColor(rectModColors[i + 3]);
-			else
-				g.setColor(rectColors[i + 3]);
-			g.fillRect(rectx + (width/2 * i), screenHeight*2/5 + (3 * height), width/2, height);
+			timerGo = true;
+		}
+		else if (key == Input.KEY_J)
+		{
+			timerGo = true;
+		}
+		else if (key == Input.KEY_K)
+		{
+			timerGo = true;
 		}
 	}
 	
-	public int getID(){
+	@Override
+	public void keyReleased(int key, char c)
+	{
+		if (key == Input.KEY_H)
+		{
+			timerGo = false;
+			timer = 0;
+		}
+		else if (key == Input.KEY_J)
+		{
+			timerGo = false;
+			timer = 0;
+		}
+		else if (key == Input.KEY_K)
+		{
+			timerGo = false;
+			timer = 0;
+		}
+	}
+
+	@Override
+	public void update(GameContainer gc, StateBasedGame state, int delta) throws SlickException
+	{
+		Input input = gc.getInput();
+		
+		if (timer == 100)
+		{
+			backgroundMusic.fade(750, 0, true);
+			transition.play();
+			select.play();
+			if (selected == 3)
+				gc.exit();
+			else
+				state.enterState(selected + 1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+		}
+		
+		int thisIteration = selected;
+		
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
+		{
+			selector = new Rectangle(menuStringsCoords[0].getX() - 20, menuStringsCoords[0].getY() - 51, 40, 120);
+			selected = 1;
+		}
+		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		{
+			selector = new Rectangle(menuStringsCoords[1].getX() - 20, menuStringsCoords[1].getY() - 37, 40, 74);
+			selected = 3;
+		}
+		else if (input.isKeyPressed(Input.KEY_H) && selected != 0)
+		{
+			selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
+			selected = 0;
+		}
+		else if (input.isKeyPressed(Input.KEY_J) && selected != 2)
+		{
+			selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
+			selected = 2;
+		}
+		else if (input.isKeyPressed(Input.KEY_K) && selected != 4)
+		{
+			selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
+			selected = 4;
+		}
+		
+		if (selected != thisIteration)
+		{
+			blip.play();
+		}
+		
+		if (timerGo)
+			timer++;
+			
+	}
+	
+	public int getID()
+	{
 		return 0;
 	}
 }

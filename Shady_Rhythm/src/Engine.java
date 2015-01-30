@@ -1,18 +1,11 @@
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
-import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
-import org.newdawn.slick.Music;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.state.StateBasedGame;
 
 public class Engine
 {
@@ -57,12 +50,15 @@ public class Engine
 		rhythm.currentSong.stop();
 	}
 	
-	public void update(GameContainer gc)
+	public void update(GameContainer gc, StateBasedGame state)
 	{
 		Input input = gc.getInput();
 		
+		try
+		{
 		if (selector.getRotations() == 0 && selector.getAngle() == (270 - (int) rhythm.circleList.get(0).getStartingAngle()))
 			rhythm.currentSong.play();
+		}catch(IndexOutOfBoundsException e){}
 		
 		selector.updateSelector();
 		
@@ -70,27 +66,47 @@ public class Engine
 		
 		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
 		{
-			rc.keyPressed("2");
+			rc.keyPressed(2);
+			try
+			{
+				rhythm.circleList.get(0).keyPressed(2);
+			}catch(IndexOutOfBoundsException e){}
 		}
 		
 		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))	
 		{
-			rc.keyPressed("4");
+			rc.keyPressed(4);
+			try
+			{
+				rhythm.circleList.get(0).keyPressed(4);
+			}catch(IndexOutOfBoundsException e){}
 		}
 		
 		else if (input.isKeyDown(Input.KEY_H))
 		{
-			rc.keyPressed("1");
+			rc.keyPressed(1);
+			try
+			{
+				rhythm.circleList.get(0).keyPressed(1);
+			}catch(IndexOutOfBoundsException e){}
 		}
 		
 		else if (input.isKeyDown(Input.KEY_J))
 		{
-			rc.keyPressed("3");
+			rc.keyPressed(3);
+			try
+			{
+				rhythm.circleList.get(0).keyPressed(3);
+			}catch(IndexOutOfBoundsException e){}
 		}
 		
 		else if (input.isKeyDown(Input.KEY_K))
 		{
-			rc.keyPressed("5");
+			rc.keyPressed(5);
+			try
+			{
+				rhythm.circleList.get(0).keyPressed(5);
+			}catch(IndexOutOfBoundsException e){}
 		}
 	}
 	

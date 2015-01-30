@@ -132,6 +132,6 @@ public class OptionsState extends BasicGameState
 
 	public int getID()
 	{
-		return 4;
+		return 2;
 	}
 }

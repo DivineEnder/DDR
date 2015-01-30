@@ -50,9 +50,9 @@ public class RadarCircles
 		lineWidth[circle - 1] = 8;
 	}
 	
-	public void keyPressed(String circle)
+	public void keyPressed(int layer)
 	{
-		fillColors[Integer.parseInt(circle) - 1] = outlineColors[Integer.parseInt(circle) - 1];
+		fillColors[layer - 1] = outlineColors[layer - 1];
 	}
 	
 	public void draw(Graphics g)
