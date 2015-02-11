@@ -24,7 +24,6 @@ public class LogoState extends BasicGameState
 	int lineChangeX;
 	float opacity;
 	float opacity2;
-	Music testSound;
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{

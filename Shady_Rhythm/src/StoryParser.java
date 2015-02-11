@@ -1,8 +1,10 @@
 import java.io.IOException;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
 
 public class StoryParser
 {
@@ -94,14 +96,14 @@ public class StoryParser
 		}
 	}
 	
-	public void drawText(TrueTypeFont wordFont, int storyPosition, GameContainer gc)
+	public void drawText(TrueTypeFont wordFont, int storyPosition, GameContainer gc, Graphics g)
 	{
 		if (displayLineCounter < currentDisplay.length)
 			addCurrentDisplay(storyPosition);
 		
 		for (int i = 0; i < currentDisplay.length; i++)
 		{
-			wordFont.drawString(20 * 2, (gc.getHeight() * 2/3) + (wordFont.getHeight() * i) + (5 * i), currentDisplay[i]);
+			wordFont.drawString(20 * 2, (gc.getHeight() * 2/3) + (wordFont.getHeight(currentDisplay[i]) * i) + (5 * i), currentDisplay[i]);
 		}
 	}
 }

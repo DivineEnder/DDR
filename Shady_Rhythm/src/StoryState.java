@@ -7,6 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -17,6 +18,8 @@ public class StoryState extends BasicGameState
 	Rhythms engineRhythm;
 	TrueTypeFont wordFont;
 	int storyPosition;
+	int timer;
+	boolean timerGo = false;
 	
 	StoryState(Rhythms rhythm)
 	{
@@ -37,6 +40,45 @@ public class StoryState extends BasicGameState
 		rhythmList[0].setRhythm("Do I Wanna Know - Arctic Monkeys");
 		
 		storyPosition = 0;
+		timerGo = false;
+		timer = 0;
+	}
+	
+	@Override
+	public void keyPressed(int key, char c)
+	{
+		if (key == Input.KEY_H)
+		{
+			timerGo = true;
+		}
+		else if (key == Input.KEY_J)
+		{
+			timerGo = true;
+		}
+		else if (key == Input.KEY_K)
+		{
+			timerGo = true;
+		}
+	}
+	
+	@Override
+	public void keyReleased(int key, char c)
+	{
+		if (key == Input.KEY_H)
+		{
+			timerGo = false;
+			timer = 0;
+		}
+		else if (key == Input.KEY_J)
+		{
+			timerGo = false;
+			timer = 0;
+		}
+		else if (key == Input.KEY_K)
+		{
+			timerGo = false;
+			timer = 0;
+		}
 	}
 
 	@Override
@@ -53,7 +95,22 @@ public class StoryState extends BasicGameState
 		g.setColor(Color.black);
 		g.fillRoundRect(20, (gc.getHeight() * 2/3) - 20, gc.getWidth() - (20 * 2), gc.getHeight() * 1/3, 20);
 		
-		story[0].drawText(wordFont, storyPosition, gc);
+		story[0].drawText(wordFont, storyPosition, gc, g);
+		
+		g.setAntiAlias(false);
+		g.setColor(Color.red);
+		g.fillArc(0 - (125/2), gc.getHeight() - (125/2), 125, 125, 270, 0);
+		
+		g.setColor(Color.green);
+		g.fillArc(gc.getWidth()/2 - 75, gc.getHeight() - 75, 150, 150, 180, 0);
+		
+		g.setColor(Color.blue);
+		g.fillArc(gc.getWidth() - (125/2), gc.getHeight() - (125/2), 125, 125, 180, 270);
+		
+		//g.setColor(Color.green);
+		//g.setAntiAlias(false);
+		//g.fillArc((gc.getWidth() - (20 * 2))/2, (gc.getHeight() * 2/3) + (wordFont.getHeight() * 5) + (5 * 3) - 20, 20, 20, 270, 270 + (timer * (360f/100f)));
+		//g.fill(new Circle((gc.getWidth() - (20 * 2))/2 + 20, (gc.getHeight() * 2/3) + (wordFont.getHeight() * 5) + (5 * 5), 10));
 	}
 
 	@Override
@@ -61,17 +118,21 @@ public class StoryState extends BasicGameState
 	{
 		Input input = gc.getInput();
 		
-		if (input.isKeyPressed(Input.KEY_J))
+		if (timer == 100)
 		{
 			story[0].setDisplay();
 			if (storyPosition == story[0].story.length - 1)
 			{
-				engineRhythm.setRhythm(rhythmList[0].title + " - " + rhythmList[0].artist);
-				state.enterState(4);
+				storyPosition = 0;
+				//engineRhythm.setRhythm(rhythmList[0].title + " - " + rhythmList[0].artist);
+				//state.enterState(4);
 			}
 			else
 				storyPosition++;
 		}
+		
+		if (timerGo)
+			timer += 2;
 	}
 
 	@Override

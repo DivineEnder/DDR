@@ -30,6 +30,7 @@ public class MainDDR extends StateBasedGame
     public void initStatesList(GameContainer container) throws SlickException
     {
     	this.addState(new LogoState());
+    	//this.addState(new FullCircleLogoState());
     	this.addState(new MenuState());
     	this.addState(new ArcadeState(engineRhythm));
     	this.addState(new GameState(engineRhythm));
