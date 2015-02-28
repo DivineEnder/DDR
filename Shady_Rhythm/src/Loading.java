@@ -1,56 +1,78 @@
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Point;
 
 public class Loading
 {
-	private int[][] angles;
-	private int x;
-	private int y;
-	private int radius;
+	private float[] centerX;
+	private float[] centerY;
+	private float[] startAngle;
+	private float[] endAngle;
+	private float radius;
+	private Color[] loadingColors;
 	
-	Loading(int screenWidth, int screenHeight)
+	Loading(int windowWidth, int windowHeight)
 	{
-		angles = new int[4][4];
-		angles[0][0] = 0;
-		angles[0][1] = 90;
-		angles[1][0] = 90;
-		angles[1][1] = 180;
-		angles[2][0] = 180;
-		angles[2][1] = 270;
-		angles[3][0] = 270;
-		angles[3][1] = 0;
-		radius = screenHeight/2;
-		x = screenWidth/2 - radius/2;
-		y = screenHeight/2 - radius/2;
+		float x = windowWidth/2;
+		float y = windowHeight/2;
+		float r = windowHeight/4;
+		
+		centerX = new float[5];
+		centerY = new float[5];
+		for (int i = 0; i < centerX.length; i++)
+		{
+			centerX[i] = (float) (x + (r-30) * Math.cos(i * 2 * Math.PI / 5));
+			centerY[i] = (float) (y + (r-30) * Math.sin(i * 2 * Math.PI / 5));
+		}
+		
+		startAngle = new float[5];
+		endAngle = new float[5];
+		for (int i = 0; i < startAngle.length; i++)
+		{
+			Point point = new Point((float) (x + r * Math.cos((i * 2 * Math.PI / 5) + (270 * Math.PI/180))), (float) (y + r * Math.sin((i * 2 * Math.PI / 5) + (270 * Math.PI/180))));
+			endAngle[i] = (float) Math.atan((centerY[i] - point.getY())/(centerX[i] - point.getX()));
+			if (i == 0 || i == 4)
+				endAngle[i] = (float) (endAngle[i] * (180/Math.PI)) + 180;
+			else
+				endAngle[i] = (float) (endAngle[i] * (180/Math.PI));
+			startAngle[i] = endAngle[i] - 84;
+		}
+		
+		loadingColors = new Color[5];
+		loadingColors[0] = new Color(0, 255, 255, .05f);
+		loadingColors[1] = new Color(0, 0, 255, .05f);
+		loadingColors[2] = new Color(255, 0, 0, .05f);
+		loadingColors[3] = new Color(255, 255, 0, .05f);
+		loadingColors[4] = new Color(0, 255, 0, .05f);
+		
+		radius = r;
 	}
 	
 	public void update()
 	{
-		int mod = 1;
-		for (int i = 0; i < angles.length; i++)
+		for (int i = 0; i < startAngle.length; i++)
 		{
-			for (int j = 0; j < angles[i].length; j++)
-			{
-				angles[i][j] += mod;
-			}
-			if (mod == 1)
-				mod = -1;
-			else
-				mod = 1;
+			startAngle[i] += 10;
+			endAngle[i] += 10;
 		}
 	}
 	
 	public void draw(Graphics g)
 	{
 		g.setLineWidth(5);
-		
-		g.setColor(Color.yellow);
-		g.drawArc(x, y, radius, radius, angles[0][0], angles[0][1]);
-		g.setColor(Color.green);
-		g.drawArc(x, y, radius, radius, angles[1][0], angles[1][1]);
-		g.setColor(Color.blue);
-		g.drawArc(x, y, radius, radius, angles[2][0], angles[2][1]);
-		g.setColor(Color.red);
-		g.drawArc(x, y, radius, radius, angles[3][0], angles[3][1]);
+		for (int i = 0; i < 5; i++)
+		{
+			for (int j = 1; j <= 5; j++)
+			{
+				g.setColor(new Color(loadingColors[i].r, loadingColors[i].g, loadingColors[i].b, loadingColors[i].a * j));
+				float factor = 15;
+				for (int k = 6 - j; k > 0; k--)
+					factor -= k;
+				g.drawArc(centerX[i] - radius, centerY[i] - radius, radius * 2, radius * 2, startAngle[i] + (factor * 80/15), endAngle[i]);
+			}
+			
+			g.setColor(new Color(loadingColors[i].r, loadingColors[i].g, loadingColors[i].b));
+			g.drawArc(centerX[i] - radius, centerY[i] - radius, radius * 2, radius * 2, endAngle[i] - 4, endAngle[i]);
+		}
 	}
 }

@@ -25,16 +25,17 @@ public class Rhythms
 	public void readRhythm(GameContainer gc)
 	{
 		String filename = title + " - " + artist;
-		System.out.println(filename);
+		//System.out.println(filename);
 		
 		try{currentSong = new Music("data/Music/" + filename + ".wav");} catch (SlickException e) {}
 		float[][] data = null;
     	ReadSong read = new ReadSong("data/Music/" + filename + ".txt");
     	try {data = read.toIntList(read.OpenFile());} catch (IOException e) {System.out.println(e);}
+    	circleList = new ArrayList<RhythmCircle>();
     	for (int i = 0; i < data.length; i++)
     	{
     		circleList.add(new RhythmCircle(data[i][0], (int) data[i][1], (int) data[i][2], gc));
-    		circleList.get(i).printCircle();
+    		//circleList.get(i).printCircle();
     	}
 	}
 	

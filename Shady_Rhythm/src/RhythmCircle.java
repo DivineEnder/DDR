@@ -5,60 +5,67 @@ import org.newdawn.slick.geom.Circle;
 
 public class RhythmCircle
 {
+	private static int windowWidth;
+	private static int windowHeight;
+	
 	private float x;
 	private float y;
-	private boolean visible;
 	private float rotations;
-	private float angleStamp;
 	private float angle;
-	private float startAngle;
-	private float[] pointAngles;
-	private int layer;
+	
+	private float startDrawingAngle;
+	private float circleRadiusAsAngle;
+	
 	private float radius;
 	private static float circle_radius;
-	private static int screenWidth;
-	private static int screenHeight;
-	private Color color;
+	
+	private boolean visible;
+	
+	private float[] pointAngles;
+	private int layer;
 	private int termination;
 	
-	RhythmCircle(float angle, int rotations, int layer, GameContainer gc)
+	private Color color;
+	
+	
+	RhythmCircle(float a, int rot, int lay, GameContainer gc)
 	{
-		screenWidth = gc.getWidth();
-		screenHeight = gc.getHeight();
+		windowWidth = gc.getWidth();
+		windowHeight = gc.getHeight();
 		
-		angleStamp = angle;
-		this.rotations = rotations;
-		this.layer = layer;
+		startDrawingAngle = a;
+		rotations = rot;
+		layer = lay;
 		
 		circle_radius = 25;
 		
 		double csquared = (circle_radius*2) * (circle_radius*2);
-		double ab = 2 * ((((screenHeight/10) - 5) * layer) * (((screenHeight/10) - 5) * layer));
+		double ab = 2 * ((((windowHeight/10) - 5) * layer) * (((windowHeight/10) - 5) * layer));
 		
-		this.angle = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer); 
-		startAngle = this.angle;
+		angle = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer); 
+		circleRadiusAsAngle = angle;
 		
-		pointAngles = new float[3];
+		/*pointAngles = new float[3];
 		csquared = circle_radius * circle_radius;
 		pointAngles[0] = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer);
 		csquared = (circle_radius*.5) * (circle_radius*.5);
 		pointAngles[1] = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer);
 		csquared = (circle_radius*.25) * (circle_radius*.25);
-		pointAngles[2] = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer);
+		pointAngles[2] = (float) (Math.acos((csquared - ab) / (-1 * ab)) * (180/Math.PI)) + (5/layer);*/
 		
-		x = screenWidth/2 + (float) (((screenHeight/10) * layer) * Math.cos(this.angle * (Math.PI/180)));
-		y = screenHeight/2 + (float) (((screenHeight/10) * layer) * Math.sin(this.angle * (Math.PI/180)));
+		x = windowWidth/2 + (float) (((windowHeight/10) * layer) * Math.cos(angle * (Math.PI/180)));
+		y = windowHeight/2 + (float) (((windowHeight/10) * layer) * Math.sin(angle * (Math.PI/180)));
 		
 		if (layer == 1)
-			color = new Color(255, 0, 0);
+			color = new Color(173, 16, 16);
 		else if (layer == 2)
-			color = new Color(255, 255, 0);
+			color = new Color(196, 196, 16);
 		else if (layer == 3)
-			color = new Color(0, 255, 0);
+			color = new Color(22, 161, 22);
 		else if (layer == 4)
-			color = new Color(0, 255, 255);
+			color = new Color(63, 186, 186);
 		else if (layer == 5)
-			color = new Color(0, 0, 255);
+			color = new Color(10, 29, 145);
 		
 		radius = 0;
 		visible = false;
@@ -68,12 +75,12 @@ public class RhythmCircle
 	
 	public float getStartingAngle()
 	{
-		return startAngle;
+		return circleRadiusAsAngle;
 	}
 	
 	public void printCircle()
 	{
-		System.out.println("(" + (int)angleStamp + "," + (int)rotations + "," + (int)layer + ")");
+		System.out.println("(" + (int)startDrawingAngle + "," + (int)rotations + "," + (int)layer + ")");
 	}
 	
 	public boolean checkTermination()
@@ -92,15 +99,22 @@ public class RhythmCircle
 	
 	public boolean checkVisible(Selector selector)
 	{
-		if (selector.getAngle() == angleStamp && selector.getRotations() == rotations)
+		if (selector.getAngle() == startDrawingAngle && selector.getRotations() == rotations)
 			toggleVisible();
 		
 		return visible;
 	}
 	
-	public boolean getVisible()
+	public void keyPressed(int layerPressed)
 	{
-		return visible;
+		if (layer == layerPressed && termination != 1)
+		{
+			if (angle > (360 - circleRadiusAsAngle))
+			{
+				visible = false;
+				termination = 1;
+			}
+		}
 	}
 	
 	private void smoothAppear()
@@ -109,46 +123,27 @@ public class RhythmCircle
 			radius += .1;
 	}
 	
-	public int keyPressed(int layerPressed)
-	{
-		int points = 0;
-		
-		if (layer == layerPressed && termination != 1)
-		{
-			if (angle >= (360 - startAngle))
-			{
-				points = 0;
-				visible = false;
-				termination = 1;
-				if (angle >= (360 - pointAngles[0]))
-				{
-					points = 100;
-					if (angle >= (360 - pointAngles[1]))
-					{
-						points = 250;
-						if (angle >= (360 - pointAngles[2]))
-						{
-							points = 500;
-						}
-					}
-				}
-			}
-		}
-		
-		return points;
-	}
-	
 	public void move()
 	{
 		angle += .75;
 		
-		x = screenWidth/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.cos(angle * (Math.PI/180)));
-		y = screenHeight/2 + (float) ((((screenHeight/10) - 5) * layer) * Math.sin(angle * (Math.PI/180)));
-		
-		if (angle + .1 >= startAngle + 360 && angle - .1 <= startAngle + 360)
+		x = windowWidth/2 + (float) ((((windowHeight/10) - 5) * layer) * Math.cos(angle * (Math.PI/180)));
+		y = windowHeight/2 + (float) ((((windowHeight/10) - 5) * layer) * Math.sin(angle * (Math.PI/180)));
+	}
+	
+	private void checkFullCircle()
+	{
+		if (angle + .1 >= circleRadiusAsAngle + 360 && angle - .1 <= circleRadiusAsAngle + 360)
 		{
 			toggleVisible();
 		}
+	}
+	
+	public void updateCircle()
+	{
+		smoothAppear();
+		move();
+		checkFullCircle();
 	}
 	
 	public void draw(Graphics g, Selector selector)
@@ -156,10 +151,7 @@ public class RhythmCircle
 		if (visible)  
 		{
 			if (selector.checkRunning())
-			{
-				smoothAppear();
-				move();
-			}
+				updateCircle();
 			g.setColor(color);
 			g.fill(new Circle(x, y, radius));
 			g.setColor(Color.black);

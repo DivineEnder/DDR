@@ -73,9 +73,6 @@ public class LogoShape
 			rotate = false;
 			rotated = true;
 		}
-		
-		//startAngle += 10;//+= velocity; //+= diffX/100;
-		//endAngle += 10;//+= velocity; //+= diffY/100;
 	}
 	
 	public void rotate(int index)
@@ -94,12 +91,18 @@ public class LogoShape
 		g.setAntiAlias(true);
 		g.setLineWidth(5);
 		
-		g.setColor(new Color(color.r, color.g, color.b, color.a + .15f));
+		if (rotateCounter == 0)
+			g.setColor(new Color(color.r, color.g, color.b));//, color.a + .15f));
+		else
+			g.setColor(new Color(color.r, color.g, color.b, color.a + .15f));
 		g.draw(line);
 		
 		for (int i = 1; i <= 5; i++)
 		{
-			g.setColor(new Color(color.r, color.g, color.b, color.a * i));
+			if (rotateCounter == 0)
+				g.setColor(new Color(color.r, color.g, color.b));//, color.a * i * 4));
+			else
+				g.setColor(new Color(color.r, color.g, color.b, color.a * i));
 			float factor = 15;
 			for (int j = 6 - i; j > 0; j--)
 				factor -= j;
@@ -111,7 +114,7 @@ public class LogoShape
 		
 		if (rotated)
 		{
-			g.setColor(new Color(0, 0, 0, opacity));
+			g.setColor(new Color(84f/255f, 84f/255f, 84f/255f, opacity));
 			g.fill(new Circle(centerX, centerY, radius - 5));
 			if (opacity > 0)
 				opacity -= .01;
@@ -122,20 +125,5 @@ public class LogoShape
 			g.setColor(new Color(color.r, color.g, color.b));
 			g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 4, endAngle);
 		}
-			
-		/*g.setColor(new Color(color.r, color.g, color.b));
-		g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 4, endAngle);
-			
-		g.setColor(new Color(color.r, color.g, color.b, color.a + .7f));
-		g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 10, endAngle - 4);
-			
-		g.setColor(new Color(color.r, color.g, color.b, color.a + .5f));
-		g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 20, endAngle - 10);
-			
-		g.setColor(new Color(color.r, color.g, color.b, color.a + .3f));
-		g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 40, endAngle - 20);
-			
-		g.setColor(new Color(color.r, color.g, color.b, color.a + .1f));
-		g.drawArc(centerX - radius, centerY - radius, radius * 2, radius * 2, endAngle - 65, endAngle - 40);*/
 	}
 }

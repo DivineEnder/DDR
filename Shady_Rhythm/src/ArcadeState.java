@@ -8,6 +8,7 @@ import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -15,26 +16,39 @@ public class ArcadeState extends BasicGameState
 {
 	Engine engine;
 	Rhythms engineRhythm;
+	StateHandler stateHandler;
+	
 	Rhythms[] rhythmsList;
 	Circle[] rhythmsListCircles;
 	Circle[] displayCircles;
 	ArrayList<Integer> indexOrder;
+	ArrayList<Circle> pointCircles; // Kyle made me
+	
 	Polygon leftArrow;
 	Polygon rightArrow;
+	
 	boolean fillRightArrow = false;
 	boolean fillLeftArrow = false;
 	boolean fillCircle = false;
-	ArrayList<Circle> pointCircles; // Kyle made me
+	
 	Music backgroundMusic;
 	
-	public ArcadeState(Rhythms rhythm)
+	public ArcadeState(Rhythms rhythm, StateHandler sh)
 	{
 		engineRhythm = rhythm;
+		stateHandler = sh;
+	}
+	
+	@Override
+	public void leave(GameContainer gc, StateBasedGame state)
+	{
+		stateHandler.leavingState(state.getCurrentStateID());
+		backgroundMusic.stop();
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
-		backgroundMusic = new Music("/data/Sound Testing/Dubstep Filler or Starter.wav");
+		backgroundMusic = new Music("data/Sound Testing/Dubstep Filler or Starter.wav");
 		
 		float circleXLocation = gc.getScreenWidth()/5;
 		float circleYLocation = gc.getScreenHeight()/2;
@@ -87,6 +101,19 @@ public class ArcadeState extends BasicGameState
 	}
 	
 	@Override
+	public void keyPressed(int key, char c)
+	{
+		stateHandler.exitKeyPress(key);
+	}
+	
+	@Override
+	public void keyReleased(int key, char c)
+	{
+		stateHandler.checkExit(key);
+			
+	}
+	
+	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
 		backgroundMusic.loop();
@@ -126,12 +153,12 @@ public class ArcadeState extends BasicGameState
 	{
 		Input input = gc.getInput();
 		
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
-		{
-			state.enterState(0);
-		}
-		else
-		{
+		//if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		//{
+			//state.enterState(0);
+		//}
+		//else
+		//{
 			if (input.isKeyDown(Input.KEY_K))
 			{
 				fillRightArrow = true;
@@ -165,21 +192,19 @@ public class ArcadeState extends BasicGameState
 				moveCircles();
 				//playSample();
 			}
-			
-			if (input.isKeyPressed(Input.KEY_H))
+			else if (input.isKeyPressed(Input.KEY_H))
 			{
 				changeDisplayed(-1);
 				moveCircles();
 				//playSample();
 			}
-			
-			if (input.isKeyPressed(Input.KEY_J))
+			else if (input.isKeyPressed(Input.KEY_J))
 			{
 				int selected = indexOrder.get(2);
 				engineRhythm.setRhythm(rhythmsList[selected].title + " - " + rhythmsList[selected].artist);
 				state.enterState(4);
 			}
-		}
+		//}
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
 		{
@@ -192,8 +217,11 @@ public class ArcadeState extends BasicGameState
 		g.setAntiAlias(true);
 		g.setLineWidth(5);
 		
+		g.setColor(new Color(84, 84, 84));
+		g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
+		
 		//Draws left arrow (H)
-		g.setColor(new Color(255, 0, 0));
+		g.setColor(new Color(173, 16, 16)); //red
 		if (fillLeftArrow)
 			g.fill(leftArrow);
 		else
@@ -206,14 +234,14 @@ public class ArcadeState extends BasicGameState
 		}
 		
 		//Draws outline circle (J)
-		g.setColor(new Color(0, 255, 0));
+		g.setColor(new Color(22, 161, 22)); //green
 		if (fillCircle)
 			g.fill(displayCircles[2]);
 		else
 			g.draw(displayCircles[2]);
 		
 		//Draws right arrow (K)
-		g.setColor(new Color(0, 0, 255));
+		g.setColor(new Color(10, 29, 145)); //blue
 		if (fillRightArrow)
 			g.fill(rightArrow);
 		else

@@ -12,16 +12,29 @@ public class Engine
 	RadarCircles rc;
 	Selector selector;
 	Score points;
-	boolean playingSong = false;
-	ArrayList<Particles> particles;
 	RhythmCircle circle;
 	Rhythms rhythm;
+	
+	boolean playingSong = false;
+	
+	ArrayList<Particles> particles;
+	
 	
 	Engine(GameContainer gc, Rhythms r)
 	{
 		rc = new RadarCircles(gc.getWidth(), gc.getHeight());
 		rhythm = r;
+	}
+	
+	public void setup()
+	{
 		selector = new Selector();
+		points = new Score();
+		particles = new ArrayList<Particles>();
+	}
+	
+	public void leave(GameContainer gc, StateBasedGame state)
+	{
 		points = new Score();
 		particles = new ArrayList<Particles>();
 	}
@@ -44,20 +57,14 @@ public class Engine
 		rhythm.currentSong.resume();
 	}
 	
-	public void reset()
-	{
-		selector = new Selector();
-		rhythm.currentSong.stop();
-	}
-	
 	public void update(GameContainer gc, StateBasedGame state)
 	{
 		Input input = gc.getInput();
 		
 		try
 		{
-		if (selector.getRotations() == 0 && selector.getAngle() == (270 - (int) rhythm.circleList.get(0).getStartingAngle()))
-			rhythm.currentSong.play();
+			if (selector.getRotations() == 0 && selector.getAngle() == 180)// && selector.getAngle() == (270 - (int) rhythm.circleList.get(0).getStartingAngle()))
+				rhythm.currentSong.play();
 		}catch(IndexOutOfBoundsException e){}
 		
 		selector.updateSelector();
@@ -69,7 +76,8 @@ public class Engine
 			rc.keyPressed(2);
 			try
 			{
-				rhythm.circleList.get(0).keyPressed(2);
+				for (int i = 0; i < 5; i++)
+					rhythm.circleList.get(i).keyPressed(2);
 			}catch(IndexOutOfBoundsException e){}
 		}
 		
@@ -78,7 +86,8 @@ public class Engine
 			rc.keyPressed(4);
 			try
 			{
-				rhythm.circleList.get(0).keyPressed(4);
+				for (int i = 0; i < 5; i++)
+					rhythm.circleList.get(i).keyPressed(4);
 			}catch(IndexOutOfBoundsException e){}
 		}
 		
@@ -87,7 +96,8 @@ public class Engine
 			rc.keyPressed(1);
 			try
 			{
-				rhythm.circleList.get(0).keyPressed(1);
+				for (int i = 0; i < 5; i++)
+					rhythm.circleList.get(i).keyPressed(1);
 			}catch(IndexOutOfBoundsException e){}
 		}
 		
@@ -96,7 +106,8 @@ public class Engine
 			rc.keyPressed(3);
 			try
 			{
-				rhythm.circleList.get(0).keyPressed(3);
+				for (int i = 0; i < 5; i++)
+					rhythm.circleList.get(i).keyPressed(3);
 			}catch(IndexOutOfBoundsException e){}
 		}
 		
@@ -105,14 +116,15 @@ public class Engine
 			rc.keyPressed(5);
 			try
 			{
-				rhythm.circleList.get(0).keyPressed(5);
+				for (int i = 0; i < 5; i++)
+					rhythm.circleList.get(i).keyPressed(5);
 			}catch(IndexOutOfBoundsException e){}
 		}
 	}
 	
 	public void render(GameContainer gc, Graphics g)
 	{
-		g.setColor(Color.white);
+		g.setColor(new Color(84, 84, 84));
 		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
 		
 		rc.draw(g);

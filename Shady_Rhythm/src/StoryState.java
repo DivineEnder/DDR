@@ -13,17 +13,22 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class StoryState extends BasicGameState
 {
+	int windowWidth;
+	int windowHeight;
+	
 	StoryParser[] story;
 	Rhythms[] rhythmList;
+	StateHandler stateHandler;
 	Rhythms engineRhythm;
 	TrueTypeFont wordFont;
 	int storyPosition;
 	int timer;
 	boolean timerGo = false;
 	
-	StoryState(Rhythms rhythm)
+	StoryState(Rhythms rhythm, StateHandler sh)
 	{
 		engineRhythm = rhythm;
+		stateHandler = sh;
 	}
 	
 	@Override
@@ -32,7 +37,10 @@ public class StoryState extends BasicGameState
 		Font font = new Font("Verdana", Font.BOLD, 32);
 		wordFont = new TrueTypeFont(font, true);
 		
-		story = new StoryParser[]{new StoryParser("data/Story/story.txt", wordFont, gc.getWidth() - (20 * 4))};
+		windowWidth = gc.getWidth();
+		windowHeight = gc.getHeight();
+		
+		story = new StoryParser[]{new StoryParser("data/Story/story.txt", wordFont, windowWidth - (20 * 4))};
 		
 		rhythmList = new Rhythms[1];
 		for (int i = 0; i < rhythmList.length; i++)
@@ -81,36 +89,41 @@ public class StoryState extends BasicGameState
 		}
 	}
 
+	public void drawTextBox(Graphics g)
+	{
+		g.setColor(Color.black);
+		g.fillRect(0, 0, windowWidth, windowHeight);
+		
+		g.setColor(Color.white);
+		g.fillRect(0, (windowHeight * 2/3) - (2 * 20), windowWidth, windowHeight /2);
+		
+		g.setColor(new Color(84, 84, 84));
+		g.fillRoundRect(20, (windowHeight * 2/3) - 20, windowWidth - (20 * 2), windowHeight * 1/3, 20);
+	}
+	
 	@Override
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
 	{
 		g.setAntiAlias(true);
 		
-		g.setColor(Color.black);
-		g.fillRect(0, 0, gc.getWidth(), gc.getHeight());
-		
-		g.setColor(Color.white);
-		g.fillRect(0, (gc.getHeight() * 2/3) - (2 * 20), gc.getWidth(), gc.getHeight() /2);
-		
-		g.setColor(Color.black);
-		g.fillRoundRect(20, (gc.getHeight() * 2/3) - 20, gc.getWidth() - (20 * 2), gc.getHeight() * 1/3, 20);
+		drawTextBox(g);
 		
 		story[0].drawText(wordFont, storyPosition, gc, g);
 		
-		g.setAntiAlias(false);
+		/*g.setAntiAlias(false);
 		g.setColor(Color.red);
-		g.fillArc(0 - (125/2), gc.getHeight() - (125/2), 125, 125, 270, 0);
+		g.fillArc(0 - (125/2), windowHeight - (125/2), 125, 125, 270, 0);
 		
 		g.setColor(Color.green);
-		g.fillArc(gc.getWidth()/2 - 75, gc.getHeight() - 75, 150, 150, 180, 0);
+		g.fillArc(windowWidth/2 - 75, windowHeight - 75, 150, 150, 180, 0);
 		
 		g.setColor(Color.blue);
-		g.fillArc(gc.getWidth() - (125/2), gc.getHeight() - (125/2), 125, 125, 180, 270);
+		g.fillArc(windowWidth - (125/2), windowHeight - (125/2), 125, 125, 180, 270);*/
 		
 		//g.setColor(Color.green);
 		//g.setAntiAlias(false);
-		//g.fillArc((gc.getWidth() - (20 * 2))/2, (gc.getHeight() * 2/3) + (wordFont.getHeight() * 5) + (5 * 3) - 20, 20, 20, 270, 270 + (timer * (360f/100f)));
-		//g.fill(new Circle((gc.getWidth() - (20 * 2))/2 + 20, (gc.getHeight() * 2/3) + (wordFont.getHeight() * 5) + (5 * 5), 10));
+		//g.fillArc((windowWidth - (20 * 2))/2, (windowHeight * 2/3) + (wordFont.getHeight() * 5) + (5 * 3) - 20, 20, 20, 270, 270 + (timer * (360f/100f)));
+		//g.fill(new Circle((windowWidth - (20 * 2))/2 + 20, (windowHeight * 2/3) + (wordFont.getHeight() * 5) + (5 * 5), 10));
 	}
 
 	@Override

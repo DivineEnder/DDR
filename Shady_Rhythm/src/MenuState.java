@@ -5,7 +5,9 @@ import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Point;
+import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.RoundedRectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.state.*;
 import org.newdawn.slick.state.transition.FadeInTransition;
@@ -15,40 +17,62 @@ import java.awt.Font;
 
 public class MenuState extends BasicGameState
 {
+	int windowWidth;
+	int windowHeight;
+	
+	Font font = new Font("Courier", Font.BOLD, 30);
+	TrueTypeFont wordFont = new TrueTypeFont(font, false);
+	
+	StateHandler stateHandler;
+	
 	Circle[] menuCircles;
 	String[] menuStrings;
 	Point[] menuStringsCoords;
+	Color[] colorArray;
+	RoundedRectangle[] selectorRectangles;
+	
 	Shape selector;
+	Circle timerCircle;
+	
 	Music backgroundMusic;
 	Sound blip;
 	Sound select;
 	Sound transition;
-	Font font = new Font("Verdana", Font.BOLD, 12);
-	TrueTypeFont trueFont = new TrueTypeFont(font, false);
+	
 	int selected;
 	int timer;
 	boolean timerGo = false;
-	Circle timerCircle;
-	Color[] colorArray;
+	
+	MenuState(StateHandler sh)
+	{
+		stateHandler = sh;
+	}
 
 	@Override
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
-		backgroundMusic = new Music("/data/Sound Effects/background.wav");
-		backgroundMusic.loop();
+		windowWidth = gc.getWidth();
+		windowHeight = gc.getHeight();
 		
-		blip = new Sound("/data/Sound Effects/Blip.wav");
-		select = new Sound("/data/Sound Testing/Select or Level.wav");
-		transition = new Sound("/data/Sound Testing/Transition Laser.wav");
+		backgroundMusic = new Music("data/Sound Effects/background_funk_2.wav");
+		
+		blip = new Sound("data/Sound Effects/Blip.wav");
+		select = new Sound("data/Sound Testing/Select or Level.wav");
+		transition = new Sound("data/Sound Testing/Transition Laser.wav");
 		
 		float goldenRatio = (float) ((1 + Math.sqrt(5))/2);
 		
 		menuCircles = new Circle[3];
-		menuCircles[0] = new Circle(gc.getWidth()/5, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
-		menuCircles[1] = new Circle(gc.getWidth()/2, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
-		menuCircles[2] = new Circle(gc.getWidth() - gc.getWidth()/5, gc.getHeight()/2, 100);//gc.getHeight()/(3 * goldenRatio));
+		menuCircles[0] = new Circle(windowWidth/5, windowHeight/2, 100);//windowHeight/(3 * goldenRatio));
+		menuCircles[1] = new Circle(windowWidth/2, windowHeight/2, 100);//windowHeight/(3 * goldenRatio));
+		menuCircles[2] = new Circle(windowWidth - windowWidth/5, windowHeight/2, 100);//windowHeight/(3 * goldenRatio));
 		
-		colorArray = new Color[]{new Color(255, 0, 0), new Color(255, 255, 0), new Color(0, 255, 0), new Color(0, 255, 255), new Color(0, 0, 255)};
+		colorArray = new Color[5];
+		colorArray[0] = new Color(173, 16, 16); //red
+		colorArray[1] = new Color(196, 196, 16); //yellow
+		colorArray[2] = new Color(22, 161, 22); //green
+		colorArray[3] = new Color(63, 186, 186); //cyan
+		colorArray[4] = new Color(10, 29, 145); //blue
 		
 		menuStrings = new String[5];
 		menuStrings[0] = "Arcade";
@@ -57,11 +81,15 @@ public class MenuState extends BasicGameState
 		menuStrings[3] = "EXIT";
 		menuStrings[4] = "Tutorial";
 		
-		menuStringsCoords = new Point[]{new Point(gc.getWidth()/2 - (gc.getWidth()/2 - gc.getWidth()/5)/2, gc.getHeight()/2), new Point(gc.getWidth()/2 + (gc.getWidth()/2 - gc.getWidth()/5)/2, gc.getHeight()/2)};
+		menuStringsCoords = new Point[]{new Point(windowWidth/2 - (windowWidth/2 - windowWidth/5)/2, windowHeight/2), new Point(windowWidth/2 + (windowWidth/2 - windowWidth/5)/2, windowHeight/2)};
 		
 		selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
 		
-		timerCircle = new Circle(gc.getWidth()/2, gc.getHeight()/2 + gc.getHeight()/3, 50);
+		selectorRectangles = new RoundedRectangle[2];
+		//selectorRectangles[0] = new Rectangle(menuStringsCoords[0].getX() - 20, menuStringsCoords[0].getY() - 51, 40, 120);
+		//selectorRectangles[1] = new Rectangle(menuStringsCoords[1].getX() - 20, menuStringsCoords[1].getY() - 37, 40, 74);
+		
+		timerCircle = new Circle(windowWidth/2, windowHeight/2 + windowHeight/3, 50);
 		
 		selected = 2;
 		timer = 0;
@@ -78,6 +106,10 @@ public class MenuState extends BasicGameState
 		{
 			g.drawString(stringChars[i], x - g.getFont().getWidth(stringChars[i])/2, (y - (height * (stringChars.length/2))) + (i * height));
 		}
+		if (string.equals("OPTIONS"))
+			selectorRectangles[0] = new RoundedRectangle(x - g.getFont().getWidth(stringChars[0])/2 - 10, y - (height * (stringChars.length/2)) - 5, g.getFont().getWidth(stringChars[0]) + 20, stringChars.length * height + 10, 6);
+		else
+			selectorRectangles[1] = new RoundedRectangle(x - g.getFont().getWidth(stringChars[0])/2 - 10, y - (height * (stringChars.length/2)) - 5, g.getFont().getWidth(stringChars[0]) + 20, stringChars.length * height + 10, 6);
 	}
 	
 	@Override
@@ -86,35 +118,34 @@ public class MenuState extends BasicGameState
 		timerGo = false;
 		timer = 0;
 		if (!backgroundMusic.playing())
+		{
+			backgroundMusic.fade(750, 1, false);
 			backgroundMusic.loop();
+		}
 	}
 	
 	@Override
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
 	{
 		g.setAntiAlias(true);
-		g.setFont(trueFont);
+		g.setFont(wordFont);
 		
-		g.setColor(colorArray[0]);
-		g.fill(menuCircles[0]);
-		g.setColor(Color.black);
-		g.drawString(menuStrings[0], menuCircles[0].getCenterX() - g.getFont().getWidth(menuStrings[0])/2, menuCircles[0].getCenterY() - g.getFont().getHeight(menuStrings[0])/2);
+		g.setColor(new Color(84, 84, 84));
+		g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
 		
-		g.setColor(colorArray[1]);
-		drawStringDown(menuStringsCoords[0].getX(), menuStringsCoords[0].getY(), menuStrings[1], g);
+		for (int i = 0; i < menuStrings.length; i += 2)
+		{
+			g.setColor(colorArray[i]);
+			g.fill(menuCircles[i/2]);
+			g.setColor(Color.black);
+			g.drawString(menuStrings[i], menuCircles[i/2].getCenterX() - g.getFont().getWidth(menuStrings[i])/2, menuCircles[i/2].getCenterY() - g.getFont().getHeight(menuStrings[i])/2);
+		}
 		
-		g.setColor(colorArray[2]);
-		g.fill(menuCircles[1]);
-		g.setColor(Color.black);
-		g.drawString(menuStrings[2], menuCircles[1].getCenterX() - g.getFont().getWidth(menuStrings[2])/2, menuCircles[1].getCenterY() - g.getFont().getHeight(menuStrings[2])/2);
-		
-		g.setColor(colorArray[3]);
-		drawStringDown(menuStringsCoords[1].getX(), menuStringsCoords[1].getY(), menuStrings[3], g);
-		
-		g.setColor(colorArray[4]);
-		g.fill(menuCircles[2]);
-		g.setColor(Color.black);
-		g.drawString(menuStrings[4], menuCircles[2].getCenterX() - g.getFont().getWidth(menuStrings[4])/2, menuCircles[2].getCenterY() - g.getFont().getHeight(menuStrings[4])/2);
+		for (int i = 0; i < menuStringsCoords.length; i++)
+		{
+			g.setColor(colorArray[(2*i) + 1]);
+			drawStringDown(menuStringsCoords[i].getX(), menuStringsCoords[i].getY(), menuStrings[(2*i) + 1], g);
+		}
 		
 		if (timerGo)
 		{
@@ -189,12 +220,12 @@ public class MenuState extends BasicGameState
 		
 		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
 		{
-			selector = new Rectangle(menuStringsCoords[0].getX() - 20, menuStringsCoords[0].getY() - 51, 40, 120);
+			selector = selectorRectangles[0];
 			selected = 1;
 		}
 		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
 		{
-			selector = new Rectangle(menuStringsCoords[1].getX() - 20, menuStringsCoords[1].getY() - 37, 40, 74);
+			selector = selectorRectangles[1];
 			selected = 3;
 		}
 		else if (input.isKeyPressed(Input.KEY_H) && selected != 0)
@@ -219,7 +250,7 @@ public class MenuState extends BasicGameState
 		}
 		
 		if (timerGo)
-			timer++;
+			timer += 2;
 			
 	}
 	

@@ -27,11 +27,11 @@ public class RadarCircles
 			fillColors[i] = Color.black;
 		
 		outlineColors = new Color[5];
-		outlineColors[0] = new Color(255, 0, 0);
-		outlineColors[1] = new Color(255, 255, 0);
-		outlineColors[2] = new Color(0, 255, 0);
-		outlineColors[3] = new Color(0, 255, 255);
-		outlineColors[4] = new Color(0, 0, 255);
+		outlineColors[0] = new Color(173, 16, 16); //red
+		outlineColors[1] = new Color(196, 196, 16); //yellow
+		outlineColors[2] = new Color(22, 161, 22); //green
+		outlineColors[3] = new Color(63, 186, 186); //cyan
+		outlineColors[4] = new Color(10, 29, 145); //blue
 		
 		lineWidth = new int[5];
 		lineWidth[0] = 4;
@@ -39,8 +39,6 @@ public class RadarCircles
 		lineWidth[2] = 4;
 		lineWidth[3] = 2;
 		lineWidth[4] = 4;
-		//for (int i = 0; i < lineWidth.length; i++)
-			//lineWidth[i] = 3;
 	}
 	
 	public void select(int circle)

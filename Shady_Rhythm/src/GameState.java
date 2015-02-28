@@ -9,14 +9,17 @@ public class GameState extends BasicGameState
 {
 	Engine engine;
 	Rhythms rhythm;
+	StateHandler stateHandler;
 	Thread loading;
 	Loading loadingScreen;
+	
 	boolean paused;
 	boolean pressAnyKey;
 	
-	public GameState(Rhythms engineRhythm)
+	public GameState(Rhythms engineRhythm, StateHandler sh)
 	{
 		rhythm = engineRhythm;
+		stateHandler = sh;
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
@@ -26,6 +29,23 @@ public class GameState extends BasicGameState
 		
 		paused = false;
 		pressAnyKey = false;
+	}
+	
+	@Override
+	public void enter(GameContainer gc, StateBasedGame state)
+	{
+		final GameContainer pass = gc;
+		engine.setup();
+		loading = new Thread()
+		{
+			GameContainer gc = pass;
+			public void run()
+			{
+				rhythm.readRhythm(gc);
+			}
+		};
+		pressAnyKey = true;
+		loading.start();
 	}
 	
 	@Override
@@ -39,19 +59,9 @@ public class GameState extends BasicGameState
     }
 	
 	@Override
-	public void enter(GameContainer gc, StateBasedGame state)
+	public void keyReleased(int key, char c)
 	{
-		final GameContainer pass = gc;
-		loading = new Thread()
-		{
-			GameContainer gc = pass;
-			public void run()
-			{
-				rhythm.readRhythm(gc);
-			}
-		};
-		pressAnyKey = true;
-		loading.start();
+		
 	}
 	
 	public void update(final GameContainer gc, StateBasedGame state, int delta) throws SlickException
@@ -62,23 +72,21 @@ public class GameState extends BasicGameState
 		{
 			if (paused)
 			{
-				paused = false;
 				engine.play();
 			}
 			else
 			{
 				engine.pause();
-				paused = true;
 			}
+			paused = !paused;
 		}
 		
 		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
 		{
-			engine.reset();
-			state.enterState(2);
+			state.enterState(1);
 		}
 		
-		if (loading.isAlive())
+		if (loading.isAlive() || pressAnyKey)
 			loadingScreen.update();
 		else if (!pressAnyKey)
 			engine.update(gc, state);
@@ -91,7 +99,10 @@ public class GameState extends BasicGameState
 		if (loading.isAlive())
 			loadingScreen.draw(g);
 		else if (pressAnyKey)
-			g.drawString("Press any key to continue", gc.getScreenWidth()/2 - g.getFont().getWidth("Press any key to continue"), gc.getScreenHeight()/2 - g.getFont().getHeight("Press any key to continue"));
+		{
+			g.drawString("Press any key to continue", gc.getScreenWidth()/2 - g.getFont().getWidth("Press any key to continue")/2, gc.getScreenHeight()/2 - g.getFont().getHeight("Press any key to continue")/2);
+			loadingScreen.draw(g);
+		}
 		else
 			engine.render(gc, g);
 		

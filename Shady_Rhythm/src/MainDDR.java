@@ -7,6 +7,7 @@ public class MainDDR extends StateBasedGame
 {
 	Controls controls = new Controls();
 	Rhythms engineRhythm = new Rhythms();
+	StateHandler stateHandler = new StateHandler();
 	
 	public MainDDR(String title)
 	{
@@ -17,7 +18,7 @@ public class MainDDR extends StateBasedGame
     {
     	AppGameContainer app = new AppGameContainer(new MainDDR("Shady Rhythms"));
         
-        app.setDisplayMode(app.getScreenWidth() - 50, app.getScreenHeight() - 10, false);
+        app.setDisplayMode(app.getScreenWidth() - 150, app.getScreenHeight() - 100, false);
         System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
         app.setTitle("Full Circle");
         app.setTargetFrameRate(60);
@@ -30,13 +31,13 @@ public class MainDDR extends StateBasedGame
     public void initStatesList(GameContainer container) throws SlickException
     {
     	this.addState(new LogoState());
-    	//this.addState(new FullCircleLogoState());
-    	this.addState(new MenuState());
-    	this.addState(new ArcadeState(engineRhythm));
-    	this.addState(new GameState(engineRhythm));
+    	this.addState(new FullCircleLogoState());
+    	this.addState(new MenuState(stateHandler));
+    	this.addState(new ArcadeState(engineRhythm, stateHandler));
+    	this.addState(new GameState(engineRhythm, stateHandler));
     	this.addState(new TutorialState(controls));
     	this.addState(new OptionsState(controls));
-    	this.addState(new StoryState(engineRhythm));
+    	this.addState(new StoryState(engineRhythm, stateHandler));
     }
  
 }
