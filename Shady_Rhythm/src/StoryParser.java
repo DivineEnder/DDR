@@ -1,15 +1,17 @@
 import java.io.IOException;
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Rectangle;
 
 public class StoryParser
 {
 	String[][] story;
 	String[] currentDisplay;
+	
+	String rhythm;
+	
 	int textSpeed;
 	int textCounter;
 	int displayLineCounter;
@@ -21,17 +23,19 @@ public class StoryParser
 		String[] fullStory = null;
 		try {fullStory = read.OpenFile();} catch (IOException e) {System.out.println(e);}
 		
-		story = new String[fullStory.length][5];
+		rhythm = fullStory[0];
 		
-		for (int i = 0; i < fullStory.length; i++)
-			story[i] = split(fullStory[i], wordFont, maxLength);
+		story = new String[fullStory.length - 1][4];
+		
+		for (int i = 1; i < story.length + 1; i++)
+			story[i - 1] = split(fullStory[i], wordFont, maxLength);
 		
 		setDisplay();
 	}
 	
 	public String[] split(String fullLines, TrueTypeFont wordFont, float maxLength)
 	{
-		String[] displayLines = new String[]{"", "", "", "", ""};
+		String[] displayLines = new String[]{"", "", "", ""};
 		int timesSplit = 0;
 		int lastSplit = 0;
 		
@@ -74,8 +78,8 @@ public class StoryParser
 	
 	public void setDisplay()
 	{
-		currentDisplay = new String[]{"", "", "", "", ""};
-		textSpeed = 2;
+		currentDisplay = new String[]{"", "", "", ""};
+		textSpeed = 1;
 		textCounter = 0;
 		displayLineCounter = 0;
 	}
@@ -96,14 +100,14 @@ public class StoryParser
 		}
 	}
 	
-	public void drawText(TrueTypeFont wordFont, int storyPosition, GameContainer gc, Graphics g)
+	public void drawText(TrueTypeFont wordFont, int storyPosition, Rectangle textBox, GameContainer gc, Graphics g)
 	{
 		if (displayLineCounter < currentDisplay.length)
 			addCurrentDisplay(storyPosition);
 		
 		for (int i = 0; i < currentDisplay.length; i++)
 		{
-			wordFont.drawString(20 * 2, (gc.getHeight() * 2/3) + (wordFont.getHeight(currentDisplay[i]) * i) + (5 * i), currentDisplay[i]);
+			wordFont.drawString(textBox.getX() + 10, textBox.getY() + 10 + (wordFont.getHeight(currentDisplay[i]) * i) + (5 * i), currentDisplay[i]);
 		}
 	}
 }

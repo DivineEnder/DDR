@@ -1,9 +1,5 @@
-import java.util.HashMap;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.ShapeFill;
-import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Circle;
 
 public class RadarCircles
@@ -39,13 +35,6 @@ public class RadarCircles
 		lineWidth[2] = 4;
 		lineWidth[3] = 2;
 		lineWidth[4] = 4;
-	}
-	
-	public void select(int circle)
-	{
-		for (int i = 0; i < lineWidth.length; i++)
-			lineWidth[i] = 3;
-		lineWidth[circle - 1] = 8;
 	}
 	
 	public void keyPressed(int layer)

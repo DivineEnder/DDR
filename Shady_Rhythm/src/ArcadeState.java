@@ -33,6 +33,11 @@ public class ArcadeState extends BasicGameState
 	
 	Music backgroundMusic;
 	
+	//TODO
+	//Redesign arcade state
+	//GUI is bad at the moment
+	//Aracade state is not commented because it is simply a placeholder while we get down our game play
+	
 	public ArcadeState(Rhythms rhythm, StateHandler sh)
 	{
 		engineRhythm = rhythm;
@@ -42,8 +47,8 @@ public class ArcadeState extends BasicGameState
 	@Override
 	public void leave(GameContainer gc, StateBasedGame state)
 	{
-		stateHandler.leavingState(state.getCurrentStateID());
 		backgroundMusic.stop();
+		stateHandler.leavingState(state.getCurrentStateID());
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
@@ -78,7 +83,7 @@ public class ArcadeState extends BasicGameState
 		rhythmsList[0].setRhythm("Do I Wanna Know - Arctic Monkeys");
 		rhythmsList[1].setRhythm("Hideaway - Kiesza");
 		rhythmsList[2].setRhythm("Human - Christina Perri");
-		rhythmsList[3].setRhythm("Pump Up The Jam Mixdown - Mowe");
+		rhythmsList[3].setRhythm("Funky Town - IDK");
 		rhythmsList[4].setRhythm("The Days - Avicii");
 		
 		displayCircles = new Circle[5];
@@ -101,22 +106,10 @@ public class ArcadeState extends BasicGameState
 	}
 	
 	@Override
-	public void keyPressed(int key, char c)
-	{
-		stateHandler.exitKeyPress(key);
-	}
-	
-	@Override
-	public void keyReleased(int key, char c)
-	{
-		stateHandler.checkExit(key);
-			
-	}
-	
-	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
 		backgroundMusic.loop();
+		backgroundMusic.setVolume(stateHandler.getMusicVolume());
 	}
 	
 	public void changeDisplayed(int increment)
@@ -153,12 +146,12 @@ public class ArcadeState extends BasicGameState
 	{
 		Input input = gc.getInput();
 		
-		//if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
-		//{
-			//state.enterState(0);
-		//}
-		//else
-		//{
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		{
+			state.enterState(0);
+		}
+		else
+		{
 			if (input.isKeyDown(Input.KEY_K))
 			{
 				fillRightArrow = true;
@@ -204,12 +197,14 @@ public class ArcadeState extends BasicGameState
 				engineRhythm.setRhythm(rhythmsList[selected].title + " - " + rhythmsList[selected].artist);
 				state.enterState(4);
 			}
-		//}
+		}
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
 		{
 			state.enterState(0);
 		}
+		
+		input.clearKeyPressedRecord();
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException

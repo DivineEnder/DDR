@@ -7,12 +7,38 @@ public class StateHandler
 
 	public boolean exitCurrentState;
 	
+	private float musicVolume;
+	private float soundVolume;
+	
 	StateHandler()
 	{
 		lastStateID = 0;
 		keysPressed = new int[]{-1, -1, -1};
 		
 		exitCurrentState = false;
+		
+		musicVolume = 1;
+		soundVolume = 1;
+	}
+	
+	public void setMusicVolume(float v)
+	{
+		musicVolume = v;
+	}
+	
+	public void setSoundVolume(float v)
+	{
+		soundVolume = v;
+	}
+	
+	public float getMusicVolume()
+	{
+		return musicVolume;
+	}
+	
+	public float getSoundVolume()
+	{
+		return soundVolume;
 	}
 	
 	public void exitKeyPress(int key)

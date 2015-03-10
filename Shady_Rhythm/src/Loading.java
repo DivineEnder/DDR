@@ -1,6 +1,8 @@
 import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Point;
+import org.newdawn.slick.geom.Rectangle;
 
 public class Loading
 {
@@ -57,8 +59,11 @@ public class Loading
 		}
 	}
 	
-	public void draw(Graphics g)
-	{
+	public void draw(Graphics g, GameContainer gc)
+	{		
+		g.setColor(new Color(84, 84, 84));
+		g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
+		
 		g.setLineWidth(5);
 		for (int i = 0; i < 5; i++)
 		{
