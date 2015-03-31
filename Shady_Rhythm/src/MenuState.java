@@ -1,7 +1,6 @@
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Point;
-import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.geom.RoundedRectangle;
 import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.state.*;
@@ -23,8 +22,10 @@ public class MenuState extends BasicGameState
 	//Creates a variable for a custom font to draw in
 	TrueTypeFont wordFont;
 	
+	PadInput pads;
 	//Creates an instance of the state handler class
 	StateHandler stateHandler;
+	BackgroundAnimation background;
 	
 	//Creates an array of slick2d circles that can be drawn on the screen as the different options
 	Circle[] menuCircles;
@@ -59,10 +60,12 @@ public class MenuState extends BasicGameState
 	boolean timerGo = false;
 	
 	//Constructor
-	MenuState(StateHandler sh)
+	MenuState(StateHandler sh, PadInput p)
 	{
 		//Initializes this classes instance of the state handler to be the universal one passed between all states
 		stateHandler = sh;
+		
+		pads = p;
 	}
 
 	//Initializes various variables
@@ -75,16 +78,16 @@ public class MenuState extends BasicGameState
 		
 		//Initializes a new java awt font from a file
 		Font font = null;
-		try {
+		try
+		{
 			font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("data/Fonts/belerenbold.ttf"));
-		} catch (FileNotFoundException e) {e.printStackTrace();
-		} catch (FontFormatException e) {e.printStackTrace();
-		} catch (IOException e) {e.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {e.printStackTrace();} catch (FontFormatException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
 		//Sets the font to be plain and have a size of 30
 		font = font.deriveFont(Font.PLAIN, 30);
 		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
 		wordFont = new TrueTypeFont(font, false);
+		
+		background = new BackgroundAnimation(gc);
 		
 		//Loads the background music from a file
 		backgroundMusic = new Music("data/Sound Effects/background_funk_2.wav");
@@ -116,7 +119,7 @@ public class MenuState extends BasicGameState
 		menuStrings[1] = "OPTIONS";
 		menuStrings[2] = "Story";
 		menuStrings[3] = "EXIT";
-		menuStrings[4] = "Tutorial";
+		menuStrings[4] = "High Scores";
 		
 		//Initializes the menu strings' coordinates
 		menuStringsCoords = new Point[2];
@@ -178,6 +181,8 @@ public class MenuState extends BasicGameState
 			//Endlessly loops the background music
 			backgroundMusic.loop();
 		}
+		
+		pads.clearPadPressedRecord();
 	}
 	
 	//Triggers certain events upon leaving the menu state
@@ -186,6 +191,8 @@ public class MenuState extends BasicGameState
 	{
 		//Fades out the background music when you leave the state
 		backgroundMusic.fade(750, 0, true);
+		
+		pads.clearPadPressedRecord();
 	}
 	
 	//Renders the to the screen
@@ -197,10 +204,10 @@ public class MenuState extends BasicGameState
 		//Sets the graphics to draw with the custom font created above
 		g.setFont(wordFont);
 		
-		//Sets the graphics color to gray
-		g.setColor(new Color(84, 84, 84));
-		//Fills a the background with the gray color
-		g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
+		background.draw(gc, g);
+		
+		//g.setColor(Color.white);
+		//g.drawString(Integer.toString(pads.input), 0, 0);
 		
 		//Iterates through the menu options
 		for (int i = 0; i < menuStrings.length; i += 2)
@@ -256,7 +263,9 @@ public class MenuState extends BasicGameState
 	{
 		//Checks for either H, K, or J pressed and sets the timer to true if they were
 		if (key == Input.KEY_H || key == Input.KEY_J || key == Input.KEY_K)
+		{
 			timerGo = true;
+		}
 	}
 	
 	//Checks for key releases
@@ -270,6 +279,7 @@ public class MenuState extends BasicGameState
 			timerGo = false;
 			//Resets the timer to zero
 			timer = 0;
+			background.addCircle(timerCircle.getCenterX(), timerCircle.getCenterY(), timerCircle.getRadius(), colorArray[selected]);
 		}
 	}
 
@@ -279,6 +289,8 @@ public class MenuState extends BasicGameState
 	{
 		//Gets the keyboard input from the gamecontainer
 		Input input = gc.getInput();
+		
+		background.update(gc);
 		
 		//Checks to see whether the timer is complete
 		if (timer == 100)
@@ -300,45 +312,98 @@ public class MenuState extends BasicGameState
 		//Creates a temporary variable to hold what was selected before any changes were made
 		int thisIteration = selected;
 		
-		//Checks to see whether H and J keys are both down
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
+		if (pads.usePads)
 		{
-			//Sets the selector to the string selector rectangle
-			selector = selectorRectangles[0];
-			//Sets selected to first second options
-			selected = 1;
+			if (pads.input == 1)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
+				//Sets the selector to the first option
+				selected = 0;
+			}
+			else if (pads.input == 2)
+			{
+				//Sets the selector to the string selector rectangle
+				selector = selectorRectangles[0];
+				//Sets selected to first second options
+				selected = 1;
+			}
+			else if (pads.input == 3)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
+				//Sets the selector to the third option
+				selected = 2;
+			}
+			else if (pads.input == 4)
+			{
+				//Sets the selector to the string selector rectangle
+				selector = selectorRectangles[1];
+				//Sets the selector to the fourth option
+				selected = 3;
+			}
+			else if (pads.input == 5)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
+				//Sets the selector to the fifth option
+				selected = 4;
+			}
+			
+			if (pads.input == 0)
+			{
+				timerGo = false;
+				timer = 0;
+			}
+			else
+				timerGo = true;
 		}
-		//Checks to se whether the J and K keys are both down
-		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		else
 		{
-			//Sets the selector to the string selector rectangle
-			selector = selectorRectangles[1];
-			//Sets the selector to the fourth option
-			selected = 3;
-		}
-		//Checks to see whether the H key was pressed and whether the selector is not already on this option
-		else if (input.isKeyPressed(Input.KEY_H) && selected != 0)
-		{
-			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-			selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
-			//Sets the selector to the first option
-			selected = 0;
-		}
-		//Checks to see whether the J key was pressed and whether the selector is not already on this option
-		else if (input.isKeyPressed(Input.KEY_J) && selected != 2)
-		{
-			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-			selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
-			//Sets the selector to the third option
-			selected = 2;
-		}
-		//Checks to see whether the K key was pressed and whether the selector is not already on this option
-		else if (input.isKeyPressed(Input.KEY_K) && selected != 4)
-		{
-			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-			selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
-			//Sets the selector to the fifth option
-			selected = 4;
+			//Checks to see whether H and J keys are both down
+			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
+			{
+				//Sets the selector to the string selector rectangle
+				selector = selectorRectangles[0];
+				//Sets selected to first second options
+				selected = 1;
+			}
+			//Checks to se whether the J and K keys are both down
+			else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+			{
+				//Sets the selector to the string selector rectangle
+				selector = selectorRectangles[1];
+				//Sets the selector to the fourth option
+				selected = 3;
+			}
+			//Checks to see whether the H key was pressed and whether the selector is not already on this option
+			else if (input.isKeyPressed(Input.KEY_H) && selected != 0)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
+				//Sets the selector to the first option
+				selected = 0;
+			}
+			//Checks to see whether the J key was pressed and whether the selector is not already on this option
+			else if (input.isKeyPressed(Input.KEY_J) && selected != 2)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
+				//Sets the selector to the third option
+				selected = 2;
+			}
+			//Checks to see whether the K key was pressed and whether the selector is not already on this option
+			else if (input.isKeyPressed(Input.KEY_K) && selected != 4)
+			{
+				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+				selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
+				//Sets the selector to the fifth option
+				selected = 4;
+			}
+			
+			//Clears the input record
+			//This is needed because otherwise key presses can carry across game states
+			input.clearKeyPressedRecord();
 		}
 		
 		//Checks to see whether the selected option has changed and plays the switch sound if it has
@@ -348,10 +413,6 @@ public class MenuState extends BasicGameState
 		//Adds to the timer if the timer is running
 		if (timerGo)
 			timer += 2;
-		
-		//Clears the input record
-		//This is needed because otherwise key presses can carry across game states
-		input.clearKeyPressedRecord();
 	}
 	
 	//Identifies the state id

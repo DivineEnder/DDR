@@ -11,6 +11,8 @@ import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class Engine
 {
+	PadInput pads;
+	
 	//Creates an instance of the State Handler class
 	StateHandler stateHandler;
 	
@@ -26,7 +28,7 @@ public class Engine
 	ArrayList<Particles> particles;
 	
 	//Constructor
-	Engine(GameContainer gc, Rhythms r, Score s, StateHandler sh)
+	Engine(GameContainer gc, Rhythms r, Score s, StateHandler sh, PadInput p)
 	{
 		//Creates a new radar circles that are created from the window width and height
 		rc = new RadarCircles(gc.getWidth(), gc.getHeight());
@@ -36,6 +38,8 @@ public class Engine
 		points = s;
 		//Sets the state handler to the universal statehandler that is passed to all states
 		stateHandler = sh;
+		
+		pads = p;
 	}
 	
 	//Sets up the engine to start a new song
@@ -93,92 +97,195 @@ public class Engine
 		//Updates the rhythm circle list by removing already hit or missed circles
 		rhythm.updateRhythmCircleList(selector, points);
 		
-		System.out.println("Circlelist size: " + rhythm.circleList.size());
-		for (int i = 0; i < rhythm.circleList.size(); i++)
+		if (pads.usePads)
 		{
-			System.out.println("Circle " + i + ":" + rhythm.circleList.get(i).checkTermination());
-			if (i == 4)
-				break;
-		}
-		
-		//Checks to see if both the H and J key are held down
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
-		{
-			//Triggers the radar circles corresponding circle fill
-			rc.keyPressed(2);
-			for (int i = 0; i < rhythm.circleList.size(); i++)
+			if (pads.input == 2)
 			{
-				rhythm.circleList.get(i).keyPressed(2);
-				if (i == 4)
-					break;
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(2);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(2))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
+			}
+			else if (pads.input == 4)
+			{
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(4);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(4))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
+			}
+			else if (pads.input == 1)
+			{
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(1);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(1))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
+			}
+			else if (pads.input == 3)
+			{
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(3);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(3))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
+			}
+			else if (pads.input == 5)
+			{
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(5);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(5))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
 			}
 		}
-		
-		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))	
+		else
 		{
-			//Triggers the radar circles corresponding circle fill
-			rc.keyPressed(4);
-			//Iterates through the rhythm circle list
-			for (int i = 0; i < rhythm.circleList.size(); i++)
+			//Checks to see if both the H and J key are held down
+			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
 			{
-				//Checks to see if the key the player just pressed corresponds to a rhythm circle
-				rhythm.circleList.get(i).keyPressed(4);
-				//You only need to check 5 circles into the list
-				//Only 5 circles maximum should be playable at a time
-				//If you have reached the 5th circle break out of the loop so that you don't waste time
-				if (i == 4)
-					break;
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(2);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(2))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
 			}
-		}
-		
-		else if (input.isKeyDown(Input.KEY_H))
-		{
-			//Triggers the radar circles corresponding circle fill
-			rc.keyPressed(1);
-			//Iterates through the rhythm circle list
-			for (int i = 0; i < rhythm.circleList.size(); i++)
+			
+			else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))	
 			{
-				//Checks to see if the key the player just pressed corresponds to a rhythm circle
-				rhythm.circleList.get(i).keyPressed(1);
-				//You only need to check 5 circles into the list
-				//Only 5 circles maximum should be playable at a time
-				//If you have reached the 5th circle break out of the loop so that you don't waste time
-				if (i == 4)
-					break;
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(4);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(4))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
 			}
-		}
-		
-		else if (input.isKeyDown(Input.KEY_J))
-		{
-			//Triggers the radar circles corresponding circle fill
-			rc.keyPressed(3);
-			//Iterates through the rhythm circle list
-			for (int i = 0; i < rhythm.circleList.size(); i++)
+			
+			else if (input.isKeyDown(Input.KEY_H))
 			{
-				//Checks to see if the key the player just pressed corresponds to a rhythm circle
-				rhythm.circleList.get(i).keyPressed(3);
-				//You only need to check 5 circles into the list
-				//Only 5 circles maximum should be playable at a time
-				//If you have reached the 5th circle break out of the loop so that you don't waste time
-				if (i == 4)
-					break;
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(1);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(1))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
 			}
-		}
-		
-		else if (input.isKeyDown(Input.KEY_K))
-		{
-			//Triggers the radar circles corresponding circle fill
-			rc.keyPressed(5);
-			//Iterates through the rhythm circle list
-			for (int i = 0; i < rhythm.circleList.size(); i++)
+			
+			else if (input.isKeyDown(Input.KEY_J))
 			{
-				//Checks to see if the key the player just pressed corresponds to a rhythm circle
-				rhythm.circleList.get(i).keyPressed(5);
-				//You only need to check 5 circles into the list
-				//Only 5 circles maximum should be playable at a time
-				//If you have reached the 5th circle break out of the loop so that you don't waste time
-				if (i == 4)
-					break;
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(3);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(3))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
+			}
+			
+			else if (input.isKeyDown(Input.KEY_K))
+			{
+				//Triggers the radar circles corresponding circle fill
+				rc.keyPressed(5);
+				//Iterates through the rhythm circle list
+				for (int i = 0; i < rhythm.circleList.size(); i++)
+				{
+					//Checks to see if the key the player just pressed corresponds to a rhythm circle
+					//If a circle was detected then don't detect another circle
+					if (rhythm.circleList.get(i).keyPressed(5))
+						break;
+					//You only need to check 5 circles into the list
+					//Only 5 circles maximum should be playable at a time
+					//If you have reached the 5th circle break out of the loop so that you don't waste time
+					if (i == 4)
+						break;
+				}
 			}
 		}
 	}
@@ -187,7 +294,7 @@ public class Engine
 	public void render(GameContainer gc, Graphics g)
 	{
 		//Sets the graphics color to our color schemes gray
-		g.setColor(new Color(84, 84, 84));
+		g.setColor(new Color(84f/255f, 168f/255f * points.colorVibrance, 84f/255f));//new Color(255f/255f, 84f/255f, 84f/255f, points.opacity));
 		//Fills the background with the gray color
 		g.fill(new Rectangle(0, 0, gc.getScreenWidth(), gc.getScreenHeight()));
 		

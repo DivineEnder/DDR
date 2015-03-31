@@ -1,3 +1,10 @@
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
@@ -6,6 +13,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Rectangle;
@@ -14,197 +22,240 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class ArcadeState extends BasicGameState
 {
+	float windowWidth;
+	float windowHeight;
+	
+	//Creates a variable for a custom font to draw in
+	TrueTypeFont[] circleFonts;
+	
+	PadInput pads;
+	
 	Engine engine;
 	Rhythms engineRhythm;
 	StateHandler stateHandler;
 	
-	Rhythms[] rhythmsList;
-	Circle[] rhythmsListCircles;
+	ArrayList<Rhythms> rhythmsList;
+	
+	int[] displayedIndexes;
 	Circle[] displayCircles;
-	ArrayList<Integer> indexOrder;
-	ArrayList<Circle> pointCircles; // Kyle made me
-	
-	Polygon leftArrow;
-	Polygon rightArrow;
-	
-	boolean fillRightArrow = false;
-	boolean fillLeftArrow = false;
-	boolean fillCircle = false;
+	Color[] displayColors;
 	
 	Music backgroundMusic;
 	
-	//TODO
-	//Redesign arcade state
-	//GUI is bad at the moment
-	//Aracade state is not commented because it is simply a placeholder while we get down our game play
+	Color[] timerColors;
+	int[] timers;
+	boolean[] timersGo;
 	
-	public ArcadeState(Rhythms rhythm, StateHandler sh)
+	public ArcadeState(Rhythms rhythm, StateHandler sh, PadInput p)
 	{
 		engineRhythm = rhythm;
 		stateHandler = sh;
-	}
-	
-	@Override
-	public void leave(GameContainer gc, StateBasedGame state)
-	{
-		backgroundMusic.stop();
-		stateHandler.leavingState(state.getCurrentStateID());
+		
+		pads = p;
 	}
 	
 	public void init(GameContainer gc, StateBasedGame state) throws SlickException
 	{
+		windowWidth = gc.getWidth();
+		windowHeight = gc.getHeight();
+		
+		//Initializes a new java awt font from a file
+		Font font = null;
+		try
+		{
+			font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("data/Fonts/belerenbold.ttf"));
+		} catch (FileNotFoundException e) {e.printStackTrace();} catch (FontFormatException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
+		
+		circleFonts = new TrueTypeFont[5];
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 5);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
+		circleFonts[0] = new TrueTypeFont(font, false);
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 20);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
+		circleFonts[1] = new TrueTypeFont(font, false);
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 30);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
+		circleFonts[2] = new TrueTypeFont(font, false);
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 20);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
+		circleFonts[3] = new TrueTypeFont(font, false);
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 5);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
+		circleFonts[4] = new TrueTypeFont(font, false);
+		
 		backgroundMusic = new Music("data/Sound Testing/Dubstep Filler or Starter.wav");
 		
-		float circleXLocation = gc.getScreenWidth()/5;
-		float circleYLocation = gc.getScreenHeight()/2;
-		float goldenRatio = (float) ((1 + Math.sqrt(5))/2);
+		File dir = new File("data/Music/");
+		File[] songs = dir.listFiles(new FilenameFilter()
+		{
+			public boolean accept(File dir, String filename)
+			{
+				return filename.endsWith(".wav");
+			}
+		});
 		
-		leftArrow = new Polygon();
-		leftArrow.addPoint(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100, gc.getScreenHeight()/2);
-		leftArrow.addPoint(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100 + 50, gc.getScreenHeight()/2 - 50);
-		leftArrow.addPoint(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100 + 50, gc.getScreenHeight()/2 + 50);
-		rightArrow = new Polygon();
-		rightArrow.addPoint(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100 - 50, gc.getScreenHeight()/2 - 50);
-		rightArrow.addPoint(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100, gc.getScreenHeight()/2);
-		rightArrow.addPoint(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100 - 50, gc.getScreenHeight()/2 + 50);
-		
-		pointCircles = new ArrayList<Circle>();
-		int radius = 3;
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100, gc.getScreenHeight()/2, radius));
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100 + 50, gc.getScreenHeight()/2 - 50, radius));
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 - (gc.getScreenHeight()/(3 * goldenRatio)) - 100 + 50, gc.getScreenHeight()/2 + 50, radius));
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100 - 50, gc.getScreenHeight()/2 - 50, radius));
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100, gc.getScreenHeight()/2, radius));
-		pointCircles.add(new Circle(gc.getScreenWidth()/2 + (gc.getScreenHeight()/(3 * goldenRatio)) + 100 - 50, gc.getScreenHeight()/2 + 50, radius));
-		
-		rhythmsList = new Rhythms[5];
-		for (int i = 0; i < rhythmsList.length; i++)
-			rhythmsList[i] = new Rhythms();
-		rhythmsList[0].setRhythm("Do I Wanna Know - Arctic Monkeys");
-		rhythmsList[1].setRhythm("Hideaway - Kiesza");
-		rhythmsList[2].setRhythm("Human - Christina Perri");
-		rhythmsList[3].setRhythm("Funky Town - IDK");
-		rhythmsList[4].setRhythm("The Days - Avicii");
+		rhythmsList = new ArrayList<Rhythms>();
+		for (int i = 0; i < songs.length; i++)
+			rhythmsList.add(new Rhythms());
+		for (int i = 0; i < songs.length; i++)
+			rhythmsList.get(i).setRhythm(songs[i].getName().substring(0, songs[i].getName().length() - 4));
 		
 		displayCircles = new Circle[5];
-		displayCircles[0] = new Circle(0, gc.getScreenHeight()/2, 0);
-		displayCircles[1] = new Circle(circleXLocation, circleYLocation, gc.getScreenHeight()/(4 * goldenRatio));
-		displayCircles[2] = new Circle(gc.getScreenWidth()/2, circleYLocation, gc.getScreenHeight()/(3 * goldenRatio));
-		displayCircles[3] = new Circle(gc.getScreenWidth() - circleXLocation, circleYLocation, gc.getScreenHeight()/(4 * goldenRatio));
-		displayCircles[4] = new Circle(gc.getScreenWidth(), gc.getScreenHeight()/2, 0);
+		displayCircles[0] = new Circle(windowHeight/9, windowHeight/3, windowHeight/9);
+		displayCircles[1] = new Circle(windowWidth/4, windowHeight/3, windowHeight/6);
+		displayCircles[2] = new Circle(windowWidth/2, windowHeight/3, windowHeight/4);
+		displayCircles[3] = new Circle(windowWidth * 3/4, windowHeight/3, windowHeight/6);
+		displayCircles[4] = new Circle(windowWidth - windowHeight/9, windowHeight/3, windowHeight/9);
 		
-		rhythmsListCircles = new Circle[5];
-		rhythmsListCircles[0] = displayCircles[0];
-		rhythmsListCircles[1] = new Circle(displayCircles[1].getCenterX(), displayCircles[1].getCenterY(), displayCircles[1].getRadius() - 10);
-		rhythmsListCircles[2] = new Circle(displayCircles[2].getCenterX(), displayCircles[2].getCenterY(), displayCircles[2].getRadius() - 10);
-		rhythmsListCircles[3] = new Circle(displayCircles[3].getCenterX(), displayCircles[3].getCenterY(), displayCircles[3].getRadius() - 10);
-		rhythmsListCircles[4] = displayCircles[4];
+		displayColors = new Color[5];
+		displayColors[0] = new Color(1.0f, 1.0f, 1.0f, .2f);
+		displayColors[1] = new Color(1.0f, 1.0f, 1.0f, .7f);
+		displayColors[2] = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+		displayColors[3] = new Color(1.0f, 1.0f, 1.0f, .7f);
+		displayColors[4] = new Color(1.0f, 1.0f, 1.0f, .2f);
 		
-		indexOrder = new ArrayList<Integer>();
-		for (int i = 0; i < 5; i++)
-			indexOrder.add(i);
+		displayedIndexes = new int[5];
+		for (int i = 0; i < displayedIndexes.length; i++)
+			displayedIndexes[i] = i;
+		
+		timerColors = new Color[3];
+		timerColors[0] = new Color(173f/255f, 16f/255f, 16f/255f);
+		timerColors[1] = new Color(22f/255f, 161f/255f, 22f/255f);
+		timerColors[2] = new Color(10f/255f, 29f/255f, 145f/255f);
+		timers = new int[]{0, 0, 0};
+		timersGo = new boolean[]{false, false, false};
 	}
 	
 	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
-		backgroundMusic.loop();
-		backgroundMusic.setVolume(stateHandler.getMusicVolume());
+		//backgroundMusic.loop();
+		//backgroundMusic.setVolume(stateHandler.getMusicVolume());
+		
+		pads.clearPadPressedRecord();
 	}
 	
-	public void changeDisplayed(int increment)
-	{	
-		for (int i = 0; i < indexOrder.size(); i++)
+	@Override
+	public void leave(GameContainer gc, StateBasedGame state)
+	{
+		//backgroundMusic.stop();
+		stateHandler.leavingState(state.getCurrentStateID());
+		
+		for (int i = 0; i < timers.length; i++)
 		{
-			indexOrder.set(i, indexOrder.get(i) - increment);
-			if (indexOrder.get(i) > 4)
-				indexOrder.set(i, indexOrder.get(i) - 5);
-			else if (indexOrder.get(i) < 0)
-				indexOrder.set(i, indexOrder.get(i) + 5);
+			timers[i] = 0;
+			timersGo[i] = false;
+		}
+		
+		pads.clearPadPressedRecord();
+	}
+	
+	@Override
+	public void keyPressed(int key, char c)
+	{
+		if (key == Input.KEY_H)
+		{
+			timersGo[0] = true;
+			rhythmsList.get(displayedIndexes[1]).currentSong.play();
+		}
+		else if (key == Input.KEY_J)
+		{
+			timersGo[1] = true;
+			rhythmsList.get(displayedIndexes[2]).currentSong.play();
+		}
+		else if (key == Input.KEY_K)
+		{
+			timersGo[2] = true;
+			rhythmsList.get(displayedIndexes[3]).currentSong.play();
 		}
 	}
 	
-	public void moveCircles()
+	@Override
+	public void keyReleased(int key, char c)
 	{
-		for (int i = 0; i < 5; i++)
+		if (key == Input.KEY_H)
 		{
-			int realI = indexOrder.get(i);
-			if (realI == 0 || realI == 4)
-				rhythmsListCircles[realI] = displayCircles[realI];
-			else
-				rhythmsListCircles[realI] = new Circle(displayCircles[realI].getCenterX(), displayCircles[realI].getCenterY(), displayCircles[realI].getRadius() - 10);
+			timersGo[0] = false;
+			timers[0] = 0;
+			rhythmsList.get(displayedIndexes[1]).currentSong.stop();
 		}
-	}
-	
-	public void playSample()
-	{
-		rhythmsList[indexOrder.get(2)].currentSong.setPosition(5);
-		rhythmsList[indexOrder.get(2)].currentSong.play();
+		else if (key == Input.KEY_J)
+		{
+			timersGo[1] = false;
+			timers[1] = 0;
+			rhythmsList.get(displayedIndexes[2]).currentSong.stop();
+		}
+		else if (key == Input.KEY_K)
+		{
+			timersGo[2] = false;
+			timers[2] = 0;
+			rhythmsList.get(displayedIndexes[3]).currentSong.stop();
+		}
 	}
 	
 	public void update(GameContainer gc, StateBasedGame state, int delta) throws SlickException
 	{
-		Input input = gc.getInput();
-		
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		if (pads.usePads)
 		{
-			state.enterState(0);
-		}
-		else
-		{
-			if (input.isKeyDown(Input.KEY_K))
-			{
-				fillRightArrow = true;
-			}
+			if (pads.input == 1)
+				timersGo[0] = true;
+			else if (pads.input == 3)
+				timersGo[1] = true;
+			else if (pads.input == 5)
+				timersGo[2] = true;
 			else
 			{
-				fillRightArrow = false;
-			}
-			
-			if (input.isKeyDown(Input.KEY_H))
-			{
-				fillLeftArrow = true;
-			}
-			else
-			{
-				fillLeftArrow = false;
-			}
-			
-			if (input.isKeyDown(Input.KEY_J))
-			{
-				fillCircle = true;
-			}
-			else
-			{
-				fillCircle = false;
-			}
-			
-			if (input.isKeyPressed(Input.KEY_K))
-			{
-				changeDisplayed(1);
-				moveCircles();
-				//playSample();
-			}
-			else if (input.isKeyPressed(Input.KEY_H))
-			{
-				changeDisplayed(-1);
-				moveCircles();
-				//playSample();
-			}
-			else if (input.isKeyPressed(Input.KEY_J))
-			{
-				int selected = indexOrder.get(2);
-				engineRhythm.setRhythm(rhythmsList[selected].title + " - " + rhythmsList[selected].artist);
-				state.enterState(4);
+				for (int i = 0; i < timersGo.length; i++)
+					timersGo[i] = false;
 			}
 		}
 		
-		if (input.isKeyPressed(Input.KEY_ESCAPE))
+		if (timers[0] == 100)
 		{
-			state.enterState(0);
+			rhythmsList.get(displayedIndexes[1]).currentSong.stop();
+			
+			for (int i = 0; i < displayedIndexes.length; i++)
+			{
+				displayedIndexes[i]--;
+				if (displayedIndexes[i] < 0)
+					displayedIndexes[i] += rhythmsList.size();
+			}
+			
+			timersGo[0] = false;
+			timers[0] = 0;
+		}
+		else if (timers[1] == 100)
+		{
+			rhythmsList.get(displayedIndexes[2]).currentSong.stop();
+			
+			engineRhythm.setRhythm(rhythmsList.get(displayedIndexes[2]).title + " - " + rhythmsList.get(displayedIndexes[2]).artist);
+			state.enterState(4);
+		}
+		else if (timers[2] == 100)
+		{
+			rhythmsList.get(displayedIndexes[3]).currentSong.stop();
+			
+			for (int i = 0; i < displayedIndexes.length; i++)
+			{
+				displayedIndexes[i]++;
+				if (displayedIndexes[i] > rhythmsList.size() - 1)
+					displayedIndexes[i] -= rhythmsList.size() - 1;
+			}
+			
+			timersGo[2] = false;
+			timers[2] = 0;
 		}
 		
-		input.clearKeyPressedRecord();
+		for (int i = 0; i < timers.length; i++)
+		{
+			if (timersGo[i])
+				timers[i]++;
+		}
 	}
 	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
@@ -215,52 +266,26 @@ public class ArcadeState extends BasicGameState
 		g.setColor(new Color(84, 84, 84));
 		g.fill(new Rectangle(0, 0, gc.getWidth(), gc.getHeight()));
 		
-		//Draws left arrow (H)
-		g.setColor(new Color(173, 16, 16)); //red
-		if (fillLeftArrow)
-			g.fill(leftArrow);
-		else
+		g.setColor(Color.white);
+		for (int i = 0; i < displayCircles.length; i++)
 		{
-			//Draws small circles at the tips of the arrows points to make it look nicer
-			for (int i = 0; i < pointCircles.size()/2; i++)
-				g.fill(pointCircles.get(i));
-			
-			g.draw(leftArrow);
+			g.setColor(displayColors[i]);
+			g.fill(displayCircles[i]);
+			g.setFont(circleFonts[i]);
+			g.setColor(Color.black);
+			g.drawString(rhythmsList.get(displayedIndexes[i]).title, displayCircles[i].getCenterX() - g.getFont().getWidth(rhythmsList.get(displayedIndexes[i]).title)/2, displayCircles[i].getCenterY() - g.getFont().getHeight(rhythmsList.get(displayedIndexes[i]).title)/2);
 		}
 		
-		//Draws outline circle (J)
-		g.setColor(new Color(22, 161, 22)); //green
-		if (fillCircle)
-			g.fill(displayCircles[2]);
-		else
-			g.draw(displayCircles[2]);
-		
-		//Draws right arrow (K)
-		g.setColor(new Color(10, 29, 145)); //blue
-		if (fillRightArrow)
-			g.fill(rightArrow);
-		else
+		for (int i = 0; i < timers.length; i++)
 		{
-			//Draws small circles at the tips of the arrows points to make it look nicer
-			for (int i = pointCircles.size()/2; i < pointCircles.size(); i++)
-				g.fill(pointCircles.get(i));
-		
-			g.draw(rightArrow);
+			g.setColor(new Color(timerColors[i].r, timerColors[i].g, timerColors[i].b, .7f));
+			g.draw(displayCircles[i + 1]);
 		}
-		
-		//Draws the big circles
-		g.setLineWidth(10);
-		g.setColor(new Color(255, 255, 255));
-		for (int i = 0; i < 5; i++)
-			g.fill(rhythmsListCircles[i]);
-		
-		//Draws the text for the songs
-		g.setColor(new Color(0, 0, 0));
-		for (int i = 0; i < indexOrder.size(); i++)
+		for (int i = 0; i < timers.length; i++)
 		{
-			int realI = indexOrder.get(i);
-			int titleLength = g.getFont().getWidth(rhythmsList[realI].title);
-			g.drawString(rhythmsList[realI].title, rhythmsListCircles[i].getCenterX() - titleLength/2, rhythmsListCircles[i].getCenterY());
+			g.setColor(timerColors[i]);
+			g.drawArc(displayCircles[i + 1].getX(), displayCircles[i + 1].getY(), displayCircles[i + 1].getRadius() * 2, displayCircles[i + 1].getRadius() * 2, 270, 270 + (timers[i] * (360f/100f)));
+			//g.drawArc(displayCircles[i + 1].getX(), displayCircles[i + 1].getY(), displayCircles[i + 1].getRadius(), displayCircles[i + 1].getRadius(), 0, 270, 270);
 		}
 	}
 

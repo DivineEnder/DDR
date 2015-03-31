@@ -69,10 +69,10 @@ public class ReadSong
 	public float[][] toIntList(String[] stringData)
 	{
 		//Create 2-d int list to return once everything is converted
-		float[][] floatData = new float[numberOfLines][3];
+		float[][] floatData = new float[numberOfLines][5];
 		
 		//Create a holding variable that will help to convert the String list over to an int list
-		String[][] tempList = new String[numberOfLines][4];
+		String[][] tempList = new String[numberOfLines][6];
 		//List of deliminations that will be parsed out of the read strings in the string list that the function is passed
 		String delims = "[,()]+";
 		//Loop to split the strings read out of the file by the deliminations

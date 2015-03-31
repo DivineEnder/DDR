@@ -30,6 +30,13 @@ public class Rhythms
     	//Initializes the artist of the song by parsing it from the file name
     	artist = filename.substring(filename.indexOf('-') + 2);
     	//Song filenames in the form of [title - artist.wav]
+    	
+    	//Checks to make sure this rhythm isn't a placeholder for the story that has no rhythm
+    	if (!title.equals("NONE"))
+    	{
+	    	//Initializes the currentSong to a wav file from the file
+	    	try{currentSong = new Music("data/Music/" + filename + ".wav");} catch (SlickException e) {}
+    	}
 	}
 	
 	//Sets up the rhythm for gameplay
@@ -38,8 +45,6 @@ public class Rhythms
 		//Creates a temporary variable to reference the file
 		String filename = title + " - " + artist;
 		
-		//Initializes the currentSong to a wav file from the file
-		try{currentSong = new Music("data/Music/" + filename + ".wav");} catch (SlickException e) {}
 		//Creates a new array to hold the data that is going to be read from the text file
 		float[][] data = null;
 		//Creates a new class that reads from the textfile with the rhythm
@@ -52,7 +57,7 @@ public class Rhythms
     	firstCircleAngle = data[0][0];
     	//Creates new rhythm circles from the file data and then add them to the circle list
     	for (int i = 0; i < data.length; i++)
-    		circleList.add(new RhythmCircle(data[i][0], (int) data[i][1], (int) data[i][2], gc));
+    		circleList.add(new RhythmCircle(data[i][0], data[i][1], (int) data[i][2], (int) data[i][3], gc));
 	}
 	
 	//Updates the circle list by removing circles that have passed

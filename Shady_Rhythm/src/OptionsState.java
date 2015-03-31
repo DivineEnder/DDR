@@ -27,6 +27,7 @@ public class OptionsState extends BasicGameState
 	//Creates a variable for a custom font use while drawing
 	TrueTypeFont wordFont;
 	
+	PadInput pads;
 	//Creates an instance of the StateHandler class
 	StateHandler stateHandler;
 	
@@ -61,10 +62,11 @@ public class OptionsState extends BasicGameState
 	float soundVolume;
 	
 	//Constructor
-	public OptionsState(StateHandler sh)
+	public OptionsState(StateHandler sh, PadInput p)
 	{
 		//Initializes the stateHandler instance to a universal class acorss all states
 		stateHandler = sh;
+		pads = p;
 	}
 	
 	//Initializes various variables

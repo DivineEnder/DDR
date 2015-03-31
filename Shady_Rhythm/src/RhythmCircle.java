@@ -20,6 +20,11 @@ public class RhythmCircle
 	//Creates a variable to hold the angle at which the circle is drawn
 	private float angle;
 	
+	private float endAngle;
+	private boolean longNote;
+	private float angleDiff;
+	private boolean drawOutline;
+	
 	//Creates a variable to hold the angle at which the circle the circle will start drawing on the screen
 	private float startDrawingAngle;
 	//Creates a variable to hold the circles radius as an angle measure
@@ -45,7 +50,7 @@ public class RhythmCircle
 	private Color color;
 	
 	//Constructor
-	RhythmCircle(float a, int rot, int lay, GameContainer gc)
+	RhythmCircle(float a, float endingAngle, int rot, int lay, GameContainer gc)
 	{
 		//Gets the width and height of the game and sets it equal to the windows width and height variables
 		windowWidth = gc.getWidth();
@@ -53,8 +58,19 @@ public class RhythmCircle
 		
 		//Sets the selector drawing angle equal to the angle that was passed to the circle
 		startDrawingAngle = a;
+		
+		endAngle = endingAngle;
+		if (endingAngle == 0)
+			longNote = false;
+		else
+			longNote = true;
+		if (endAngle < startDrawingAngle)
+			endAngle += 360;
+		angleDiff = endAngle - startDrawingAngle;
+		drawOutline = true;
+		
 		//Sets the circle's rotations equal to the rotations that was passed to the circle
-		rotations = rot;
+		rotations = rot; 
 		//Sets the circle's layer equal to the the layer that was passed to the circle
 		layer = lay;
 		
@@ -144,20 +160,43 @@ public class RhythmCircle
 	}
 	
 	//Checks to see if the key that was pressed by the player corresponds to the circle
-	public void keyPressed(int layerPressed)
+	public boolean keyPressed(int layerPressed)
 	{
 		//Checks to see if the key pressed was on the corresponding layer
-		if (layer == layerPressed && termination != 1)
+		if (layer == layerPressed && termination < 1)
 		{
 			//Checks to see whether the key was pressed within the threashold for hitting the circle
 			if (angle > (360 - circleRadiusAsAngle/3) && angle < (360 + circleRadiusAsAngle/3))
 			{
-				//Turns off the circle if the circle was hit
-				visible = false;
-				//Sets the termination to 2 to tell others that the circle was hit
-				termination = 2;
+				if (!longNote)
+				{
+					//Turns off the circle if the circle was hit
+					visible = false;
+					//Sets the termination to 2 to tell others that the circle was hit
+					termination = 2;
+					//Returns true if the circle was hit and disabled
+					return true;
+				}
+				else
+				{
+					angle = 360;
+					drawOutline = false;
+					angleDiff -= .5;
+					if (angleDiff <= circleRadiusAsAngle/3)
+					{
+						//Turns off the circle if the circle was hit
+						visible = false;
+						//Sets the termination to 2 to tell others that the circle was hit
+						termination = 2;
+						//Returns true if the circle was hit and disabled
+						return true;
+					}
+				}
 			}
 		}
+		
+		//Returns false if the circle was not hit
+		return false;
 	}
 	
 	//Creates the growing smooth appear animation when the circle first draws
@@ -213,14 +252,39 @@ public class RhythmCircle
 			//Checks to see whether the selector is running then updates the circle if it is (in case the game is paused)
 			if (selector.checkRunning())
 				updateCircle();
+			
+			if (longNote)
+			{
+				float trailX = windowWidth/2 - (((windowHeight/10) - 5) * layer);
+				float trailY = windowHeight/2 - (((windowHeight/10) - 5) * layer);
+				float trailDiameter = (((windowHeight/10) - 5) * layer) * 2;
+				float moddedAngleDiff = angleDiff;
+				if (angle < moddedAngleDiff + circleRadiusAsAngle/2 + 1)
+					moddedAngleDiff = angle - circleRadiusAsAngle/2 - 1;
+				
+				//Sets the graphics color to the be circles layer color
+				g.setColor(Color.black);
+				g.setLineWidth(15);
+				g.drawArc(trailX, trailY, trailDiameter, trailDiameter, angle - (moddedAngleDiff), angle);
+				
+				//Sets the graphics color to black
+				g.setColor(color);
+				g.setLineWidth(5);
+				g.drawArc(trailX, trailY, trailDiameter, trailDiameter, angle - (moddedAngleDiff), angle);
+			}
 			//Sets the graphics color to the be circles layer color
 			g.setColor(color);
 			//Draws the circle
 			g.fill(new Circle(x, y, radius));
-			//Sets the graphics color to black
-			g.setColor(Color.black);
-			//Draws the black outline of the circle to make it look nicer
-			g.draw(new Circle(x, y, radius));
+			
+			if (drawOutline)
+			{
+				g.setLineWidth(3);
+				//Sets the graphics color to black
+				g.setColor(Color.black);
+				//Draws the black outline of the circle to make it look nicer
+				g.draw(new Circle(x, y, radius));
+			}
 		}
 	}
 }

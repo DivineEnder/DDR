@@ -22,6 +22,7 @@ public class StoryState extends BasicGameState
 	StoryParser[] story;
 	//Creates a list of rhythms that are consecutively played as you reach the end of a story section
 	Rhythms[] rhythmList;
+	PadInput pads;
 	//Creates instance of the state handler class
 	StateHandler stateHandler;
 	//Creates an instance of the rhythm class
@@ -38,12 +39,13 @@ public class StoryState extends BasicGameState
 	int scenePosition;
 	
 	//Constructor
-	StoryState(Rhythms rhythm, StateHandler sh)
+	StoryState(Rhythms rhythm, StateHandler sh, PadInput p)
 	{
 		//Sets the instance of rhythm to the rhythm being accessed by the gamestate
 		engineRhythm = rhythm;
 		//Sets the instance of the state handler tjjjjjo the universal one passed between all states
 		stateHandler = sh;
+		pads = p;
 	}
 	
 	//Triggers certain events when leaving the story state

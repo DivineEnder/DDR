@@ -1,6 +1,5 @@
 import java.awt.Font;
 
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -8,13 +7,13 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.state.transition.FadeInTransition;
-import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class GameState extends BasicGameState
 {
 	//Creates a variable to hold the custom font used to draw to the screen
 	TrueTypeFont wordFont;
+	
+	PadInput pads;
 	
 	//Creates an instance of the engine that will run
 	Engine engine;
@@ -39,7 +38,7 @@ public class GameState extends BasicGameState
 	String loadingString;
 	
 	//Constructor
-	public GameState(Rhythms engineRhythm, Score s, StateHandler sh)
+	public GameState(Rhythms engineRhythm, Score s, StateHandler sh, PadInput p)
 	{
 		//Sets the rhythm instance to be equal to the one that was passed from either arcade or story state
 		rhythm = engineRhythm;
@@ -47,6 +46,8 @@ public class GameState extends BasicGameState
 		score = s;
 		//Sets the state handler to be an instance that is passed universally to all states
 		stateHandler = sh;
+		
+		pads = p;
 	}
 	
 	//Initializes various variables when the game is first loaded
@@ -57,7 +58,7 @@ public class GameState extends BasicGameState
 		wordFont = new TrueTypeFont(font, false);
 		
 		//Creates a new engine that is used to run the basic game play
-		engine = new Engine(gc, rhythm, score, stateHandler);
+		engine = new Engine(gc, rhythm, score, stateHandler, pads);
 		//Creates a new loading screen that is used to display the loading screen
 		loadingScreen = new Loading(gc.getWidth(), gc.getHeight());
 	}
@@ -68,12 +69,16 @@ public class GameState extends BasicGameState
 	{
 		//Fades out the currently palying song when you leave the state
 		rhythm.currentSong.fade(750, 0, true);
+		
+		pads.clearPadPressedRecord();
 	}
 	
 	//Triggers certain events when the game state is entered
 	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
+		pads.clearPadPressedRecord();
+		
 		//Starts the gameplay as unpaused
 		paused = false;
 		//Sets the press any key as false
@@ -146,12 +151,26 @@ public class GameState extends BasicGameState
 			paused = !paused;
 		}
 		
-		//Checks to see if H, J, and K are all down at the same time
-		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		if (pads.usePads)
 		{
-			//Leaves the game state and enters the aracade state
-			state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+			if (pressAnyKey)
+			{
+				if (pads.input != 0)
+				{
+					//Turns off the loading screen
+					pressAnyKey = false;
+					//Starts the game play
+					engine.start();
+				}
+			}
 		}
+		
+		//Checks to see if H, J, and K are all down at the same time
+		//if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
+		//{
+			//Leaves the game state and enters the aracade state
+			//state.enterState(1, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+		//}
 		
 		//Checks to see if the gameplay is loading or if it is and done and waiting for player then updates the loading screen
 		if (loading.isAlive() || pressAnyKey)
