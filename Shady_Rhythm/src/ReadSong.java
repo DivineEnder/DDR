@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -17,8 +18,35 @@ public class ReadSong
 		numberOfLines = 0;
 	}
 	
+	//Opens and reads the first line of the file
+	public int[] readBasicInfo() throws IOException
+	{
+		//Creates a FileReader and BufferedReader to read from the file that you pass it
+		FileReader fr = new FileReader(path);
+		BufferedReader textReader = new BufferedReader(fr);
+		
+		//Creates a new array to read the first line of data to (is an array because need to convert to int list)
+		String textData;
+		
+		//Reads the first line of the text file into the array
+		textData = textReader.readLine();
+		
+		int[] data = new int[5];
+		//Create a holding variable that will help to convert the String list over to an int list
+		String[] tempList = new String[6];
+		//List of deliminations that will be parsed out of the read strings in the string list that the function is passed
+		String delims = "[,()]+";
+		//Splits the strings from the file by the parenthesis and the commas
+		tempList = textData.split(delims);
+		for (int i = 1; i < tempList.length; i++)
+			data[i-1] = Integer.parseInt(tempList[i]);
+		
+		//Returns the array containing the first line of the text file
+		return data;
+	}
+	
 	//Opens, reads, and returns the file info
-	public String[] OpenFile() throws IOException
+	public String[] openFile() throws IOException
 	{
 		//Creates a FileReader and BufferedReader to read from the file that you pass it
 		FileReader fr = new FileReader(path);

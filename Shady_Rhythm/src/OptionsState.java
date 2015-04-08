@@ -31,31 +31,19 @@ public class OptionsState extends BasicGameState
 	//Creates an instance of the StateHandler class
 	StateHandler stateHandler;
 	
-	//Creates a variable to tell what is selected
+	Circle[] optionCircles;
+	String[] optionCircleStrings;
+	
+	Color[] optionCircleColors;
+	Color[] selectorColors;
+	
 	int selected;
+	
 	//Creates a boolean to tell whether or not we are have selected something
 	boolean selectedMode;
+	float selectedOpacity;
 	
-	//Creates variables for the strings to display to the screen
-	String music;
-	String sound;
-	String exit;
-	
-	//Creates an array to hold the individual colors for the strings
-	Color[] stringColors;
-	
-	//Creates variables for the sound FX and music bars on the screen
-	RoundedRectangle musicVolumeLine;
-	RoundedRectangle soundVolumeLine;
-	
-	//Creates variables for the sound FX and music bar selectors on the screen
-	RoundedRectangle musicVolumeSelector;
-	RoundedRectangle soundVolumeSelector;
-	
-	//Creates the two selector circles
-	Circle[] selector;
-	//Creates boolean that determines whether or not to fill the selector circles
-	boolean[] fill;
+	int[] timers;
 	
 	//Creates variables for the music and sound volumes
 	float musicVolume;
@@ -76,42 +64,37 @@ public class OptionsState extends BasicGameState
 		windowWidth = gc.getWidth();
 		windowHeight = gc.getHeight();
 		
-		//Initializes a new font to use for drawing to the screen
+		//Initializes a new java awt font from a file
 		Font font = null;
-		try {
+		try
+		{
 			font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("data/Fonts/belerenbold.ttf"));
-		} catch (FileNotFoundException e) {e.printStackTrace();
-		} catch (FontFormatException e) {e.printStackTrace();
-		} catch (IOException e) {e.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {e.printStackTrace();} catch (FontFormatException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
 		//Sets the font to be plain and have a size of 30
 		font = font.deriveFont(Font.PLAIN, 30);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
 		wordFont = new TrueTypeFont(font, false);
 		
-		//Initializes selected to start at the top
-		selected = 0;
 		//Initializes selectedMode to start off
 		selectedMode = false;
 		
-		//Initializes the strings drawn
-		music = "Music Volume";
-		sound = "Sound FX Volume";
-		exit = "Exit";
+		optionCircleStrings = new String[]{"Music Volume", "Sound FX Volume", "Exit"};
 		
-		//Initializes the colors of the strings to be white at first
-		stringColors = new Color[]{Color.white, Color.white, Color.white};
+		optionCircles = new Circle[3];
+		optionCircles[0] = new Circle(windowWidth/6, windowHeight/5, windowHeight/6);
+		optionCircles[1] = new Circle(windowWidth/2, windowHeight/5, windowHeight/6);
+		optionCircles[2] = new Circle(windowWidth * 5/6, windowHeight/5, windowHeight/6);
 		
-		//Initializes the volume bars drawn
-		musicVolumeLine = new RoundedRectangle(windowWidth/7 + wordFont.getWidth(music), windowHeight/10 + wordFont.getHeight(music)/2, windowWidth * 3/5, 5, 6);
-		soundVolumeLine = new RoundedRectangle(windowWidth/7 + wordFont.getWidth(music), windowHeight/5 + wordFont.getHeight(sound)/2, windowWidth * 3/5, 5, 6);
+		optionCircleColors = new Color[]{Color.white, Color.white, Color.white};
 		
-		//Initializes the two circles used as a selector
-		selector = new Circle[2];
-		selector[0] = new Circle(windowWidth/20 - 30, windowHeight/10 + wordFont.getHeight(sound)/2, 15);
-		selector[1] = new Circle(musicVolumeLine.getMaxX() + 30, windowHeight/10 + wordFont.getHeight(sound)/2, 15);
+		selectorColors = new Color[3];
+		selectorColors[0] = new Color(173, 16, 16);
+		selectorColors[1] = new Color(22, 161, 22);
+		selectorColors[2] = new Color(10, 29, 145);
 		
-		//Initializes the fill component of the two selector circles to be false
-		fill = new boolean[]{false, false};
+		selectedOpacity = 0;
+		
+		timers = new int[]{0, 0, 0};
 		
 		//Gets the current music and sound FX volume from the universal statehandler and then sets class variables to those values
 		musicVolume = stateHandler.getMusicVolume();
@@ -124,142 +107,98 @@ public class OptionsState extends BasicGameState
 		//Gets the input from the keyboard and puts it into a variable
 		Input input = gc.getInput();
 		
-		//Checks to make sure you don't have one of the options selected
-		if (!selectedMode)
+		if (selectedMode)
 		{
-			//Checks for J being pressed on the keyboard
-			if (input.isKeyPressed(Input.KEY_J))
-			{	
-				//Moves the selector down
-				selected++;
-				//Moves the selector up to the top if it is at the bottom of the list
-				if (selected > 2)
-					selected -= 3;
-				
-				//Changes where the selector circles are based on what is selected
-				if (selected == 0)
-				{
-					selector[0] = new Circle(windowWidth/20 - 30, windowHeight/10 + wordFont.getHeight(music)/2, 15);
-					selector[1] = new Circle(musicVolumeLine.getMaxX() + 30, windowHeight/10 + wordFont.getHeight(music)/2, 15);
-				}
-				else if (selected == 1)
-				{
-					selector[0] = new Circle(windowWidth/20 - 30, windowHeight/5 + wordFont.getHeight(sound)/2, 15);
-					selector[1] = new Circle(musicVolumeLine.getMaxX() + 30, windowHeight/5 + wordFont.getHeight(sound)/2, 15);
-				}
-				else
-				{
-					selector[0] = new Circle(windowWidth/20 - 30, windowHeight * 9/10 + wordFont.getHeight(exit)/2, 15);
-					selector[1] = new Circle(windowWidth/20 + wordFont.getWidth(exit) + 30, windowHeight * 9/10 + wordFont.getHeight(exit)/2, 15);
-				}
-			}
+			if (selectedOpacity < .75f)
+				selectedOpacity += .01f;
 			
-			//Checks for the H key pressed
-			if (input.isKeyDown(Input.KEY_H))
+			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 3)
 			{
-				//Fills the left hand circle
-				fill[0] = true;
-				//Sets the color of the currently selected item to be the filled circles color
-				stringColors[selected] = new Color(173, 16, 16);
-			}
-			//Otherwise do not fill the left circle and return the currently selected string to its white color
-			else
-			{
-				fill[0] = false;
-				//Makes sure that the other fill is not changing the color before it sets it to white
-				if (!fill[1])
-					stringColors[selected] = Color.white;
-			}
-			//Checks for the K key pressed
-			if (input.isKeyDown(Input.KEY_K))
-			{
-				//Fills the right hand circle
-				fill[1] = true;
-				//Sets the color of the currently selected item to be the filled circles color
-				stringColors[selected] = new Color(10, 29, 145);
-			}
-			//Otherwise do not fill the right circle and return the currently selected string to its white color
-			else
-			{
-				fill[1] = false;
-				//Makes sure that the other fill is not changing the color before it sets it to white
-				if (!fill[0])
-					stringColors[selected] = Color.white;
-			}
-			
-			//Checks if both the H and K keys are down by checking their fills
-			if (fill[0] && fill[1])
-			{
-				if (selected == 0)
-				{
-					//Turns on selected mode
-					selectedMode = true;
-					//Sets the color of the currently selected item to be the green mix in our color scheme
-					stringColors[selected] = new Color(22, 161, 22);
-				}
-				else if (selected == 1)
-				{
-					//Turns on selected mode
-					selectedMode = true;
-					//Sets the color of the currently selected item to be the green mix in our color scheme
-					stringColors[selected] = new Color(22, 161, 22);
-				}
-				//Leaves the state if exit is selected
-				else
-					state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-			}
-		}
-		//Deals with when you have an option selected
-		else
-		{
-			//Turns off selected mode if you press J
-			if (input.isKeyPressed(Input.KEY_J))
-			{
-				selectedMode = false;
-				//Sets the stateHandlers volume to be equal to the changed volumes here
 				stateHandler.setMusicVolume(musicVolume);
 				stateHandler.setSoundVolume(soundVolume);
+				selectedMode = false;
+				for (int i = 0; i < optionCircleColors.length; i++)
+					optionCircleColors[i] = Color.white;
 			}
 			
-			//Checks to see if H was pressed
-			if (input.isKeyPressed(Input.KEY_H))
+			if (input.isKeyDown(Input.KEY_H))
 			{
-				//Checks to see if volume is selected
 				if (selected == 0)
 				{
-					//Decreases the music volume if it is greater than zero
-					if (musicVolume > 0)
-						musicVolume -= .05f;
-					System.out.println(musicVolume);
-					
+					if (musicVolume > .01f)
+						musicVolume -= .01f;
 				}
-				//Checks to see if sound FX is selected
 				else
 				{
-					//Decreases the sound FX volume if it is greater than zero
-					if (soundVolume > 0)
-						soundVolume -= .05f;
-					System.out.println(soundVolume);
+					if (soundVolume > .01f)
+						soundVolume -= .01f;
 				}
 			}
-			
-			//Checks to see if the K key was pressed
-			if (input.isKeyPressed(Input.KEY_K))
+			else if (input.isKeyDown(Input.KEY_K))
 			{
-				//Checks to see if the music was selected
 				if (selected == 0)
 				{
-					//Increases the music volume if it is less than 1
 					if (musicVolume < 1)
-						musicVolume += .05f;
+						musicVolume += .01f;
 				}
-				//Checks to see if the sound FX was selected
 				else
 				{
-					//Increases the sound volume if it is less than 1
 					if (soundVolume < 1)
-						soundVolume += .05f;
+						soundVolume += .01f;
 				}
+			}
+		}
+		else
+		{
+			if (selectedOpacity > 0)
+				selectedOpacity -= .01f;
+			
+			if (input.isKeyDown(Input.KEY_H) || pads.input == 1)
+			{
+				timers[0]++;
+				timers[1] = 0;
+				timers[2] = 0;
+			}
+			else if (input.isKeyDown(Input.KEY_J) || pads.input == 2)
+			{
+				timers[1]++;
+				timers[0] = 0;
+				timers[2] = 0;
+			}
+			else if (input.isKeyDown(Input.KEY_K) || pads.input == 3)
+			{
+				timers[2]++;
+				timers[0] = 0;
+				timers[1] = 0;
+			}
+			else
+			{
+				for (int i = 0; i < timers.length; i++)
+					timers[i] = 0;
+			}
+			
+			if (timers[0] == 100)
+			{
+				selected = 0;
+				optionCircleColors[0] = selectorColors[0];
+				selectedMode = true;
+				for (int i = 0; i < timers.length; i++)
+					timers[i] = 0;
+				
+			}
+			else if (timers[1] == 100)
+			{
+				selected = 1;
+				optionCircleColors[1] = selectorColors[1];
+				selectedMode = true;
+				for (int i = 0; i < timers.length; i++)
+					timers[i] = 0;
+			}
+			else if (timers[2] == 100)
+			{
+				for (int i = 0; i < timers.length; i++)
+					timers[i] = 0;
+				state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
 			}
 		}
 		
@@ -276,63 +215,42 @@ public class OptionsState extends BasicGameState
 		//Sets the graphics to draw using the font created above
 		g.setFont(wordFont);
 		//Sets the line width that the graphics should draw with
-		g.setLineWidth(1);
+		g.setLineWidth(7);
 		
 		//Sets the color to gray
 		g.setColor(new Color(84, 84, 84));
 		//Draws the background gray color
 		g.fill(new Rectangle(0, 0, windowWidth, windowHeight));
 		
-		//Sets the color to the strings color from the array
-		g.setColor(stringColors[0]);
-		//Draws the string to the screen
-		g.drawString(music, windowWidth/20, windowHeight/10);
-		//Sets the color to the strings color from the array
-		g.setColor(stringColors[1]);
-		//Draws the string to the screen
-		g.drawString(sound, windowWidth/20, windowHeight * 2/10);
-		//Sets the color to the strings color from the array
-		g.setColor(stringColors[2]);
-		//Draws the string to the screen
-		g.drawString(exit, windowWidth/20, windowHeight * 9/10);
+		for (int i = 0; i < optionCircles.length; i++)
+		{
+			g.setColor(optionCircleColors[i]);
+			g.fill(optionCircles[i]);
+			g.setColor(Color.black);
+			g.drawString(optionCircleStrings[i], optionCircles[i].getCenterX() - g.getFont().getWidth(optionCircleStrings[i])/2, optionCircles[i].getCenterY() - g.getFont().getHeight(optionCircleStrings[i])/2);
+			g.setColor(new Color(selectorColors[i].r, selectorColors[i].g, selectorColors[i].b, .25f));
+			g.draw(optionCircles[i]);
+			g.setColor(selectorColors[i]);
+			g.drawArc(optionCircles[i].getX(), optionCircles[i].getY(), optionCircles[i].getWidth(), optionCircles[i].getHeight(), 270, 270 + (timers[i] * (360f/100f)));
+		}
 		
-		//Sets the color of the bar to be the same as the string
-		g.setColor(stringColors[0]);
-		//Draws the volume bar for music
-		g.draw(musicVolumeLine);
-		//Fills the music bar to a percentage of the max volume
-		g.fill(new RoundedRectangle(musicVolumeLine.getX(), musicVolumeLine.getY(), musicVolumeLine.getWidth() * musicVolume, musicVolumeLine.getHeight(), musicVolumeLine.getBoundingCircleRadius()));
-		//Sets the color of the bar to be the same as the string
-		g.setColor(stringColors[1]);
-		//Draws the volume bar for sound
-		g.draw(soundVolumeLine);
-		//Fills the sound FX bar to a percentage of the max volume
-		g.fill(new RoundedRectangle(soundVolumeLine.getX(), soundVolumeLine.getY(), soundVolumeLine.getWidth() * soundVolume, soundVolumeLine.getHeight(), soundVolumeLine.getBoundingCircleRadius()));
+		g.setColor(new Color(0, 0, 0, selectedOpacity));
+		g.fill(new Rectangle(0, 0, windowWidth, windowHeight));
 		
-		//colorArray[0] = new Color(173, 16, 16); //red
-		//colorArray[1] = new Color(196, 196, 16); //yellow
-		//colorArray[2] = new Color(22, 161, 22); //green
-		//colorArray[3] = new Color(63, 186, 186); //cyan
-		//colorArray[4] = new Color(10, 29, 145); //blue
-		
-		//Sets the line width to be drawn with a lot thicker
-		g.setLineWidth(5);
-		//Sets the color to our own color schemes red
-		g.setColor(new Color(173, 16, 16));
-		//Fills the left hand selector circle if H is pressed
-		if (fill[0])
-			g.fill(selector[0]);
-		//Draws the outline of the left hand selector circle if H is not pressed
-		else
-			g.draw(selector[0]);
-		//Sets the color to our own color schemes blue
-		g.setColor(new Color(10, 29, 145));
-		//Fills the right hand selector circle if K is pressed
-		if (fill[1])
-			g.fill(selector[1]);
-		//Draws the outline of the right hand selector circle if K is not pressed
-		else
-			g.draw(selector[1]);
+		if (selectedMode)
+		{
+			g.setAntiAlias(false);
+			
+			g.setColor(new Color(selectorColors[selected].r, selectorColors[selected].g, selectorColors[selected].b, .25f + selectedOpacity));
+			if (selected == 0)
+			{
+				g.fillArc(windowWidth/2 - windowHeight/5, windowHeight * 3/4 - windowHeight/5, windowHeight/5 * 2, windowHeight/5 * 2, 270, 270 + (musicVolume * 360));
+			}
+			else
+			{
+				g.fillArc(windowWidth/2 - windowHeight/5, windowHeight * 3/4 - windowHeight/5, windowHeight/5 * 2, windowHeight/5 * 2, 270, 270 + (soundVolume * 360));
+			}
+		}
 	}
 
 	//Identifies state id

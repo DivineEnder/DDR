@@ -314,42 +314,6 @@ public class MenuState extends BasicGameState
 		
 		if (pads.usePads)
 		{
-			if (pads.input == 1)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
-				//Sets the selector to the first option
-				selected = 0;
-			}
-			else if (pads.input == 2)
-			{
-				//Sets the selector to the string selector rectangle
-				selector = selectorRectangles[0];
-				//Sets selected to first second options
-				selected = 1;
-			}
-			else if (pads.input == 3)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
-				//Sets the selector to the third option
-				selected = 2;
-			}
-			else if (pads.input == 4)
-			{
-				//Sets the selector to the string selector rectangle
-				selector = selectorRectangles[1];
-				//Sets the selector to the fourth option
-				selected = 3;
-			}
-			else if (pads.input == 5)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
-				//Sets the selector to the fifth option
-				selected = 4;
-			}
-			
 			if (pads.input == 0)
 			{
 				timerGo = false;
@@ -358,53 +322,51 @@ public class MenuState extends BasicGameState
 			else
 				timerGo = true;
 		}
-		else
+		
+		//Checks to see whether H and J keys are both down
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) || pads.input == 2)
 		{
-			//Checks to see whether H and J keys are both down
-			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J))
-			{
-				//Sets the selector to the string selector rectangle
-				selector = selectorRectangles[0];
-				//Sets selected to first second options
-				selected = 1;
-			}
-			//Checks to se whether the J and K keys are both down
-			else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
-			{
-				//Sets the selector to the string selector rectangle
-				selector = selectorRectangles[1];
-				//Sets the selector to the fourth option
-				selected = 3;
-			}
-			//Checks to see whether the H key was pressed and whether the selector is not already on this option
-			else if (input.isKeyPressed(Input.KEY_H) && selected != 0)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
-				//Sets the selector to the first option
-				selected = 0;
-			}
-			//Checks to see whether the J key was pressed and whether the selector is not already on this option
-			else if (input.isKeyPressed(Input.KEY_J) && selected != 2)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
-				//Sets the selector to the third option
-				selected = 2;
-			}
-			//Checks to see whether the K key was pressed and whether the selector is not already on this option
-			else if (input.isKeyPressed(Input.KEY_K) && selected != 4)
-			{
-				//Sets the selector shape to the menu circle associated with option with a slightly larger radius
-				selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
-				//Sets the selector to the fifth option
-				selected = 4;
-			}
-			
-			//Clears the input record
-			//This is needed because otherwise key presses can carry across game states
-			input.clearKeyPressedRecord();
+			//Sets the selector to the string selector rectangle
+			selector = selectorRectangles[0];
+			//Sets selected to first second options
+			selected = 1;
 		}
+		//Checks to see whether the J and K keys are both down
+		else if (input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K) || pads.input == 4)
+		{
+			//Sets the selector to the string selector rectangle
+			selector = selectorRectangles[1];
+			//Sets the selector to the fourth option
+			selected = 3;
+		}
+		//Checks to see whether the H key was pressed and whether the selector is not already on this option
+		else if (input.isKeyPressed(Input.KEY_H) && selected != 0 || pads.input == 1 && selected != 0)
+		{
+			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+			selector = new Circle(menuCircles[0].getCenterX(), menuCircles[0].getCenterY(), menuCircles[0].getRadius() + 10);
+			//Sets the selector to the first option
+			selected = 0;
+		}
+		//Checks to see whether the J key was pressed and whether the selector is not already on this option
+		else if (input.isKeyPressed(Input.KEY_J) && selected != 2 || pads.input == 3 && selected != 2)
+		{
+			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+			selector = new Circle(menuCircles[1].getCenterX(), menuCircles[1].getCenterY(), menuCircles[1].getRadius() + 10);
+			//Sets the selector to the third option
+			selected = 2;
+		}
+		//Checks to see whether the K key was pressed and whether the selector is not already on this option
+		else if (input.isKeyPressed(Input.KEY_K) && selected != 4 || pads.input == 5 && selected != 4)
+		{
+			//Sets the selector shape to the menu circle associated with option with a slightly larger radius
+			selector = new Circle(menuCircles[2].getCenterX(), menuCircles[2].getCenterY(), menuCircles[2].getRadius() + 10);
+			//Sets the selector to the fifth option
+			selected = 4;
+		}
+		
+		//Clears the input record
+		//This is needed because otherwise key presses can carry across game states
+		input.clearKeyPressedRecord();
 		
 		//Checks to see whether the selected option has changed and plays the switch sound if it has
 		if (selected != thisIteration)

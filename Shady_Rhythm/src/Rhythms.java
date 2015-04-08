@@ -9,8 +9,14 @@ public class Rhythms
 {
 	//Creates a variable for the title of the song
 	String title;
-	//Creates a variable for the artist of the song (currently not displayed in game anywhere)
+	//Creates a variable for the artist of the song
 	String artist;
+	//Creates a variable for the displayed difficulty of the song (easy, medium, hard)
+	String displayDifficulty;
+	//Creates a variable to determine the difficulty of the song
+	int difficulty;
+	//Creates a variable to hold the number of rings that a song contains
+	int ringNum;
 	//Creates a variable to hold the wav file of the song
 	Music currentSong;
 	//Creates an array to hold the circles for the song
@@ -22,6 +28,9 @@ public class Rhythms
 	//Sets file path to the current song
 	public void setRhythm(String filename)
 	{
+		//Initializes the difficulty to easy as default
+		difficulty = 0;
+		
 		//Initializes the list of circles to be a new arraylist
 		circleList = new ArrayList<RhythmCircle>();
 
@@ -36,6 +45,26 @@ public class Rhythms
     	{
 	    	//Initializes the currentSong to a wav file from the file
 	    	try{currentSong = new Music("data/Music/" + filename + ".wav");} catch (SlickException e) {}
+	    	
+	    	//Creates a new array to hold the first line that is going to be read from the text file
+	    	int[] data = null;
+	    	//Creates a new class that reads from the textfile with the rhythm
+	    	ReadSong read = new ReadSong("data/Music/" + filename + ".txt");
+	    	//Converts the first line from the file to a list of integers
+	    	try {data = read.readBasicInfo();} catch (IOException e) {System.out.println(e);}
+	    	
+	    	//Initializes the the number of rings from the first line in the file
+	    	ringNum = data[0];
+	    	//Initializes the difficulty of the song from the first line in the file
+	    	difficulty = data[1];
+	    	
+	    	//Determines the string to display depending on the difficulty of the song
+	    	if (difficulty == 0)
+	    		displayDifficulty = "Easy";
+	    	else if (difficulty == 1)
+	    		displayDifficulty = "Medium";
+	    	else
+	    		displayDifficulty = "Hard";
     	}
 	}
 	
@@ -50,13 +79,13 @@ public class Rhythms
 		//Creates a new class that reads from the textfile with the rhythm
     	ReadSong read = new ReadSong("data/Music/" + filename + ".txt");
     	//Converts the data from the file to a list of integers
-    	try {data = read.toIntList(read.OpenFile());} catch (IOException e) {System.out.println(e);}
+    	try {data = read.toIntList(read.openFile());} catch (IOException e) {System.out.println(e);}
     	//Reinitializes the circle list to make sure it is empty
     	circleList = new ArrayList<RhythmCircle>();
     	//Sets the first circles angle from the file
-    	firstCircleAngle = data[0][0];
+    	firstCircleAngle = data[1][0];
     	//Creates new rhythm circles from the file data and then add them to the circle list
-    	for (int i = 0; i < data.length; i++)
+    	for (int i = 1; i < data.length; i++)
     		circleList.add(new RhythmCircle(data[i][0], data[i][1], (int) data[i][2], (int) data[i][3], gc));
 	}
 	

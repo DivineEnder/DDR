@@ -6,15 +6,18 @@ public class RadarCircles
 {
 	static int center_x;
 	static int center_y;
+	int numRings;
 	int radius;
 	Color[] outlineColors;
 	Color[] fillColors;
 	int[] lineWidth;
 	
-	RadarCircles(int screenWidth, int screenHeight)
+	RadarCircles(int screenWidth, int screenHeight, int ringNum)
 	{
 		center_x = screenWidth/2;
 		center_y = screenHeight/2;
+		
+		numRings = ringNum;
 		
 		radius = (screenHeight/10) - 5;
 		
@@ -46,13 +49,16 @@ public class RadarCircles
 	{
 		for (int i = 0; i < 5; i++)
 		{
-			g.setLineWidth(lineWidth[i]);
-			g.setColor(outlineColors[i]);
-			g.draw(new Circle(center_x + (radius * (i + 1)), center_y, 28));
-			g.draw(new Circle(center_x, center_y, radius * (i + 1)));
-			g.setColor(fillColors[i]);
-			g.fill(new Circle(center_x + (radius * (i + 1)), center_y, 27));
-			fillColors[i] = Color.black;
+			if (numRings == 5 || i == 0 || i == 2 || i == 4)
+			{
+				g.setLineWidth(lineWidth[i]);
+				g.setColor(outlineColors[i]);
+				g.draw(new Circle(center_x + (radius * (i + 1)), center_y, 28));
+				g.draw(new Circle(center_x, center_y, radius * (i + 1)));
+				g.setColor(fillColors[i]);
+				g.fill(new Circle(center_x + (radius * (i + 1)), center_y, 27));
+				fillColors[i] = Color.black;
+			}
 		}
 			
 	}

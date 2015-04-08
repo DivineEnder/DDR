@@ -1,8 +1,12 @@
 import java.awt.Font;
+import java.io.File;
+import java.io.FilenameFilter;
 
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
@@ -32,6 +36,8 @@ public class StoryState extends BasicGameState
 	
 	//Creates a rectangle with rounded edges to draw text in
 	RoundedRectangle textBox;
+	
+	Animation[] storyImages;
 	
 	//Creates a variable to keep track of what scene the state is currently on
 	int scene;
@@ -73,16 +79,45 @@ public class StoryState extends BasicGameState
 		windowHeight = gc.getHeight();
 		
 		//Creates a new story parser list populated with the different story files
-		story = new StoryParser[5];
-		for (int i = 0; i < story.length; i++)
-			story[i] = new StoryParser("data/Story/" + i + ".txt", wordFont, windowWidth - (20 * 4));
+		story = new StoryParser[9];
 		
-		//Creates a new list of rhythms that can be accessed in order of the story position
-		rhythmList = new Rhythms[5];
-		for (int i = 0; i < rhythmList.length; i++)
-			rhythmList[i] = new Rhythms();
-		for (int i = 0; i < rhythmList.length; i++)
-			rhythmList[i].setRhythm(story[i].rhythm);
+		Thread thread = new Thread()
+		{
+			public void run()
+			{
+				for (int i = 0; i < story.length; i++)
+					story[i] = new StoryParser("data/Story/" + i + ".txt", wordFont, windowWidth - (20 * 4));
+				
+				//Creates a new list of rhythms that can be accessed in order of the story position
+				rhythmList = new Rhythms[story.length];
+				for (int i = 0; i < rhythmList.length; i++)
+					rhythmList[i] = new Rhythms();
+				for (int i = 0; i < rhythmList.length; i++)
+					rhythmList[i].setRhythm(story[i].rhythm);
+			}
+		};
+		thread.start();
+		
+		storyImages = new Animation[story.length];
+		for (int i = 0; i < storyImages.length; i++)
+			storyImages[i] = new Animation();
+		
+		for (int i = 0; i < story.length; i++)
+		{
+			File dir = new File("data/Story/" + i);
+			if (dir.exists())
+			{
+				File[] files = dir.listFiles();
+				for (int j = 0; j < files.length; j++)
+				{	
+					Image image = new Image("data/Story/" + i + "/" + j + ".png");
+					storyImages[i].addFrame(image.getScaledCopy(windowWidth, windowHeight), 200);
+				}
+				storyImages[i].setPingPong(true);
+			}
+			else
+				storyImages[i].addFrame(new Image("data/Story/No Image.png").getScaledCopy(windowWidth, windowHeight), 100);
+		}
 		
 		//Sets the textbox to be the specified dimensions on the screen
 		textBox = new RoundedRectangle(20, (windowHeight * 3/4 + (wordFont.getHeight() - 10)) - 20, windowWidth - (20 * 2), windowHeight * 1/4 - (wordFont.getHeight() - 10), 20);
@@ -91,8 +126,6 @@ public class StoryState extends BasicGameState
 		scene = 0;
 		//Initializes a scenes position to start at the beginning
 		scenePosition = 0;
-		
-		
 	}
 	
 	//Draws to the screen
@@ -106,6 +139,8 @@ public class StoryState extends BasicGameState
 		g.setColor(Color.black);
 		//Draws the background color as black
 		g.fillRect(0, 0, windowWidth, windowHeight);
+		
+		storyImages[scene].draw();
 		
 		//Sets the graphics color to gray
 		g.setColor(new Color(84, 84, 84));

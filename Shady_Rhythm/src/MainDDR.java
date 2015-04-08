@@ -12,6 +12,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class MainDDR extends StateBasedGame
 {
 	//Initializes some classes that need to passed between game states
+	//Creates a universal padInput class instance used to get input from the dance pad
 	static PadInput pads = new PadInput();
 	//Creates a universal rhythm to be passed between states (used for picking songs)
 	Rhythms engineRhythm = new Rhythms();
@@ -28,6 +29,7 @@ public class MainDDR extends StateBasedGame
 	
     public static void main(String[] args) throws SlickException
     {
+    	//Tries to connect to the serial port COM13 to get input from the dance pad
     	try
         {
             pads.connect("COM13");
@@ -37,7 +39,7 @@ public class MainDDR extends StateBasedGame
     	AppGameContainer app = new AppGameContainer(new MainDDR("Full Circle"));
         
     	//Sets the applications display size
-        app.setDisplayMode(app.getScreenWidth() - 150, app.getScreenHeight() - 100, false);
+        app.setDisplayMode(app.getScreenWidth(), app.getScreenHeight(), true);//app.getScreenWidth() - 150, app.getScreenHeight() - 100, false);
         //Gets rid of the window boarders
         System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
         //Sets the window title to be Full Circle
@@ -73,7 +75,7 @@ public class MainDDR extends StateBasedGame
     	//Adds the Options state (work in progress)
     	this.addState(new OptionsState(stateHandler, pads));
     	//Adds the Story state (work in progress)
-    	this.addState(new StoryState(engineRhythm, stateHandler, pads));
+    	//this.addState(new StoryState(engineRhythm, stateHandler, pads));
     	
     	/*State ID list
     	

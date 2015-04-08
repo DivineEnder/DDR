@@ -4,11 +4,13 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.geom.RoundedRectangle;
 
 public class StoryParser
 {
 	String[][] story;
 	String[] currentDisplay;
+	String name;
 	
 	String rhythm;
 	
@@ -21,14 +23,15 @@ public class StoryParser
 		ReadSong read = new ReadSong(filePath);
 		
 		String[] fullStory = null;
-		try {fullStory = read.OpenFile();} catch (IOException e) {System.out.println(e);}
+		try {fullStory = read.openFile();} catch (IOException e) {System.out.println(e);}
 		
 		rhythm = fullStory[0];
+		name = fullStory[1];
 		
-		story = new String[fullStory.length - 1][4];
+		story = new String[fullStory.length - 2][4];
 		
-		for (int i = 1; i < story.length + 1; i++)
-			story[i - 1] = split(fullStory[i], wordFont, maxLength);
+		for (int i = 2; i < story.length + 2; i++)
+			story[i - 2] = split(fullStory[i], wordFont, maxLength);
 		
 		setDisplay();
 	}
@@ -102,6 +105,10 @@ public class StoryParser
 	
 	public void drawText(TrueTypeFont wordFont, int storyPosition, Rectangle textBox, GameContainer gc, Graphics g)
 	{
+		//g.setColor(new Color(84, 84, 84));
+		g.fill(new RoundedRectangle(textBox.getX(), textBox.getY() - (wordFont.getHeight(name) + 20), wordFont.getWidth(name) + 20, wordFont.getHeight(name) + 20, 20));
+		wordFont.drawString(textBox.getX() + 10, textBox.getY() - (wordFont.getHeight(name) + 20) + 10, name);
+		
 		if (displayLineCounter < currentDisplay.length)
 			addCurrentDisplay(storyPosition);
 		
