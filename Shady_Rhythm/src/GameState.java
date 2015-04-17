@@ -32,8 +32,7 @@ public class GameState extends BasicGameState
 	//Creates an instance of the loading screen class which draws the loading screen
 	Loading loadingScreen;
 	//Creates an instace of the score class which holds the player score
-	Score score;
-	
+	Score score;	
 	//Creates a new thread that will be used for loading the songs
 	Thread loading;
 	
@@ -77,7 +76,7 @@ public class GameState extends BasicGameState
 		loadingScreen = new Loading(gc.getWidth(), gc.getHeight());
 		
 		pauseOpacity = 0;
-		timers = new int[]{0, 0, 0,};
+		timers = new int[]{0, 0, 0};
 	}
 	
 	//Triggers certain events when the game state is left
@@ -86,16 +85,12 @@ public class GameState extends BasicGameState
 	{
 		//Fades out the currently palying song when you leave the state
 		rhythm.currentSong.fade(750, 0, true);
-		
-		pads.clearPadPressedRecord();
 	}
 	
 	//Triggers certain events when the game state is entered
 	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
-		pads.clearPadPressedRecord();
-		
 		//Starts the gameplay as unpaused
 		paused = false;
 		//Sets the press any key as false
@@ -197,13 +192,13 @@ public class GameState extends BasicGameState
 				timers[1] = 0;
 				timers[2] = 0;
 			}
-			else if (input.isKeyDown(Input.KEY_J) || pads.input == 2)
+			else if (input.isKeyDown(Input.KEY_J) || pads.input == 3)
 			{
 				timers[1]++;
 				timers[0] = 0;
 				timers[2] = 0;
 			}
-			else if (input.isKeyDown(Input.KEY_K) || pads.input == 3)
+			else if (input.isKeyDown(Input.KEY_K) || pads.input == 5)
 			{
 				timers[2]++;
 				timers[0] = 0;

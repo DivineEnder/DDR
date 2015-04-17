@@ -173,16 +173,10 @@ public class MenuState extends BasicGameState
 		timerGo = false;
 		//Resets the timer to 0 when you enter the state
 		timer = 0;
-		//Checks to see whether the the background music isn't playing
-		if (!backgroundMusic.playing())
-		{
-			//Slowly fades in the background music
-			backgroundMusic.fade(750, stateHandler.getMusicVolume(), false);
-			//Endlessly loops the background music
-			backgroundMusic.loop();
-		}
-		
-		pads.clearPadPressedRecord();
+		//Slowly fades in the background music
+		backgroundMusic.fade(750, stateHandler.getMusicVolume(), false);
+		//Endlessly loops the background music
+		backgroundMusic.loop();
 	}
 	
 	//Triggers certain events upon leaving the menu state
@@ -191,8 +185,6 @@ public class MenuState extends BasicGameState
 	{
 		//Fades out the background music when you leave the state
 		backgroundMusic.fade(750, 0, true);
-		
-		pads.clearPadPressedRecord();
 	}
 	
 	//Renders the to the screen

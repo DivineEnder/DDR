@@ -130,6 +130,8 @@ public class ScoreState extends BasicGameState
 		g.drawString("Accuracy", windowWidth/4 - g.getFont().getWidth("Accuracy")/2, windowHeight/2 - 325 - g.getFont().getHeight("Accuracy")/2);
 		if (newHighScore)
 			g.drawString("NEW HIGH SCORE", windowWidth/4 - g.getFont().getWidth("NEW HIGH SCORE")/2, 30 - g.getFont().getHeight("NEW HIGH SCORE")/2);
+		if (score.percentage > .7)
+			g.drawString("You Passed!!", windowWidth/4 - g.getFont().getWidth("NEW HIGH SCORE")/2, 30 + g.getFont().getHeight("NEW HIGH SCORE")/2);
 		
 		//Sets the graphics color to white
 		g.setColor(Color.white);
@@ -254,7 +256,7 @@ public class ScoreState extends BasicGameState
 		}
 		
 		//Checks to see if the H key is pressed
-		if (input.isKeyPressed(Input.KEY_H))
+		if (input.isKeyPressed(Input.KEY_H) || input.isKeyPressed(Input.KEY_J) || input.isKeyPressed(Input.KEY_K) || pads.input == 1 || pads.input == 3 || pads.input == 5)
 		{
 			//Enters the last state that the game came from (so that can go back to either story or arcade)
 			state.enterState(stateHandler.getLastStateID());

@@ -12,36 +12,12 @@ public class PadInput
 	int lastInput;
 	
 	boolean usePads;
-	private boolean[] keyPressed;
 	
 	PadInput()
 	{
 		input = 0;
 		lastInput = 0;
 		usePads = true;
-		keyPressed = new boolean[5];
-		for (int i = 0; i < keyPressed.length; i++)
-			keyPressed[i] = false;
-	}
-	
-	public void clearPadPressedRecord()
-	{
-		for (int i = 0; i < keyPressed.length; i++)
-			keyPressed[i] = false;
-	}
-    
-	public boolean isPadPressed(int pad)
-	{
-		boolean pressed = false;
-		
-		if (keyPressed[pad - 1])
-		{
-			pressed = true;
-			keyPressed[pad - 1] = false;
-			System.out.println("FALSEED");
-		}
-		
-		return pressed;
 	}
 	
 	void connect (String portName) throws Exception
@@ -111,8 +87,7 @@ public class PadInput
                 		pads.input = recentInput;
                 	} catch(NumberFormatException e) {};
                 	
-                	if (pads.lastInput != pads.input && pads.input != 0)
-                		pads.keyPressed[pads.input - 1] = true;
+                	
                 }
             }catch (IOException e){e.printStackTrace();}
         }

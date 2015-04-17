@@ -49,7 +49,7 @@ public class LogoState extends BasicGameState
 		
 		if (input.isKeyPressed(Input.KEY_ESCAPE))
 			state.enterState(7, new FadeOutTransition(Color.black, 0), new FadeInTransition(Color.black, 750));
-		if (counter == 100)
+		if (counter > 25 && !henry.playing())
 			state.enterState(7, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
 		
 		counter++;

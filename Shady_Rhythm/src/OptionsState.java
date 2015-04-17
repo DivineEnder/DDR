@@ -3,6 +3,7 @@ import java.awt.FontFormatException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -112,7 +113,7 @@ public class OptionsState extends BasicGameState
 			if (selectedOpacity < .75f)
 				selectedOpacity += .01f;
 			
-			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 3)
+			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 6)
 			{
 				stateHandler.setMusicVolume(musicVolume);
 				stateHandler.setSoundVolume(soundVolume);
@@ -121,7 +122,7 @@ public class OptionsState extends BasicGameState
 					optionCircleColors[i] = Color.white;
 			}
 			
-			if (input.isKeyDown(Input.KEY_H))
+			if (input.isKeyDown(Input.KEY_H) || pads.input == 1)
 			{
 				if (selected == 0)
 				{
@@ -134,7 +135,7 @@ public class OptionsState extends BasicGameState
 						soundVolume -= .01f;
 				}
 			}
-			else if (input.isKeyDown(Input.KEY_K))
+			else if (input.isKeyDown(Input.KEY_K) || pads.input == 5)
 			{
 				if (selected == 0)
 				{
@@ -159,13 +160,13 @@ public class OptionsState extends BasicGameState
 				timers[1] = 0;
 				timers[2] = 0;
 			}
-			else if (input.isKeyDown(Input.KEY_J) || pads.input == 2)
+			else if (input.isKeyDown(Input.KEY_J) || pads.input == 3)
 			{
 				timers[1]++;
 				timers[0] = 0;
 				timers[2] = 0;
 			}
-			else if (input.isKeyDown(Input.KEY_K) || pads.input == 3)
+			else if (input.isKeyDown(Input.KEY_K) || pads.input == 5)
 			{
 				timers[2]++;
 				timers[0] = 0;
@@ -241,14 +242,21 @@ public class OptionsState extends BasicGameState
 		{
 			g.setAntiAlias(false);
 			
+			DecimalFormat df = new DecimalFormat();
+			df.setMaximumFractionDigits(2);
+			
 			g.setColor(new Color(selectorColors[selected].r, selectorColors[selected].g, selectorColors[selected].b, .25f + selectedOpacity));
 			if (selected == 0)
 			{
 				g.fillArc(windowWidth/2 - windowHeight/5, windowHeight * 3/4 - windowHeight/5, windowHeight/5 * 2, windowHeight/5 * 2, 270, 270 + (musicVolume * 360));
+				g.setColor(Color.black);
+				g.drawString(df.format(musicVolume/1.0f), windowWidth/2 - g.getFont().getWidth(df.format(musicVolume/1.0f))/2, windowHeight * 3/4 - g.getFont().getHeight(df.format(musicVolume/1.0f))/2);
 			}
 			else
 			{
 				g.fillArc(windowWidth/2 - windowHeight/5, windowHeight * 3/4 - windowHeight/5, windowHeight/5 * 2, windowHeight/5 * 2, 270, 270 + (soundVolume * 360));
+				g.setColor(Color.black);
+				g.drawString(df.format(soundVolume/1.0f), windowWidth/2 - g.getFont().getWidth(df.format(musicVolume/1.0f))/2, windowHeight * 3/4 - g.getFont().getHeight(df.format(musicVolume/1.0f))/2);
 			}
 		}
 	}

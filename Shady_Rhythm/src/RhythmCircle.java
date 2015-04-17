@@ -263,8 +263,8 @@ public class RhythmCircle
 					moddedAngleDiff = angle - circleRadiusAsAngle/2 - 1;
 				
 				//Sets the graphics color to the be circles layer color
-				g.setColor(Color.black);
-				g.setLineWidth(15);
+				g.setColor(Color.white);
+				g.setLineWidth(10);
 				g.drawArc(trailX, trailY, trailDiameter, trailDiameter, angle - (moddedAngleDiff), angle);
 				
 				//Sets the graphics color to black

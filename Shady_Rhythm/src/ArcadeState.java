@@ -164,15 +164,6 @@ public class ArcadeState extends BasicGameState
 		timersGo = new boolean[]{false, false, false};
 	}
 	
-	//Triggers certain events when the arcade state is entered
-	@Override
-	public void enter(GameContainer gc, StateBasedGame state)
-	{
-		//Clears the recent pad input
-		//This keeps key presses from crossing states
-		pads.clearPadPressedRecord();
-	}
-	
 	//Triggers certain events when the player leaves the arcade state
 	@Override
 	public void leave(GameContainer gc, StateBasedGame state)
@@ -188,11 +179,6 @@ public class ArcadeState extends BasicGameState
 			//Sets the timer booleans to false
 			timersGo[i] = false;
 		}
-		
-		//Clears the recent pad input
-		//This keeps key presses from crossing states
-		//Probably not needed here as well as in the enter state, but I include them in both because you never know how ticky users can get
-		pads.clearPadPressedRecord();
 	}
 	
 	//Triggers certain events when keys are pressed
@@ -274,16 +260,44 @@ public class ArcadeState extends BasicGameState
 			
 			//Checks to see whether the left-most pad was pressed
 			if (pads.input == 1)
+			{
 				timersGo[0] = true;
+				
+				rhythmsList.get(displayedIndexes[2]).currentSong.stop();
+				rhythmsList.get(displayedIndexes[3]).currentSong.stop();
+				//Plays a sample of the song that is being selected by the key begin pressed
+				if (!rhythmsList.get(displayedIndexes[1]).currentSong.playing())
+					rhythmsList.get(displayedIndexes[1]).currentSong.play();
+			}
 			//Checks to see whether the middle pad was pressed
 			else if (pads.input == 3)
+			{
 				timersGo[1] = true;
+				
+				rhythmsList.get(displayedIndexes[1]).currentSong.stop();
+				rhythmsList.get(displayedIndexes[3]).currentSong.stop();
+				//Plays a sample of the song that is being selected by the key begin pressed
+				if (!rhythmsList.get(displayedIndexes[2]).currentSong.playing())
+					rhythmsList.get(displayedIndexes[2]).currentSong.play();
+			}
 			//Checks to see whether the right-most pad was pressed
 			else if (pads.input == 5)
+			{
 				timersGo[2] = true;
+				
+				rhythmsList.get(displayedIndexes[1]).currentSong.stop();
+				rhythmsList.get(displayedIndexes[2]).currentSong.stop();
+				//Plays a sample of the song that is being selected by the key begin pressed
+				if (!rhythmsList.get(displayedIndexes[3]).currentSong.playing())
+					rhythmsList.get(displayedIndexes[3]).currentSong.play();
+			}
 			//If none of the pads were pressed reset all the timers
 			else
 			{
+				rhythmsList.get(displayedIndexes[1]).currentSong.stop();
+				rhythmsList.get(displayedIndexes[2]).currentSong.stop();
+				rhythmsList.get(displayedIndexes[3]).currentSong.stop();
+				
 				//Turns off all the timers by setting their boolean values to false
 				for (int i = 0; i < timersGo.length; i++)
 					timersGo[i] = false;

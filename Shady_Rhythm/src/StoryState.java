@@ -10,6 +10,7 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.RoundedRectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -31,6 +32,7 @@ public class StoryState extends BasicGameState
 	StateHandler stateHandler;
 	//Creates an instance of the rhythm class
 	Rhythms engineRhythm;
+	Score score;
 	//Creates a custom font that can be used to draw text in
 	TrueTypeFont wordFont;
 	
@@ -44,26 +46,43 @@ public class StoryState extends BasicGameState
 	//Creates a variable to determine where in the current scene we are
 	int scenePosition;
 	
+	int[] timer;
+	
 	//Constructor
-	StoryState(Rhythms rhythm, StateHandler sh, PadInput p)
+	StoryState(Rhythms rhythm, Score s, StateHandler sh, PadInput p)
 	{
 		//Sets the instance of rhythm to the rhythm being accessed by the gamestate
 		engineRhythm = rhythm;
 		//Sets the instance of the state handler tjjjjjo the universal one passed between all states
 		stateHandler = sh;
 		pads = p;
+		score = s;
 	}
 	
 	//Triggers certain events when leaving the story state
 	@Override
 	public void leave(GameContainer gc, StateBasedGame state)
 	{
-		//Moves to the next scene
-		scene++;
-		//Initializes a scenes position to start at the beginning
-		scenePosition = 0;
 		//Tells the state handler that the game just left the story state
 		stateHandler.leavingState(state.getCurrentStateID());
+	}
+	
+	@Override
+	public void enter(GameContainer gc, StateBasedGame state)
+	{
+		timer[0] = 0;
+		timer[1] = 0;
+		
+		if (rhythmList[scene].title.equals("NONE") || score.percentage > .7)
+		{
+			if (scenePosition > 0)
+			{
+				//Moves to the next scene
+				scene++;
+			}
+		}
+		//Initializes a scenes position to start at the beginning
+		scenePosition = 0;
 	}
 	
 	//Initializes various variables
@@ -126,6 +145,8 @@ public class StoryState extends BasicGameState
 		scene = 0;
 		//Initializes a scenes position to start at the beginning
 		scenePosition = 0;
+		
+		timer = new int[]{0, 0};
 	}
 	
 	//Draws to the screen
@@ -149,6 +170,20 @@ public class StoryState extends BasicGameState
 		
 		//Draws the strings from the file with the incremental animation
 		story[scene].drawText(wordFont, scenePosition, textBox, gc, g);
+		
+		g.setColor(new Color(173, 16, 16));
+		g.setLineWidth(3);
+		g.draw(new Circle(100, 100, 50));
+		g.fillArc(100 - 50, 100 - 50, 100, 100, 270, 270 + (timer[0] * (360f/50f)));
+		g.setColor(Color.white);
+		g.drawString("Back", 100 - g.getFont().getWidth("Back")/2, 100 - g.getFont().getHeight("Back")/2);
+		
+		g.setColor(new Color(10, 29, 145));
+		g.setLineWidth(3);
+		g.draw(new Circle(windowWidth - 100, 100, 50));
+		g.fillArc(windowWidth - 100 - 50, 100 - 50, 100, 100, 270, 270 + (timer[1] * (360f/50f)));
+		g.setColor(Color.white);
+		g.drawString("Next", windowWidth - 100 - g.getFont().getWidth("Next")/2, 100 - g.getFont().getHeight("Next")/2);
 	}
 	
 	//Checks for events and updates variables and states accordingly
@@ -158,9 +193,43 @@ public class StoryState extends BasicGameState
 		//Gets the keyboard input from the gamecontainer
 		Input input = gc.getInput();
 		
-		//Checks to see if the the J key was pressed
-		if (input.isKeyPressed(Input.KEY_J))
+		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 6)
 		{
+			state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+		}
+		
+		if (input.isKeyDown(Input.KEY_H) || pads.input == 1)
+		{
+			timer[0]++;
+			timer[1] = 0;
+		}
+		else if (input.isKeyDown(Input.KEY_K) || pads.input == 5)
+		{
+			timer[1]++;
+			timer[0] = 0;
+		}
+		else
+		{
+			timer[0] = 0;
+			timer[1] = 0;
+		}
+		
+		if (timer[0] == 50)
+		{
+			timer[0] = 0;
+			timer[1] = 0;
+			
+			//Reinitializes the stories display to start again
+			story[scene].setDisplay();
+			
+			if (scenePosition != 0)
+				scenePosition--;
+		}
+		else if (timer[1] == 50)
+		{
+			timer[0] = 0;
+			timer[1] = 0;
+			
 			//Reinitializes the stories display to start again
 			story[scene].setDisplay();
 			//Checks to make sure the player has not reached the end of the string
@@ -176,8 +245,21 @@ public class StoryState extends BasicGameState
 			{
 				if (rhythmList[scene].title.equals("NONE"))
 				{
-					//Creates a transition effect from scene to scene
-					state.enterState(3, new FadeOutTransition(Color.white, 750), new FadeInTransition(Color.white, 750));
+					//Checks to see whether the story is at the end
+					if (scene == 11)
+					{
+						//Resets the story scenes
+						scene = 0;
+						//Initializes the scene's position to start at the beginning
+						scenePosition = 0;
+						//Moves to the Credit state if story is complete
+						state.enterState(9, new FadeOutTransition(Color.white, 1000), new FadeInTransition(Color.white, 1000));
+					}
+					else
+					{
+						//Creates a transition effect from scene to scene
+						state.enterState(3, new FadeOutTransition(Color.white, 750), new FadeInTransition(Color.white, 750));
+					}
 				}
 				else
 				{
@@ -186,6 +268,36 @@ public class StoryState extends BasicGameState
 					//Starts gameplay of the next rhythm by entering the game state
 					state.enterState(4);
 				}
+			}
+		}
+		
+		//This can be used at the competition to skip past the story
+		if (input.isKeyPressed(Input.KEY_S))
+		{
+			if (rhythmList[scene].title.equals("NONE"))
+			{
+				//Checks to see whether the story is at the end
+				if (scene == 11)
+				{
+					//Moves to the next scene
+					scene = 0;
+					//Initializes a scenes position to start at the beginning
+					scenePosition = 0;
+					//Moves to the Credit state if story is complete
+					state.enterState(9, new FadeOutTransition(Color.white, 1000), new FadeInTransition(Color.white, 1000));
+				}
+				else
+				{
+					//Creates a transition effect from scene to scene
+					state.enterState(3, new FadeOutTransition(Color.white, 750), new FadeInTransition(Color.white, 750));
+				}
+			}
+			else
+			{
+				//Sets the universal rhythm to be equal to the next rhythm in the sequence
+				engineRhythm.setRhythm(rhythmList[scene].title + " - " + rhythmList[scene].artist);
+				//Starts gameplay of the next rhythm by entering the game state
+				state.enterState(4);
 			}
 		}
 		

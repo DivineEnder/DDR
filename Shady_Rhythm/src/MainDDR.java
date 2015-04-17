@@ -32,7 +32,7 @@ public class MainDDR extends StateBasedGame
     	//Tries to connect to the serial port COM13 to get input from the dance pad
     	try
         {
-            pads.connect("COM13");
+            pads.connect("COM8");
         }catch ( Exception e ){e.printStackTrace();}
     	
     	//Creates a new application container
@@ -72,10 +72,12 @@ public class MainDDR extends StateBasedGame
     	this.addState(new ScoreState(score, stateHandler, engineRhythm, pads));
     	//Adds the High Score state (work in progress)
     	this.addState(new HighScoreState(pads));
-    	//Adds the Options state (work in progress)
+    	//Adds the Options state (volume control here)
     	this.addState(new OptionsState(stateHandler, pads));
     	//Adds the Story state (work in progress)
-    	//this.addState(new StoryState(engineRhythm, stateHandler, pads));
+    	this.addState(new StoryState(engineRhythm, score, stateHandler, pads));
+    	//Adds the Credit state (work in progress)
+    	this.addState(new CreditState(pads));
     	
     	/*State ID list
     	
@@ -88,6 +90,7 @@ public class MainDDR extends StateBasedGame
     		LogoState			[ID:6]
     		FullCircleLogoState	[ID:7]
     		ScoreState			[ID:8]
+    		CreditState			[ID:9]
     	*/
     }
  

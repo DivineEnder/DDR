@@ -1,5 +1,11 @@
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Music;
@@ -11,6 +17,8 @@ public class Rhythms
 	String title;
 	//Creates a variable for the artist of the song
 	String artist;
+	//Creates a variable for the length of the song in seconds
+	float songDuration;
 	//Creates a variable for the displayed difficulty of the song (easy, medium, hard)
 	String displayDifficulty;
 	//Creates a variable to determine the difficulty of the song
@@ -43,6 +51,18 @@ public class Rhythms
     	//Checks to make sure this rhythm isn't a placeholder for the story that has no rhythm
     	if (!title.equals("NONE"))
     	{
+    		File file = new File("data/Music/" + filename + ".wav");
+        	AudioInputStream audioInputStream = null;
+    		try
+    		{
+    			audioInputStream = AudioSystem.getAudioInputStream(file);
+    		} catch (UnsupportedAudioFileException | IOException e1) {e1.printStackTrace();}
+            AudioFormat format = audioInputStream.getFormat();
+            long audioFileLength = file.length();
+            int frameSize = format.getFrameSize();
+            float frameRate = format.getFrameRate();
+            songDuration = (audioFileLength / (frameSize * frameRate));
+    		
 	    	//Initializes the currentSong to a wav file from the file
 	    	try{currentSong = new Music("data/Music/" + filename + ".wav");} catch (SlickException e) {}
 	    	

@@ -1,6 +1,8 @@
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -44,6 +47,9 @@ public class HighScoreState extends BasicGameState
 	ArrayList<String> songs;
 	ArrayList<float[]> highScores;
 	
+	int[] timer;
+	
+	
 	HighScoreState(PadInput p)
 	{
 		pads = p;
@@ -55,8 +61,15 @@ public class HighScoreState extends BasicGameState
 		windowWidth = gc.getWidth();
 		windowHeight = gc.getHeight();
 		
-		//Initializes the font to draw the players recent score in
-		Font font = new Font("Courier", Font.BOLD, 35);
+		//Initializes a new java awt font from a file
+		Font font = null;
+		try
+		{
+			font = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("data/Fonts/belerenbold.ttf"));
+		} catch (FileNotFoundException e) {e.printStackTrace();} catch (FontFormatException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
+		//Sets the font to be plain and have a size of 30
+		font = font.deriveFont(Font.PLAIN, 30);
+		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
 		wordFont = new TrueTypeFont(font, false);
 		
 		//Initializes the font to draw the players recent score in
@@ -77,11 +90,16 @@ public class HighScoreState extends BasicGameState
 		
 		songs = new ArrayList<String>();
 		highScores = new ArrayList<float[]>();
+		
+		timer = new int[]{0, 0};
 	}
 	
 	@Override
 	public void enter(GameContainer gc, StateBasedGame state)
 	{
+		timer[0] = 0;
+		timer[1] = 0;
+		
 		loadingString = "Loading High Scores";
 		
 		loading = new Thread()
@@ -137,40 +155,50 @@ public class HighScoreState extends BasicGameState
 				pressAnyKey = false;
 		}
 		else
-		{
-			if (pads.usePads)
+		{	
+			Input input = gc.getInput();
+				
+			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 6)
 			{
-				if (pads.input == 15)
-				{
-					state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				else if (pads.input == 1)
-				{
-					
-				}
+				state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+			}
+			
+			
+			if (input.isKeyDown(Input.KEY_H) || pads.input == 1)
+			{
+				timer[0]++;
+				timer[1] = 0;
+			}
+			else if (input.isKeyDown(Input.KEY_K) || pads.input == 5)
+			{
+				timer[1]++;
+				timer[0] = 0;
 			}
 			else
 			{
-				Input input = gc.getInput();
-				
-				if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K))
-				{
-					state.enterState(0, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
-				}
-				
-				if (input.isKeyPressed(Input.KEY_H))
-				{
-					selected--;
-					if (selected < 0)
-						selected += songs.size();
-				}
-				else if (input.isKeyPressed(Input.KEY_K))
-				{
-					selected++;
-					if (selected > songs.size() - 1)
-						selected -= songs.size();
-				}
+				timer[0] = 0;
+				timer[1] = 0;
 			}
+			
+			if (timer[0] == 50)
+			{
+				timer[0] = 0;
+				timer[1] = 0;
+				
+				selected--;
+				if (selected < 0)
+					selected += songs.size();
+			}
+			else if (timer[1] == 50)
+			{
+				timer[0] = 0;
+				timer[1] = 0;
+				
+				selected++;
+				if (selected > songs.size() - 1)
+					selected -= songs.size();
+			}
+			
 		}
 	}
 	
@@ -239,6 +267,20 @@ public class HighScoreState extends BasicGameState
 				//Draws the color categorized percentage strings in the middle of their corresponding percentage circles
 				g.drawString(displayColorScoreString, windowWidth * (1 + (2 * i))/10 - g.getFont().getWidth(displayColorScoreString)/2, windowHeight * 3/4 + 25 - g.getFont().getHeight(displayColorScoreString)/2);
 			}
+			
+			g.setColor(new Color(173, 16, 16));
+			g.setLineWidth(3);
+			g.draw(new Circle(100, 100, 50));
+			g.fillArc(100 - 50, 100 - 50, 100, 100, 270, 270 + (timer[0] * (360f/50f)));
+			g.setColor(Color.white);
+			g.drawString("Left", 100 - g.getFont().getWidth("Left")/2, 100 - g.getFont().getHeight("Left")/2);
+			
+			g.setColor(new Color(10, 29, 145));
+			g.setLineWidth(3);
+			g.draw(new Circle(windowWidth - 100, 100, 50));
+			g.fillArc(windowWidth - 100 - 50, 100 - 50, 100, 100, 270, 270 + (timer[1] * (360f/50f)));
+			g.setColor(Color.white);
+			g.drawString("Right", windowWidth - 100 - g.getFont().getWidth("Right")/2, 100 - g.getFont().getHeight("Right")/2);
 		}
 	}
 

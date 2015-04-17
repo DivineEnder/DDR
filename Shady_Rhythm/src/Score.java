@@ -5,6 +5,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Circle;
+
 public class Score
 {
 	//Creates a variable to hold the overall points that you get
@@ -31,6 +35,10 @@ public class Score
 	//Creates a variable to determine the background color of the screen
 	float colorVibrance;
 	
+	float angle;
+	float actualAngle;
+	float displayAngle;
+	
 	//Initalizes a new score for the current rhythm
 	public void initalize()
 	{
@@ -55,6 +63,8 @@ public class Score
 		
 		//Starts the color out in the center of the scale
 		colorVibrance = .5f;
+		
+		displayAngle = 0;
 	}
 	
 	//Updates the players points when they hit a circle
@@ -166,5 +176,38 @@ public class Score
 			//Returns true back to the score state to let the state know that they player got a new high score
 			return true;
 		}
+	}
+	
+	public void drawScoreSwoop(Graphics g, float windowWidth, float windowHeight)
+	{
+		g.setLineWidth(5);
+		
+		//Calculates the angle to fill the arc from
+		angle = (float) (Math.acos((windowHeight/2 - windowWidth/8)/(windowHeight/2)) * 180/Math.PI);
+		
+		g.setColor(new Color(229f/255f - (223f/255f * percentage), 8f/255f + (98f/255f * percentage), 0f/255f + (10f/255f * percentage)));
+		g.draw(new Circle(windowWidth/8 - windowHeight/2, windowHeight/2, windowHeight/2));
+		
+		actualAngle = ((2 * angle) * percentage);
+		
+		if (displayAngle < actualAngle + .5f && displayAngle > actualAngle - .5f)
+			displayAngle = actualAngle;
+		else if (displayAngle > actualAngle)
+		{
+			float velocity = 1 - (.5f * (actualAngle/displayAngle));
+			displayAngle -= velocity;
+		}
+		else if (displayAngle < actualAngle)
+		{
+			float velocity = 1 - (.5f * (displayAngle/actualAngle));
+			displayAngle += velocity;
+		}
+		g.fillArc(windowWidth/8 - windowHeight, 0, windowHeight, windowHeight, angle - displayAngle, angle);
+		
+		g.setColor(new Color(84f/255f, 168f/255f * (1 - colorVibrance), 84f/255f));
+		g.fill(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));
+		
+		g.setColor(new Color(229f/255f - (223f/255f * percentage), 8f/255f + (98f/255f * percentage), 0f/255f + (10f/255f * percentage)));
+		g.draw(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));
 	}
 }
