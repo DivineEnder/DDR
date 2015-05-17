@@ -32,7 +32,7 @@ public class MainDDR extends StateBasedGame
     	//Tries to connect to the serial port COM13 to get input from the dance pad
     	try
         {
-            pads.connect("COM8");
+            pads.connect("COM4");
         }catch ( Exception e ){e.printStackTrace();}
     	
     	//Creates a new application container
@@ -46,7 +46,7 @@ public class MainDDR extends StateBasedGame
         app.setTitle("Full Circle");
         //Sets the fps that the game should run on
         app.setTargetFrameRate(60);
-        //Removes the fps display in the applications top left corner
+        //Removes the fps display in thek applications top left corner
         app.setShowFPS(false);
         //Helps with tearing issues, makes the game run smoothly
         app.setVSync(true);
@@ -93,5 +93,4 @@ public class MainDDR extends StateBasedGame
     		CreditState			[ID:9]
     	*/
     }
- 
 }

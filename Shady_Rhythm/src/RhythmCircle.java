@@ -228,7 +228,7 @@ public class RhythmCircle
 			//Turns the circle off
 			toggleVisible();
 			//Plays the miss sound
-			miss.play();
+			miss.play(1, .5f);
 		}
 	}
 	

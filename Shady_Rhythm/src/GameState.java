@@ -147,7 +147,7 @@ public class GameState extends BasicGameState
 		if (!paused)
 		{
 			//Checks to see if the escape key is pressed
-			if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_K) || pads.input == 6)
+			if ((input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) && input.isKeyDown(Input.KEY_K)) || pads.input == 15)
 			{
 				//Pauses the engine
 				engine.pause();
@@ -211,7 +211,10 @@ public class GameState extends BasicGameState
 			}
 			
 			if (timers[0] == 100)
+			{
+				score.percentage = 0;
 				state.enterState(stateHandler.getLastStateID(), new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
+			}
 			else if (timers[1] == 100)
 			{
 				paused = false;

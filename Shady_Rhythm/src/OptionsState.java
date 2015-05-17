@@ -21,7 +21,7 @@ import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class OptionsState extends BasicGameState
 {
-	//Creates variables to hold the widow width and height off the game
+	//Creates variables kto hold the widow width and height off the game
 	int windowWidth;
 	int windowHeight;
 	

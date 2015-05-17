@@ -106,6 +106,8 @@ public class ArcadeState extends BasicGameState
 			//Basic function that runs each time the thread is run
 			public void run()
 			{
+				System.out.println("LOADING: Loading songs for arcade state");
+				
 				//Creates a new file that is a directory within the project
 				File dir = new File("data/Music/");
 				//Gets a list of all the files that are a wav file within the directory defined above
@@ -125,6 +127,8 @@ public class ArcadeState extends BasicGameState
 				//Iterates through the recently initialized rhythms in the rhythm list and sets them to the wav files read from the directory above
 				for (int i = 0; i < songs.length; i++)
 					rhythmsList.get(i).setRhythm(songs[i].getName().substring(0, songs[i].getName().length() - 4));
+				
+				System.out.println("FINISHED: Loaded songs for arcade state");
 			}
 		};
 		//Starts the thread

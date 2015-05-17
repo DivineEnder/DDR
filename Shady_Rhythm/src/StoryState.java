@@ -73,7 +73,7 @@ public class StoryState extends BasicGameState
 		timer[0] = 0;
 		timer[1] = 0;
 		
-		if (rhythmList[scene].title.equals("NONE") || score.percentage > .7)
+		if (rhythmList[scene].title.equals("NONE") || score.percentage > .5)
 		{
 			if (scenePosition > 0)
 			{
@@ -98,24 +98,17 @@ public class StoryState extends BasicGameState
 		windowHeight = gc.getHeight();
 		
 		//Creates a new story parser list populated with the different story files
-		story = new StoryParser[9];
+		story = new StoryParser[12];
 		
-		Thread thread = new Thread()
-		{
-			public void run()
-			{
-				for (int i = 0; i < story.length; i++)
-					story[i] = new StoryParser("data/Story/" + i + ".txt", wordFont, windowWidth - (20 * 4));
+		for (int i = 0; i < story.length; i++)
+			story[i] = new StoryParser("data/Story/" + i + ".txt", wordFont, windowWidth - (20 * 4));
 				
-				//Creates a new list of rhythms that can be accessed in order of the story position
-				rhythmList = new Rhythms[story.length];
-				for (int i = 0; i < rhythmList.length; i++)
-					rhythmList[i] = new Rhythms();
-				for (int i = 0; i < rhythmList.length; i++)
-					rhythmList[i].setRhythm(story[i].rhythm);
-			}
-		};
-		thread.start();
+		//Creates a new list of rhythms that can be accessed in order of the story position
+		rhythmList = new Rhythms[story.length];
+		for (int i = 0; i < rhythmList.length; i++)
+			rhythmList[i] = new Rhythms();
+		for (int i = 0; i < rhythmList.length; i++)
+			rhythmList[i].setRhythm(story[i].rhythm);
 		
 		storyImages = new Animation[story.length];
 		for (int i = 0; i < storyImages.length; i++)
@@ -243,23 +236,20 @@ public class StoryState extends BasicGameState
 			//If the statements are switched it immediately increases scene position upon enter the state again
 			else
 			{
-				if (rhythmList[scene].title.equals("NONE"))
+				//Checks to see whether the story is at the end
+				if (scene == story.length - 1)
 				{
-					//Checks to see whether the story is at the end
-					if (scene == 11)
-					{
-						//Resets the story scenes
-						scene = 0;
-						//Initializes the scene's position to start at the beginning
-						scenePosition = 0;
-						//Moves to the Credit state if story is complete
-						state.enterState(9, new FadeOutTransition(Color.white, 1000), new FadeInTransition(Color.white, 1000));
-					}
-					else
-					{
-						//Creates a transition effect from scene to scene
-						state.enterState(3, new FadeOutTransition(Color.white, 750), new FadeInTransition(Color.white, 750));
-					}
+					//Resets the story scenes
+					scene = 0;
+					//Initializes the scene's position to start at the beginning
+					scenePosition = 0;
+					//Moves to the Credit state if story is complete
+					state.enterState(9, new FadeOutTransition(Color.white, 1000), new FadeInTransition(Color.white, 1000));
+				}
+				else if (rhythmList[scene].title.equals("NONE"))
+				{
+					//Creates a transition effect from scene to scene
+					state.enterState(3, new FadeOutTransition(Color.white, 750), new FadeInTransition(Color.white, 750));
 				}
 				else
 				{

@@ -12,12 +12,28 @@ public class PadInput
 	int lastInput;
 	
 	boolean usePads;
+	boolean[] padReleased;
 	
 	PadInput()
 	{
 		input = 0;
 		lastInput = 0;
 		usePads = true;
+		padReleased = new boolean[]{false, false, false, false, false};
+	}
+	
+	//Test this
+	public boolean isPadReleased(int pad)
+	{
+		boolean released = false;
+		
+		//if (padReleased[pad - 1])
+		//{
+		//	released = true;
+		//	padReleased[pad - 1] = false;
+		//}
+		
+		return released;
 	}
 	
 	void connect (String portName) throws Exception
@@ -40,7 +56,7 @@ public class PadInput
 	        }
 	        else
 	        {
-	            CommPort commPort = portIdentifier.open(this.getClass().getName(),2000);
+	            CommPort commPort = portIdentifier.open(this.getClass().getName(), 2000);
 	            
 	            if (commPort instanceof SerialPort)
 	            {
@@ -85,6 +101,11 @@ public class PadInput
                 		pads.lastInput = pads.input;
                 		recentInput = Integer.parseInt(new String(buffer, 0, len).replace("/n", ""));
                 		pads.input = recentInput;
+                		
+                		//if (pads.lastInput != 0 && pads.lastInput != pads.input)
+                		//{
+                			//pads.padReleased[pads.lastInput - 1] = true;
+                		//}
                 	} catch(NumberFormatException e) {};
                 	
                 	

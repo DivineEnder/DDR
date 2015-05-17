@@ -71,11 +71,23 @@ public class CreditState extends BasicGameState
 		//Initializes the font to a truetypefont which can be used to draw strings on the screen in a custom font
 		wordFont = new TrueTypeFont(font, false);
 		
-		ReadSong read = new ReadSong("data/Credits/Credits.txt");
-		
-		try {credits = read.openFile();} catch (IOException e) {System.out.println(e);}
-		
-		backgroundMusic = new Music("data/Credits/Never Gonna Give You Up - Rick Astley.wav");
+		Thread thread = new Thread()
+		{
+			//Basic function that runs each time the thread is run
+			public void run()
+			{
+				System.out.println("LOADING: Loading credits from file");
+				ReadSong read = new ReadSong("data/Credits/Credits.txt");
+				
+				try {credits = read.openFile();} catch (IOException e) {System.out.println(e);}
+				System.out.println("FINISHED: Loaded credits from file");
+				
+				System.out.println("LOADING: Loading credits music");
+				try {backgroundMusic = new Music("data/Credits/Never Gonna Give You Up - Rick Astley.wav");} catch (SlickException e) {e.printStackTrace();}
+				System.out.println("FINISHED: Loaded credits music");
+			}
+		};
+		thread.start();
 	}
 
 	@Override

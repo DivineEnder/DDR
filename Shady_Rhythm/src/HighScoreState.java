@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -43,9 +44,11 @@ public class HighScoreState extends BasicGameState
 	int selected;
 	
 	Color[] accuracyColors;
+	Color[] containerAccuracyColors;
 	
 	ArrayList<String> songs;
 	ArrayList<float[]> highScores;
+	ArrayList<Rhythms> rhythmsList;
 	
 	int[] timer;
 	
@@ -88,8 +91,50 @@ public class HighScoreState extends BasicGameState
 		accuracyColors[3] = new Color(63, 186, 186); //cyan
 		accuracyColors[4] = new Color(10, 29, 145); //blue
 		
+		containerAccuracyColors = new Color[5];
+		containerAccuracyColors[0] = new Color(73, 16, 16); //red
+		containerAccuracyColors[1] = new Color(96, 96, 16); //yellow
+		containerAccuracyColors[2] = new Color(22, 61, 22); //green
+		containerAccuracyColors[3] = new Color(63, 86, 86); //cyan
+		containerAccuracyColors[4] = new Color(10, 29, 45); //blue
+		
 		songs = new ArrayList<String>();
 		highScores = new ArrayList<float[]>();
+		
+		//Creates a new thread that runs through the songs in the data/Music/ directory of the project
+		//This is put inside a thread so as to speed up the initial loading phase of the game
+		Thread thread = new Thread()
+		{
+			//Basic function that runs each time the thread is run
+			public void run()
+			{
+				System.out.println("LOADING: Loading songs for high score state");
+				
+				//Creates a new file that is a directory within the project
+				File dir = new File("data/Score/");
+				//Gets a list of all the files that are a wav file within the directory defined above
+				File[] songs = dir.listFiles(new FilenameFilter()
+				{
+					public boolean accept(File dir, String filename)
+					{
+						return filename.endsWith(".txt");
+					}
+				});
+				
+				//Initializes the rhythmList to a new array of Rhythms
+				rhythmsList = new ArrayList<Rhythms>();
+				//Iterates through and adds indexes to the rhythmList equal to the number of wav files found above
+				for (int i = 0; i < songs.length; i++)
+					rhythmsList.add(new Rhythms());
+				//Iterates through the recently initialized rhythms in the rhythm list and sets them to the wav files read from the directory above
+				for (int i = 0; i < songs.length; i++)
+					rhythmsList.get(i).setRhythm(songs[i].getName().substring(0, songs[i].getName().length() - 4));
+				
+				System.out.println("FINISHED: Loaded songs for high score state");
+			}
+		};
+		//Starts the thread
+		thread.start();
 		
 		timer = new int[]{0, 0};
 	}
@@ -202,6 +247,58 @@ public class HighScoreState extends BasicGameState
 		}
 	}
 	
+	public int getIndex(int i, int numColors)
+	{
+		if (numColors == 3)
+			return i * 2;
+		else
+			return i;
+	}
+	
+	public void drawScoreCircle(float centerX, float centerY, float[] scores, String overallPercent, float radius, int numColors, String scoreString, Graphics g)
+	{
+		g.setLineWidth(7);
+		g.setAntiAlias(false);
+		
+		float angle = 360f/numColors;
+		
+		for (int i = 0; i < numColors; i++)
+		{
+			g.setColor(containerAccuracyColors[getIndex(i, numColors)]);
+			g.fillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, (270 - angle/2) + (angle * i), (270 - angle/2) + (angle * (i + 1)));
+			g.setColor(accuracyColors[getIndex(i, numColors)]);
+			g.fillArc(centerX - (radius/2 * scores[getIndex(i, numColors)]) - radius/2, centerY - (radius/2 * scores[getIndex(i, numColors)]) - radius/2, radius + (radius) * scores[getIndex(i, numColors)], radius + (radius) * scores[getIndex(i, numColors)], (270 - angle/2) + (angle * i), (270 - angle/2) + (angle * (i + 1)));
+		}
+		
+		g.setColor(Color.black);
+		for (int i = 0; i < numColors; i++)
+			g.drawLine(centerX, centerY, centerX + (float) (radius * Math.cos(((angle * (i + 1)) - (90 - angle/2)) * Math.PI/180)), centerY + (float) (radius * Math.sin(((angle * (i + 1)) - (90 - angle/2)) * Math.PI/180)));
+		
+		for (int i = 0; i < numColors; i++)
+		{
+			g.drawString(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%", centerX - g.getFont().getWidth(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%")/2, centerY - radius - g.getFont().getHeight(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%"));
+			g.rotate(centerX, centerY, angle);
+		}
+		g.resetTransform();
+		
+		g.setAntiAlias(true);
+		
+		g.setColor(Color.black);
+		g.draw(new Circle(centerX, centerY, radius + 3.5f));
+		
+		g.setColor(new Color(54, 54, 54));
+		g.fill(new Circle(centerX, centerY, radius/2));
+		
+		g.setColor(new Color(184, 184, 184));
+		g.fill(new Circle(centerX, centerY, (radius/2) * Integer.parseInt(overallPercent)/100));
+		
+		g.setColor(Color.black);
+		g.draw(new Circle(centerX, centerY, radius/2 + 3.5f));
+		
+		g.setColor(Color.black);
+		g.drawString(overallPercent + "%", centerX - g.getFont().getWidth(overallPercent + "%")/2, centerY - g.getFont().getHeight(overallPercent + "%")/2);
+	}
+	
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
 	{
 		if (loading.isAlive())
@@ -221,52 +318,15 @@ public class HighScoreState extends BasicGameState
 			g.setFont(songFont);
 			
 			g.setColor(Color.white);
-			g.drawString(songs.get(selected), windowWidth/2 - g.getFont().getWidth(songs.get(selected))/2, g.getFont().getHeight(songs.get(selected))/2);
+			g.drawString(songs.get(selected).split("-")[0], windowWidth/2 - g.getFont().getWidth(songs.get(selected).split("-")[0])/2, g.getFont().getHeight(songs.get(selected).split("-")[0])/2);
 			
 			g.setFont(wordFont);
 			
-			//Sets the graphics color to black
-			g.setColor(Color.black);
-			//Draws the accuracy string above the accuracy circle
-			g.drawString("Accuracy", windowWidth/2 - g.getFont().getWidth("Accuracy")/2, windowHeight/2 - 325 - g.getFont().getHeight("Accuracy")/2);
+			float[] scores = new float[5];
+			for (int i = 1; i < highScores.get(selected).length; i++)
+				scores[i - 1] = highScores.get(selected)[i];
 			
-			//Sets the graphics color to white
-			g.setColor(Color.white);
-			//Draws the accuracy as a percentage of a circle (using angle measures)
-			g.fillArc(windowWidth/2 - 150, windowHeight/2 - 150 - 150, 300, 300, 270, 270 + (360 * highScores.get(selected)[0]));
-			
-			//Converts the score percentage from a float to a string
-			String displayScoreString = Float.toString(highScores.get(selected)[0] * 100).substring(0, 2) + "%";
-			//Checks to see if the percentage is 100 (need a different portion of the sting if that is the case)
-			if (highScores.get(selected)[0] >= 1)
-				displayScoreString = Float.toString(highScores.get(selected)[0] * 100).substring(0, 3) + "%";
-			//Sets the graphics color to black
-			g.setColor(Color.black);
-			//Draws the percentage string in the middle of the percentage circle
-			g.drawString(displayScoreString, windowWidth/2 - g.getFont().getWidth(displayScoreString)/2, windowHeight/2 - 150 - g.getFont().getHeight(displayScoreString)/2);
-			
-			//Draws the color categorized accuracy score as a portion of a circle
-			for (int i = 0; i < accuracyColors.length; i++)
-			{
-				//Sets the color to the accuracy color of the individual circles
-				g.setColor(accuracyColors[i]);
-				////Draws the accuracy as a percentage of a circle (using angle measures)
-				g.fillArc(windowWidth * (1 + (2 * i))/10 - 75, windowHeight * 3/4 - 50, 150, 150, 270, 270 + (360 * highScores.get(selected)[i+1]));
-			}
-			
-			//Draws the color categorized accuracy strings
-			for (int i = 0; i < highScores.get(selected).length; i++)
-			{
-				//Converts the color categorized score percentage from a float to a string
-				String displayColorScoreString = Float.toString(highScores.get(selected)[i] * 100).substring(0, 2) + "%";
-				//Checks to see if the color categorized score percentage is 100 (need a different portion of the sting if that is the case)
-				if (highScores.get(selected)[i] >= 1)
-					displayColorScoreString = Float.toString(highScores.get(selected)[i] * 100).substring(0, 3) + "%";
-				//Sets the graphics color to black
-				g.setColor(Color.black);
-				//Draws the color categorized percentage strings in the middle of their corresponding percentage circles
-				g.drawString(displayColorScoreString, windowWidth * (1 + (2 * i))/10 - g.getFont().getWidth(displayColorScoreString)/2, windowHeight * 3/4 + 25 - g.getFont().getHeight(displayColorScoreString)/2);
-			}
+			drawScoreCircle(windowWidth/2, windowHeight * 5/8, scores, Integer.toString((int) (highScores.get(selected)[0] * 100)), windowHeight/3, rhythmsList.get(selected).ringNum, "High Score", g);
 			
 			g.setColor(new Color(173, 16, 16));
 			g.setLineWidth(3);

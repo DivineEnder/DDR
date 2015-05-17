@@ -90,14 +90,14 @@ public class MenuState extends BasicGameState
 		background = new BackgroundAnimation(gc);
 		
 		//Loads the background music from a file
-		backgroundMusic = new Music("data/Sound Effects/background_funk_2.wav");
+		backgroundMusic = new Music("data/Sound Effects/Background Music.wav");
 		
 		//Loads the moving selector sound from a file
 		blip = new Sound("data/Sound Effects/Blip.wav");
 		//Loads the selected sound from a file
-		select = new Sound("data/Sound Testing/Select or Level.wav");
+		select = new Sound("data/Sound Effects/Select.wav");
 		//Hold the state transition sound from a file
-		transition = new Sound("data/Sound Testing/Transition Laser.wav");
+		transition = new Sound("data/Sound Effects/Transition.wav");
 		
 		//Initializes the circles drawn on the screen to a set position
 		menuCircles = new Circle[3];
@@ -314,6 +314,10 @@ public class MenuState extends BasicGameState
 			else
 				timerGo = true;
 		}
+		
+		//TEST THIS
+		if (pads.isPadReleased(1) || pads.isPadReleased(2) || pads.isPadReleased(3) || pads.isPadReleased(4) || pads.isPadReleased(5))
+			background.addCircle(timerCircle.getCenterX(), timerCircle.getCenterY(), timerCircle.getRadius(), colorArray[selected]);
 		
 		//Checks to see whether H and J keys are both down
 		if (input.isKeyDown(Input.KEY_H) && input.isKeyDown(Input.KEY_J) || pads.input == 2)

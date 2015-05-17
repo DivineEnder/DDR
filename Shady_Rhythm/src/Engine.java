@@ -48,7 +48,6 @@ public class Engine
 	//Sets up the engine to start a new song
 	public void setup()
 	{
-		
 		//Creates a new selector to start from the beginning
 		selector = new Selector();
 		//Initializes the score to start at zero
@@ -97,7 +96,7 @@ public class Engine
 			state.enterState(8, new FadeOutTransition(Color.black, 750), new FadeInTransition(Color.black, 750));
 		
 		//Waits until the first circle is in the correct position before it starts playing the song
-		if (selector.getRotations() == 0 && selector.getAngle() == (360f - 45 + (int) rhythm.circleList.get(0).getRadiusAsAngle() - 16))
+		if (selector.getRotations() == 0 && selector.getAngle() == (360f - 45 + (int) rhythm.circleList.get(0).getRadiusAsAngle()/2 - 16))
 			rhythm.currentSong.play(1, stateHandler.getMusicVolume());
 		
 		//Updates the selector (increasing angle measure)
@@ -213,37 +212,19 @@ public class Engine
 		
 		//Draws right hand timer swoop
 		points.drawScoreSwoop(g, windowWidth, windowHeight);
-		/*g.setLineWidth(5);
-		g.setColor(new Color(196, 83, 16));
-		float angle = (float) (Math.acos((windowHeight/2 - windowWidth/8)/(windowHeight/2)) * 180/Math.PI) + 180;
-		g.draw(new Circle((windowWidth * 7/8) + windowHeight/2, windowHeight/2, windowHeight/2));
-		g.fillArc(windowWidth * 7/8, 0, windowHeight, windowHeight, angle - ((2 * (angle - 180)) * (rhythm.currentSong.getPosition()/rhythm.songDuration)), angle);
-		g.setColor(new Color(84f/255f, 168f/255f * (1 - points.colorVibrance), 84f/255f));
-		g.fill(new Circle((windowWidth - (windowHeight * 2/3)/8) + (windowHeight * 1/3), windowHeight * 1/3, windowHeight * 1/3));
-		g.setColor(new Color(196, 83, 16));
-		g.draw(new Circle((windowWidth - (windowHeight * 2/3)/8) + (windowHeight * 1/3), windowHeight * 1/3, windowHeight * 1/3));*/
 		
 		//Draws left hand score swoop
 		rhythmSwoop.draw(g, points);
-		/*g.setLineWidth(5);
-		g.setColor(new Color(196, 83, 16));
-		angle = (float) (Math.acos((windowHeight/2 - windowWidth/8)/(windowHeight/2)) * 180/Math.PI);
-		g.draw(new Circle(windowWidth/8 - windowHeight/2, windowHeight/2, windowHeight/2));
-		g.fillArc(windowWidth/8 - windowHeight, 0, windowHeight, windowHeight, angle - ((2 * angle) * points.percentage), angle);
-		g.setColor(new Color(84f/255f, 168f/255f * (1 - points.colorVibrance), 84f/255f));
-		g.fill(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));
-		g.setColor(new Color(196, 83, 16));
-		g.draw(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));*/
 		
 		//Draws the radar circle (rings that the circles travel on)
 		rc.draw(g);
 		
 		//Sets the graphics color to cyan
-		g.setColor(Color.cyan);
+		//g.setColor(Color.cyan);
 		//Draws the selectors current angle to the top left corner of the string (debugging purposes)
-		g.drawString(Float.toString(selector.getAngle()), 0, 0);
+		//g.drawString(Float.toString(selector.getAngle()), 0, 0);
 		//Draws the selectors current rotations under the angle (debugging purposes)
-		g.drawString(Integer.toString(selector.getRotations()), 0, 20);
+		//g.drawString(Integer.toString(selector.getRotations()), 0, 20);
 		
 		//Iterates through the rhythm circle list and draws the rhythm circles to the screen if they are visible
 		for (int i = 0; i < rhythm.circleList.size(); i++)

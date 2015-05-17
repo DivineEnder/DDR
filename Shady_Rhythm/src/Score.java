@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Circle;
+import org.newdawn.slick.geom.Line;
 
 public class Score
 {
@@ -17,6 +18,7 @@ public class Score
 	float maxPoints;
 	//Creates a variable to hold the overall accuracy of the player
 	float percentage;
+	float highScorePercentage;
 	
 	//Create array to hold points by color of the circle
 	float[] pointsByColor;
@@ -38,6 +40,7 @@ public class Score
 	float angle;
 	float actualAngle;
 	float displayAngle;
+	float transition;
 	
 	//Initalizes a new score for the current rhythm
 	public void initalize()
@@ -65,6 +68,7 @@ public class Score
 		colorVibrance = .5f;
 		
 		displayAngle = 0;
+		transition = 0;
 	}
 	
 	//Updates the players points when they hit a circle
@@ -183,10 +187,7 @@ public class Score
 		g.setLineWidth(5);
 		
 		//Calculates the angle to fill the arc from
-		angle = (float) (Math.acos((windowHeight/2 - windowWidth/8)/(windowHeight/2)) * 180/Math.PI);
-		
-		g.setColor(new Color(229f/255f - (223f/255f * percentage), 8f/255f + (98f/255f * percentage), 0f/255f + (10f/255f * percentage)));
-		g.draw(new Circle(windowWidth/8 - windowHeight/2, windowHeight/2, windowHeight/2));
+		angle = (float) (Math.acos((windowHeight/2 - windowWidth/8)/(windowHeight/2)) * 180/Math.PI) - 10;
 		
 		actualAngle = ((2 * angle) * percentage);
 		
@@ -202,12 +203,29 @@ public class Score
 			float velocity = 1 - (.5f * (displayAngle/actualAngle));
 			displayAngle += velocity;
 		}
+		
+		g.setColor(new Color(229f/255f - (223f/255f * percentage), 8f/255f + (98f/255f * percentage), 0f/255f + (10f/255f * percentage)));
 		g.fillArc(windowWidth/8 - windowHeight, 0, windowHeight, windowHeight, angle - displayAngle, angle);
+		
+		g.setColor(new Color(6f/255f, 70f/255f, 10f/255f));
+		g.fillArc(windowWidth/8 - windowHeight, 0, windowHeight, windowHeight, angle, 360 - angle);
+		
+		float x = (float) ((windowHeight/2) * Math.cos((angle) * (Math.PI/180)));
+		float y = (float) ((windowHeight/2) * Math.sin((angle) * (Math.PI/180)));
+		g.setColor(Color.black);
+		g.draw(new Line(windowWidth/8 - windowHeight/2, windowHeight/2, windowWidth/8 - windowHeight/2 + x, windowHeight/2 - y));
+		g.draw(new Line(windowWidth/8 - windowHeight/2, windowHeight/2, windowWidth/8 - windowHeight/2 + x, windowHeight/2 + y));
 		
 		g.setColor(new Color(84f/255f, 168f/255f * (1 - colorVibrance), 84f/255f));
 		g.fill(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));
 		
-		g.setColor(new Color(229f/255f - (223f/255f * percentage), 8f/255f + (98f/255f * percentage), 0f/255f + (10f/255f * percentage)));
+		g.setColor(Color.black);
 		g.draw(new Circle((0 + (windowHeight * 2/3)/8) - (windowHeight * 1/3), windowHeight * 2/3, windowHeight * 1/3));
+		g.draw(new Circle(windowWidth/8 - windowHeight/2, windowHeight/2, windowHeight/2));
+		
+		g.setColor(Color.black);
+		g.rotate(windowWidth/8 - windowHeight/2, windowHeight/2, angle - displayAngle);
+		g.drawString(Integer.toString((int) ((displayAngle / (2 * angle)) * 100)) + "%", windowWidth/8 + 10, windowHeight/2);// + g.getFont().getHeight(Integer.toString((int) ((displayAngle / (2 * angle)) * 100)) + "%")/2);
+		g.resetTransform();
 	}
 }

@@ -8,6 +8,7 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.geom.Circle;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -39,10 +40,19 @@ public class ScoreState extends BasicGameState
 	//Creates an array to display the individual color based percentage (needed for starting animation)
 	float[] displayColorScores;
 	
+	float colorScoreRadius;
+	float colorScoreCircleX;
+	float colorScoreCircleY;
+	float colorHighScoreCircleX;
+	float colorHighScoreCircleY;
+	
 	//Creates an array to hold the colors for the individual colors
 	Color[] accuracyColors;
+	Color[] containerAccuracyColors;
 	
 	boolean newHighScore;
+	
+	int overallTransition;
 	
 	//Constructor
 	ScoreState(Score s, StateHandler sh, Rhythms rhythm, PadInput p)
@@ -54,29 +64,6 @@ public class ScoreState extends BasicGameState
 		//Sets the rhythm instance to be the rhythm that was passed to the engine
 		engineRhythm = rhythm;
 		pads = p;
-	}
-	
-	//Triggers certain processes when the state is entered
-	@Override
-	public void enter(GameContainer gc, StateBasedGame state)
-	{
-		//Plays the winning sound when you enter the state (sound is of cheering)
-		win.play(1, stateHandler.getSoundVolume());
-		try {newHighScore = score.checkHighScore(engineRhythm.title);} catch (IOException e) {e.printStackTrace();}
-	}
-	
-	//Triggers certain events when the score state is left
-	@Override
-	public void leave(GameContainer gc, StateBasedGame state)
-	{
-		//Resets the display score to zero to start the animation over again when you next enter
-		displayScore = 0;
-		//Resets all the color based display scores to start the animation over again when you next enter
-		for (int i = 0; i < displayColorScores.length; i++)
-			displayColorScores[i] = 0;
-		//Checks to see if the winning cheers are playing and then turns them off as you leave the state if they are
-		if (win.playing())
-			win.stop();
 	}
 	
 	//Basic initializations of variables
@@ -110,8 +97,105 @@ public class ScoreState extends BasicGameState
 		accuracyColors[2] = new Color(22, 161, 22); //green
 		accuracyColors[3] = new Color(63, 186, 186); //cyan
 		accuracyColors[4] = new Color(10, 29, 145); //blue
+		
+		containerAccuracyColors = new Color[5];
+		containerAccuracyColors[0] = new Color(73, 16, 16); //red
+		containerAccuracyColors[1] = new Color(96, 96, 16); //yellow
+		containerAccuracyColors[2] = new Color(22, 61, 22); //green
+		containerAccuracyColors[3] = new Color(63, 86, 86); //cyan
+		containerAccuracyColors[4] = new Color(10, 29, 45); //blue
+		
+		overallTransition = 0;
 	}
-
+	
+	//Triggers certain processes when the state is entered
+	@Override
+	public void enter(GameContainer gc, StateBasedGame state)
+	{
+		//Plays the winning sound when you enter the state (sound is of cheering)
+		win.play(1, stateHandler.getSoundVolume());
+		
+		colorScoreRadius = windowHeight/3;
+		colorScoreCircleX = windowWidth/2;
+		colorScoreCircleY = windowHeight/2;
+		colorHighScoreCircleX = windowWidth/2;
+		colorHighScoreCircleY = windowHeight/2;
+		
+		try {newHighScore = score.checkHighScore(engineRhythm.title + " - " + engineRhythm.artist);} catch (IOException e) {e.printStackTrace();}
+	}
+	
+	//Triggers certain events when the score state is left
+	@Override
+	public void leave(GameContainer gc, StateBasedGame state)
+	{
+		//Resets the display score to zero to start the animation over again when you next enter
+		displayScore = 0;
+		//Resets all the color based display scores to start the animation over again when you next enter
+		for (int i = 0; i < displayColorScores.length; i++)
+			displayColorScores[i] = 0;
+		//Resets the transition effect when you leave the score state
+		overallTransition = 0;
+		//Checks to see if the winning cheers are playing and then turns them off as you leave the state if they are
+		if (win.playing())
+			win.stop();
+	}
+	
+	public int getIndex(int i, int numColors)
+	{
+		if (numColors == 3)
+			return i * 2;
+		else
+			return i;
+	}
+	
+	public void drawScoreCircle(float centerX, float centerY, float[] scores, String overallPercent, float radius, int numColors, String scoreString, Graphics g)
+	{
+		g.setLineWidth(7);
+		g.setAntiAlias(false);
+		
+		float angle = 360f/numColors;
+		
+		for (int i = 0; i < numColors; i++)
+		{
+			g.setColor(containerAccuracyColors[getIndex(i, numColors)]);
+			g.fillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, (270 - angle/2) + (angle * i), (270 - angle/2) + (angle * (i + 1)));
+			g.setColor(accuracyColors[getIndex(i, numColors)]);
+			g.fillArc(centerX - (radius/2 * scores[getIndex(i, numColors)]) - radius/2, centerY - (radius/2 * scores[getIndex(i, numColors)]) - radius/2, radius + (radius) * scores[getIndex(i, numColors)], radius + (radius) * scores[getIndex(i, numColors)], (270 - angle/2) + (angle * i), (270 - angle/2) + (angle * (i + 1)));
+		}
+		
+		g.setColor(Color.black);
+		for (int i = 0; i < numColors; i++)
+			g.drawLine(centerX, centerY, centerX + (float) (radius * Math.cos(((angle * (i + 1)) - (90 - angle/2)) * Math.PI/180)), centerY + (float) (radius * Math.sin(((angle * (i + 1)) - (90 - angle/2)) * Math.PI/180)));
+		
+		for (int i = 0; i < numColors; i++)
+		{
+			g.drawString(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%", centerX - g.getFont().getWidth(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%")/2, centerY - radius - g.getFont().getHeight(Integer.toString((int) (scores[getIndex(i, numColors)] * 100)) + "%"));
+			g.rotate(centerX, centerY, angle);
+		}
+		g.resetTransform();
+		
+		g.setAntiAlias(true);
+		
+		g.setColor(Color.black);
+		g.draw(new Circle(centerX, centerY, radius + 3.5f));
+		
+		g.setColor(new Color(54, 54, 54));
+		g.fill(new Circle(centerX, centerY, radius/2));
+		
+		g.setColor(new Color(184, 184, 184));
+		g.fill(new Circle(centerX, centerY, (radius/2) * Integer.parseInt(overallPercent)/100));
+		
+		g.setColor(Color.black);
+		g.draw(new Circle(centerX, centerY, radius/2 + 3.5f));
+		
+		g.setColor(Color.black);
+		g.drawString(overallPercent + "%", centerX - g.getFont().getWidth(overallPercent + "%")/2, centerY - g.getFont().getHeight(overallPercent + "%")/2);
+		
+		g.setColor(new Color(184, 184, 184));
+		if (overallTransition == 2)
+			g.drawString(scoreString, centerX - g.getFont().getWidth(scoreString)/2, centerY - radius - (g.getFont().getHeight(scoreString) * 2));
+	}
+	
 	//Renders to the screen
 	@Override
 	public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException
@@ -124,117 +208,10 @@ public class ScoreState extends BasicGameState
 		//Draws the background color as gray
 		g.fill(new Rectangle(0, 0, windowWidth, windowHeight));
 		
-		//Sets the graphics color to black
-		g.setColor(Color.black);
-		//Draws the accuracy string above the accuracy circle
-		g.drawString("Accuracy", windowWidth/4 - g.getFont().getWidth("Accuracy")/2, windowHeight/2 - 325 - g.getFont().getHeight("Accuracy")/2);
-		if (newHighScore)
-			g.drawString("NEW HIGH SCORE", windowWidth/4 - g.getFont().getWidth("NEW HIGH SCORE")/2, 30 - g.getFont().getHeight("NEW HIGH SCORE")/2);
-		if (score.percentage > .7)
-			g.drawString("You Passed!!", windowWidth/4 - g.getFont().getWidth("NEW HIGH SCORE")/2, 30 + g.getFont().getHeight("NEW HIGH SCORE")/2);
+		drawScoreCircle(colorHighScoreCircleX, colorHighScoreCircleY, score.highScores, Integer.toString((int) (score.highScores[0] * 100)), colorScoreRadius - g.getFont().getHeight("100"), engineRhythm.ringNum, "High Score", g);
+		drawScoreCircle(colorScoreCircleX, colorScoreCircleY, displayColorScores, Integer.toString((int) (displayScore * 100)), colorScoreRadius, engineRhythm.ringNum, "Score", g);
 		
-		//Sets the graphics color to white
-		g.setColor(Color.white);
-		//Draws the accuracy as a percentage of a circle (using angle measures)
-		g.fillArc(windowWidth/4 - 150, windowHeight/2 - 150 - 150, 300, 300, 270, 270 + (360 * displayScore));
-		
-		//Converts the score percentage from a float to a string
-		String displayScoreString = Float.toString(displayScore * 100).substring(0, 2) + "%";
-		//Checks to see if the percentage is 100 (need a different portion of the sting if that is the case)
-		if (displayScore >= 1)
-			displayScoreString = Float.toString(displayScore * 100).substring(0, 3) + "%";
-		//Sets the graphics color to black
-		g.setColor(Color.black);
-		//Draws the percentage string in the middle of the percentage circle
-		g.drawString(displayScoreString, windowWidth/4 - g.getFont().getWidth(displayScoreString)/2, windowHeight/2 - 150 - g.getFont().getHeight(displayScoreString)/2);
-		
-		//Draws the color categorized accuracy score as a portion of a circle
-		for (int i = 0; i < accuracyColors.length; i++)
-		{
-			//Sets the color to the accuracy color of the individual circles
-			g.setColor(accuracyColors[i]);
-			////Draws the accuracy as a percentage of a circle (using angle measures)
-			g.fillArc(windowWidth * (1 + (2 * i))/10 - 75, windowHeight * 3/4 - 50, 150, 150, 270, 270 + (360 * displayColorScores[i]));
-		}
-		
-		//Draws the color categorized accuracy strings
-		for (int i = 0; i < displayColorScores.length; i++)
-		{
-			//Converts the color categorized score percentage from a float to a string
-			String displayColorScoreString = Float.toString(displayColorScores[i] * 100).substring(0, 2) + "%";
-			//Checks to see if the color categorized score percentage is 100 (need a different portion of the sting if that is the case)
-			if (displayColorScores[i] >= 1)
-					displayColorScoreString = Float.toString(displayColorScores[i] * 100).substring(0, 3) + "%";
-			//Sets the graphics color to black
-			g.setColor(Color.black);
-			//Draws the color categorized percentage strings in the middle of their corresponding percentage circles
-			g.drawString(displayColorScoreString, windowWidth * (1 + (2 * i))/10 - g.getFont().getWidth(displayColorScoreString)/2, windowHeight * 3/4 + 25 - g.getFont().getHeight(displayColorScoreString)/2);
-		}
-		
-		//This point on draws the high score portion of the score screen
-		//Creates a couple variables to define the small high score window in the top right corner of the screen
-		float highScoreWindowX = windowWidth/2 - 150;
-		float highScoreWindowY = 60;
-		float highScoreWindowWidth = 900;
-		float highScoreWindowHeight = 500;
-		
-		//Sets the graphics drawing color to black
-		g.setColor(Color.black);
-		//Draws the outline of the high score window
-		g.draw(new Rectangle(highScoreWindowX, highScoreWindowY, highScoreWindowWidth, highScoreWindowHeight));
-		
-		//Checks to see if the player got a new high score and displays previous high score above the window if they did
-		if (newHighScore)
-			g.drawString("Previous High Score", highScoreWindowX + highScoreWindowWidth/2 - g.getFont().getWidth("Previous High Score")/2, highScoreWindowY - g.getFont().getHeight("Previous High Score"));
-		//Otherwise display high score in for the song above the window
-		else
-			g.drawString("High Score", highScoreWindowX + highScoreWindowWidth/2 - g.getFont().getWidth("High Score")/2, highScoreWindowY - g.getFont().getHeight("High Score"));
-		
-		//Sets the grpahics font to be the high score font (NOTE::Not done before displaying the above string because the above string should be slightly more emphasized than the strings inside the high score window)
-		g.setFont(highScoreFont);
-		
-		//Sets the graphics color to black
-		g.setColor(Color.black);
-		//Draws the high score accuracy string above the accuracy circle
-		g.drawString("Accuracy",highScoreWindowX + highScoreWindowWidth/2 - g.getFont().getWidth("Accuracy")/2, highScoreWindowY + highScoreWindowHeight/2 - 75 - 150 - g.getFont().getHeight("Accuracy")/2);
-		
-		//Sets the graphics color to white
-		g.setColor(Color.white);
-		//Draws the high score accuracy as a percentage of a circle (using angle measures)
-		g.fillArc(highScoreWindowX + highScoreWindowWidth/2 - 75, highScoreWindowY + highScoreWindowHeight/2 - 75 - 125, 150, 150, 270, 270 + (360 * score.highScores[0]));
-		
-		//Converts the high score percentage from a float to a string
-		String displayHighScoreString = Float.toString(score.highScores[0] * 100).substring(0, 2) + "%";
-		//Checks to see if the high score percentage is 100 (need a different portion of the sting if that is the case)
-		if (score.highScores[0] >= 1)
-			displayHighScoreString = Float.toString(score.highScores[0] * 100).substring(0, 3) + "%";
-		//Sets the graphics color to black
-		g.setColor(Color.black);
-		//Draws the high score percentage string in the middle of the percentage circle
-		g.drawString(displayHighScoreString, highScoreWindowX + highScoreWindowWidth/2 - g.getFont().getWidth(displayHighScoreString)/2, highScoreWindowY + highScoreWindowHeight/2 - 125 - g.getFont().getHeight(displayHighScoreString)/2);
-		
-		//Draws the color categorized high score accuracy scores as a portion of a circle
-		for (int i = 0; i < accuracyColors.length; i++)
-		{
-			//Sets the color to the accuracy color of the individual circles
-			g.setColor(accuracyColors[i]);
-			//Draws the high score accuracy as a percentage of a circle (using angle measures)
-			g.fillArc(highScoreWindowX + highScoreWindowWidth * (1 + (2 * i))/10 - 50, highScoreWindowY + highScoreWindowHeight * 3/4 - 50, 100, 100, 270, 270 + (360 * score.highScores[i+1]));
-		}
-		
-		//Draws the color categorized high score accuracy strings
-		for (int i = 0; i < displayColorScores.length; i++)
-		{
-			//Converts the color categorized high score percentage from a float to a string
-			String displayHighColorScoreString = Float.toString(score.highScores[i+1] * 100).substring(0, 2) + "%";
-			//Checks to see if the color categorized high score percentage is 100 (need a different portion of the sting if that is the case)
-			if (score.highScores[i+1] >= 1)
-					displayHighColorScoreString = Float.toString(score.highScores[i+1] * 100).substring(0, 3) + "%";
-			//Sets the graphics color to black
-			g.setColor(Color.black);
-			//Draws the color categorized high score percentage strings in the middle of their corresponding high score percentage circles
-			g.drawString(displayHighColorScoreString, highScoreWindowX + highScoreWindowWidth * (1 + (2 * i))/10 - g.getFont().getWidth(displayHighColorScoreString)/2, highScoreWindowY + highScoreWindowHeight * 3/4 - g.getFont().getHeight(displayHighColorScoreString)/2);
-		}
+		g.drawString("Press any pad to continue...", windowWidth/2 - g.getFont().getWidth("Press any pad to continue...")/2, windowHeight/2 - g.getFont().getHeight("Press any pad to continue..."));
 	}
 
 	//Used to check for certain events and then updates variables
@@ -253,6 +230,20 @@ public class ScoreState extends BasicGameState
 		{
 			if (displayColorScores[i] < score.percentageByColor[i])
 				displayColorScores[i] += .01;
+		}
+		
+		if (displayColorScores[4] >= score.percentageByColor[4] && overallTransition != 1 && overallTransition != 2)
+			overallTransition++;
+		
+		if (overallTransition == 1)
+		{
+			if (colorScoreCircleX > windowWidth/4)
+				colorScoreCircleX -= 1;
+			if (colorHighScoreCircleX < windowWidth * 3/4)
+				colorHighScoreCircleX += 1;
+			
+			if (colorHighScoreCircleX >= windowWidth * 3/4 && colorScoreCircleX <= windowWidth/4)
+				overallTransition++;
 		}
 		
 		//Checks to see if the H key is pressed
